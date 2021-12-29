@@ -1,7 +1,7 @@
 {
     "name": "darkink/laravel-authorization-server",
-    "description": "Darkink Authorization Server provides a way to serve authorization to an laravel passport auth",
-    "keywords": ["laravel", "jwt", "oauth"],
+    "description": "Darkink Authorization Server provides a way to serve authorization to a laravel auth server",
+    "keywords": ["laravel", "jwt", "policy", "role", "permission"],
     "license": "MIT",
     "support": {
         "issues": "https://github.com/angelinsky7/laravel-authorization-server/issues",
