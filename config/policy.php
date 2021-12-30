@@ -29,4 +29,11 @@ return [
         ],
     ],
 
+    'route' => [
+        'auth' => [
+            'web' => 'auth:web',
+            'api' => 'auth:api'
+        ]
+    ],
+
 ];

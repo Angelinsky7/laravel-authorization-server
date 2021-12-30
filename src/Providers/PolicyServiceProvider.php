@@ -3,9 +3,10 @@
 namespace Darkink\AuthorizationServer\Providers;
 
 use Darkink\AuthorizationServer\Policy;
-use Error;
+use Darkink\AuthorizationServer\Services\KeyHelperService;
 use Illuminate\Support\ServiceProvider;
 use League\OAuth2\Server\CryptKey;
+use Illuminate\Config\Repository as Config;
 
 class PolicyServiceProvider extends ServiceProvider
 {
@@ -50,9 +51,26 @@ class PolicyServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__ . '/../../config/policy.php', 'policy');
 
+        $this->registerKeyHelperService();
+        $this->registerBearerTokenDecoderService();
+
         $this->registerAuthorizationServer();
         $this->registerRoleRepository();
         $this->registerPermissionRepository();
+    }
+
+    protected function registerKeyHelperService()
+    {
+        $this->app->singleton(KeyHelperService::class, function ($container) {
+            return new KeyHelperService(
+                $this->makeCryptKey('private')
+            );
+        });
+    }
+
+    protected function registerBearerTokenDecoderService()
+    {
+        $this->app->singleton(BearerTokenDecoderService::class);
     }
 
     protected function registerAuthorizationServer()
