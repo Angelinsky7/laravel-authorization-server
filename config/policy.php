@@ -30,10 +30,8 @@ return [
     ],
 
     'route' => [
-        'auth' => [
-            'web' => 'auth:web',
-            'api' => 'auth:api'
-        ]
+        'web' => ['web', 'auth:web'],
+        'api' => ['api', 'auth:api']
     ],
 
 ];

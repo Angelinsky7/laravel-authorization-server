@@ -61,8 +61,7 @@ class Policy
             });
         });
 
-        //
-        Route::prefix('policy')->middleware(config('policy.route.auth.web'))->group(function () {
+        Route::prefix('policy')->middleware(config('policy.route.web'))->group(function () {
             Route::group(['prefix' => 'role'], function () {
                 Route::get('/', [RoleController::class, 'index'])->middleware('can:role.see')->name('policy.role.index');
                 // Route::get('/delete-multiple', [RoleController::class, 'deleteMultiple'])->middleware('can:role.delete')->name('policy.role.delete-multiple');
@@ -81,11 +80,11 @@ class Policy
             });
         });
 
-        Route::prefix('policy')->middleware(config('policy.route.auth.api'))->group(function () {
+        Route::prefix('policy')->middleware(config('policy.route.api'))->group(function () {
             Route::get('/authorization', [UserAuthorizationController::class, 'index'])->name('api.policy.authorization.index');
         });
 
-        Route::prefix('api')->middleware(config('policy.route.auth.api'))->group(function () {
+        Route::prefix('api')->middleware(config('policy.route.api'))->group(function () {
             Route::prefix('policy')->group(function () {
                 Route::group(['prefix' => 'role'], function () {
                     Route::get('/', [RoleController::class, 'index'])->name('api.policy.role.index');

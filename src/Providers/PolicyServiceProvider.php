@@ -18,6 +18,9 @@ class PolicyServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'policy');
+
         if ($this->app->runningInConsole()) {
             $this->registerMigrations();
 
@@ -25,9 +28,9 @@ class PolicyServiceProvider extends ServiceProvider
                 __DIR__ . '/../../database/migrations' => database_path('migrations'),
             ], 'policy-migrations');
 
-            // $this->publishes([
-            //     __DIR__.'/../resources/views' => base_path('resources/views/vendor/policy'),
-            // ], 'policy-views');
+            $this->publishes([
+                __DIR__ . '/../../resources/views' => base_path('resources/views/vendor/policy'),
+            ], 'policy-views');
 
             $this->publishes([
                 __DIR__ . '/../../config/policy.php' => config_path('policy.php'),
