@@ -4,7 +4,7 @@ namespace Darkink\AuthorizationServer\View\Components;
 
 use Illuminate\View\Component;
 
-class BoolTick extends Component
+class IconBoolTick extends Component
 {
 
     public bool $value;
@@ -16,6 +16,6 @@ class BoolTick extends Component
 
     public function render()
     {
-        return view('policy::components.booltick');
+        return view('policy::components.icon-bool-tick');
     }
 }

@@ -4,9 +4,14 @@ namespace Darkink\AuthorizationServer\Providers;
 
 use Darkink\AuthorizationServer\Policy;
 use Darkink\AuthorizationServer\Services\KeyHelperService;
-use Darkink\AuthorizationServer\View\Components\BoolTick;
+use Darkink\AuthorizationServer\View\Components\ButtonDot;
+use Darkink\AuthorizationServer\View\Components\IconBoolTick;
 use Darkink\AuthorizationServer\View\Components\ButtonRaised;
 use Darkink\AuthorizationServer\View\Components\ButtonStroked;
+use Darkink\AuthorizationServer\View\Components\Dropdown;
+use Darkink\AuthorizationServer\View\Components\DropdownLink;
+use Darkink\AuthorizationServer\View\Components\FormFieldError;
+use Darkink\AuthorizationServer\View\Components\Table;
 use Illuminate\Support\ServiceProvider;
 use League\OAuth2\Server\CryptKey;
 use Illuminate\Config\Repository as Config;
@@ -26,9 +31,14 @@ class PolicyServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'policy');
 
         $this->loadViewComponentsAs('policy', [
-            BoolTick::class,
+            IconBoolTick::class,
             ButtonRaised::class,
-            ButtonStroked::class
+            ButtonStroked::class,
+            ButtonDot::class,
+            Table::class,
+            FormFieldError::class,
+            Dropdown::class,
+            DropdownLink::class
         ]);
 
         if ($this->app->runningInConsole()) {
@@ -45,6 +55,10 @@ class PolicyServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__ . '/../../config/policy.php' => config_path('policy.php'),
             ], 'policy-config');
+
+            // $this->publishes([
+            //     __DIR__.'/../public' => public_path('vendor/policy'),
+            // ], 'policy-public');
 
             $this->commands([
                 \Darkink\AuthorizationServer\Console\InstallCommand::class,

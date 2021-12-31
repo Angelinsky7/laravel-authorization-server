@@ -20,7 +20,7 @@ class RoleRepository
         // return Policy::role()->paginate(15);
     }
 
-    public function create(string $name, string $label, string $description, bool $system = false): Role
+    public function create(string $name, string $label, string | null $description, bool $system = false): Role
     {
         $role = Policy::role()->forceFill([
             'name' => $name,
@@ -34,7 +34,7 @@ class RoleRepository
         return $role;
     }
 
-    public function update(Role $role, string $name, string $label, string $description, bool $system = false): Role
+    public function update(Role $role, string $name, string $label, string | null $description, bool $system = false): Role
     {
         $role->forceFill([
             'name' => $name,

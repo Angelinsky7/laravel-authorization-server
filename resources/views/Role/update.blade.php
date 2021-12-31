@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Create a new Role') }}
+            {{ __('Edit role') }} {{ $item->name }}
         </h2>
     </x-slot>
 
@@ -12,7 +12,8 @@
 
                     <div class="mt-10 sm:mt-0">
                         <div class="mt-5 md:mt-0 md:col-span-2">
-                            <form method="POST">
+                            <form method="POST" action="update">
+                                @method('PUT')
                                 @csrf
                                 <div class="overflow-hidden">
                                     <div class="px-4 py-5 bg-white sm:p-6">
@@ -22,7 +23,8 @@
                                                        class="block text-sm font-medium text-gray-700">
                                                     Name
                                                 </label>
-                                                <input type="text" name="name" id="name" value="{{ old('name') }}"
+                                                <input type="text" name="name" id="name"
+                                                       value="{{ old('name') ?? $item->name }}"
                                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm rounded-md {{ $errors->has('name') ? 'border-red-500' : 'border-gray-300' }}">
                                                 <x-policy-form-field-error field="name"></x-policy-form-field-error>
                                             </div>
@@ -32,7 +34,8 @@
                                                        class="block text-sm font-medium text-gray-700">
                                                     Label
                                                 </label>
-                                                <input type="text" name="label" id="label" value="{{ old('label') }}"
+                                                <input type="text" name="label" id="label"
+                                                       value="{{ old('label') ?? $item->label }}"
                                                        class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm rounded-md  {{ $errors->has('label') ? 'border-red-500' : 'border-gray-300' }}">
                                                 <x-policy-form-field-error field="label"></x-policy-form-field-error>
                                             </div>
@@ -45,7 +48,7 @@
                                                 <div class="mt-1">
                                                     <textarea id="description" name="description" rows="3"
                                                               class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
-                                                              placeholder="a simple description">{{ old('description') }}</textarea>
+                                                              placeholder="a simple description">{{ old('description') ?? $item->description }}</textarea>
                                                 </div>
                                             </div>
                                         </div>
@@ -55,7 +58,7 @@
                                            href="{{ route('policy.role.index') }}">Cancel</a>
                                         <button type="submit"
                                                 class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                            Create
+                                            Update
                                         </button>
                                     </div>
                                 </div>
