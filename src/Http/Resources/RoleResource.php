@@ -4,8 +4,11 @@ namespace Darkink\AuthorizationServer\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class Role extends JsonResource
+class RoleResource extends JsonResource
 {
+
+    public static $wrap = '';
+
     /**
      * Transform the resource into an array.
      *
@@ -20,7 +23,8 @@ class Role extends JsonResource
             'id' => $result['id'],
             'name' => $result['name'],
             'label' => $result['label'],
-            'description' => $result['description']
+            'description' => $result['description'],
+            'system' => $result['system']
         ];
     }
 }

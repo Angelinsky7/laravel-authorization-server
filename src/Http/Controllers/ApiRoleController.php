@@ -2,9 +2,10 @@
 
 namespace Darkink\AuthorizationServer\Http\Controllers;
 
+use Darkink\AuthorizationServer\Http\Resources\RoleResource;
 use Darkink\AuthorizationServer\Repositories\RoleRepository;
 
-class RoleController
+class ApiRoleController
 {
     protected RoleRepository $repo;
 
@@ -16,14 +17,8 @@ class RoleController
     public function index()
     {
         $items = $this->repo->gets();
-
-        return view('policy::Role.index', [
-            'items' => $items
-        ]);
-    }
-
-    public function create()
-    {
-        return view('policy::Role.create');
+        $result = RoleResource::collection($items);
+        $result->withoutWrapping();
+        return $result;
     }
 }

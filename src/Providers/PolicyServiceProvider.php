@@ -4,9 +4,13 @@ namespace Darkink\AuthorizationServer\Providers;
 
 use Darkink\AuthorizationServer\Policy;
 use Darkink\AuthorizationServer\Services\KeyHelperService;
+use Darkink\AuthorizationServer\View\Components\BoolTick;
+use Darkink\AuthorizationServer\View\Components\ButtonRaised;
+use Darkink\AuthorizationServer\View\Components\ButtonStroked;
 use Illuminate\Support\ServiceProvider;
 use League\OAuth2\Server\CryptKey;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Support\Facades\Gate;
 
 class PolicyServiceProvider extends ServiceProvider
 {
@@ -20,6 +24,12 @@ class PolicyServiceProvider extends ServiceProvider
     {
 
         $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'policy');
+
+        $this->loadViewComponentsAs('policy', [
+            BoolTick::class,
+            ButtonRaised::class,
+            ButtonStroked::class
+        ]);
 
         if ($this->app->runningInConsole()) {
             $this->registerMigrations();
@@ -38,7 +48,8 @@ class PolicyServiceProvider extends ServiceProvider
 
             $this->commands([
                 \Darkink\AuthorizationServer\Console\InstallCommand::class,
-                \Darkink\AuthorizationServer\Console\KeysCommand::class
+                \Darkink\AuthorizationServer\Console\KeysCommand::class,
+                \Darkink\AuthorizationServer\Console\RoleCommand::class
             ]);
         }
     }
@@ -57,9 +68,9 @@ class PolicyServiceProvider extends ServiceProvider
         $this->registerKeyHelperService();
         $this->registerBearerTokenDecoderService();
 
-        $this->registerAuthorizationServer();
-        $this->registerRoleRepository();
-        $this->registerPermissionRepository();
+        // $this->registerAuthorizationServer();
+        // $this->registerRoleRepository();
+        // $this->registerPermissionRepository();
     }
 
     protected function registerKeyHelperService()
@@ -80,9 +91,10 @@ class PolicyServiceProvider extends ServiceProvider
     {
     }
 
-    protected function registerRoleRepository()
-    {
-    }
+    // protected function registerRoleRepository()
+    // {
+    //     $this->app->singleton(RoleRepository::class);
+    // }
 
     protected function registerPermissionRepository()
     {
