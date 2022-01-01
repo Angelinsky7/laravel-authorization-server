@@ -51,12 +51,8 @@
                                         </div>
                                     </div>
                                     <div class="px-4 py-3 text-right sm:px-6">
-                                        <a class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-black hover:text-white bg-transparent border-gray-500 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                           href="{{ route('policy.role.index') }}">Cancel</a>
-                                        <button type="submit"
-                                                class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                                            Create
-                                        </button>
+                                        <x-policy-button-cancel route="{{ route('policy.role.index') }}">Cancel</x-policy-button-cancel>
+                                        <x-policy-button-submit>Create</x-policy-button-submit>
                                     </div>
                                 </div>
                             </form>

@@ -4,10 +4,12 @@ namespace Darkink\AuthorizationServer\Providers;
 
 use Darkink\AuthorizationServer\Policy;
 use Darkink\AuthorizationServer\Services\KeyHelperService;
+use Darkink\AuthorizationServer\View\Components\ButtonCancel;
 use Darkink\AuthorizationServer\View\Components\ButtonDot;
 use Darkink\AuthorizationServer\View\Components\IconBoolTick;
 use Darkink\AuthorizationServer\View\Components\ButtonRaised;
 use Darkink\AuthorizationServer\View\Components\ButtonStroked;
+use Darkink\AuthorizationServer\View\Components\ButtonSubmit;
 use Darkink\AuthorizationServer\View\Components\Dropdown;
 use Darkink\AuthorizationServer\View\Components\DropdownLink;
 use Darkink\AuthorizationServer\View\Components\FormFieldError;
@@ -35,6 +37,8 @@ class PolicyServiceProvider extends ServiceProvider
             ButtonRaised::class,
             ButtonStroked::class,
             ButtonDot::class,
+            ButtonCancel::class,
+            ButtonSubmit::class,
             Table::class,
             FormFieldError::class,
             Dropdown::class,
@@ -56,9 +60,13 @@ class PolicyServiceProvider extends ServiceProvider
                 __DIR__ . '/../../config/policy.php' => config_path('policy.php'),
             ], 'policy-config');
 
-            // $this->publishes([
-            //     __DIR__.'/../public' => public_path('vendor/policy'),
-            // ], 'policy-public');
+            $this->publishes([
+                __DIR__.'/../../public/css/app.css' => base_path('resources/css/vendor/laravel-authorization-server.css'),
+            ], 'policy-public-css');
+
+            $this->publishes([
+                __DIR__.'/../../public/js/app.js' => base_path('resources/js/vendor/laravel-authorization-server.js'),
+            ], 'policy-public-js');
 
             $this->commands([
                 \Darkink\AuthorizationServer\Console\InstallCommand::class,

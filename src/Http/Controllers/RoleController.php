@@ -61,4 +61,17 @@ class RoleController
         );
         return redirect()->route('policy.role.index');
     }
+
+    public function delete(Role $role)
+    {
+        return view('policy::Role.delete', [
+            'item' => $role
+        ]);
+    }
+
+    public function destroy(Role $role)
+    {
+        $this->repo->delete($role);
+        return redirect()->route('policy.role.index');
+    }
 }

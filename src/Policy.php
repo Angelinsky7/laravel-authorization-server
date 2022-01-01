@@ -73,9 +73,9 @@ class Policy
                 Route::post('/create', [RoleController::class, 'store'])->middleware('can:role.create')->name('policy.role.store');
                 Route::get('/{role}', [RoleController::class, 'show'])->middleware('can:role.see')->name('policy.role.show');
                 Route::get('/{role}/edit', [RoleController::class, 'edit'])->middleware('can:role.update')->name('policy.role.edit');
-                Route::put('/{role}/update', [RoleController::class, 'update'])->middleware('can:role.update')->name('policy.role.update');
+                Route::put('/{role}', [RoleController::class, 'update'])->middleware('can:role.update')->name('policy.role.update');
                 Route::get('/{role}/delete', [RoleController::class, 'delete'])->middleware('can:role.delete')->name('policy.role.delete');
-                Route::delete('/destroy-multiple', [RoleController::class, 'destroyMultiple'])->middleware('can:role.delete')->name('policy.role.destroy-multiple');
+                // Route::delete('/destroy-multiple', [RoleController::class, 'destroyMultiple'])->middleware('can:role.delete')->name('policy.role.destroy-multiple');
                 Route::delete('/{role}', [RoleController::class, 'destroy'])->middleware('can:role.delete')->name('policy.role.destroy');
             });
 
