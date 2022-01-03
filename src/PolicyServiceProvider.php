@@ -1,6 +1,6 @@
 <?php
 
-namespace Darkink\AuthorizationServer\Providers;
+namespace Darkink\AuthorizationServer;
 
 use Darkink\AuthorizationServer\Policy;
 use Darkink\AuthorizationServer\Services\KeyHelperService;
@@ -30,7 +30,7 @@ class PolicyServiceProvider extends ServiceProvider
     public function boot()
     {
 
-        // $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'policy');
+        // $this->loadViewsFrom(__DIR__ . '/../resources/views', 'policy');
 
         // $this->loadViewComponentsAs('policy', [
         //     IconBoolTick::class,
@@ -49,23 +49,23 @@ class PolicyServiceProvider extends ServiceProvider
             $this->registerMigrations();
 
             $this->publishes([
-                __DIR__ . '/../../database/migrations' => database_path('migrations'),
+                __DIR__ . '/../database/migrations' => database_path('migrations'),
             ], 'policy-migrations');
 
             // $this->publishes([
-            //     __DIR__ . '/../../resources/views' => base_path('resources/views/vendor/policy'),
+            //     __DIR__ . '/../resources/views' => base_path('resources/views/vendor/policy'),
             // ], 'policy-views');
 
             $this->publishes([
-                __DIR__ . '/../../config/policy.php' => config_path('policy.php'),
+                __DIR__ . '/../config/policy.php' => config_path('policy.php'),
             ], 'policy-config');
 
             // $this->publishes([
-            //     __DIR__.'/../../public/css/app.css' => base_path('resources/css/vendor/laravel-authorization-server.css'),
+            //     __DIR__.'/../public/css/app.css' => base_path('resources/css/vendor/laravel-authorization-server.css'),
             // ], 'policy-public-css');
 
             // $this->publishes([
-            //     __DIR__.'/../../public/js/app.js' => base_path('resources/js/vendor/laravel-authorization-server.js'),
+            //     __DIR__.'/../public/js/app.js' => base_path('resources/js/vendor/laravel-authorization-server.js'),
             // ], 'policy-public-js');
 
             $this->commands([
@@ -79,13 +79,13 @@ class PolicyServiceProvider extends ServiceProvider
     protected function registerMigrations()
     {
         if (Policy::$runsMigrations) {
-            $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+            $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
         }
     }
 
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__ . '/../../config/policy.php', 'policy');
+        $this->mergeConfigFrom(__DIR__ . '/../config/policy.php', 'policy');
 
         $this->registerKeyHelperService();
         $this->registerBearerTokenDecoderService();
