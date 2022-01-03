@@ -65,24 +65,24 @@ class Policy
             });
         });
 
-        Route::prefix('policy')->middleware(config('policy.route.web'))->group(function () {
-            Route::group(['prefix' => 'role'], function () {
-                Route::get('/', [RoleController::class, 'index'])->middleware('can:role.see')->name('policy.role.index');
-                // Route::get('/delete-multiple', [RoleController::class, 'deleteMultiple'])->middleware('can:role.delete')->name('policy.role.delete-multiple');
-                Route::get('/create', [RoleController::class, 'create'])->middleware('can:role.create')->name('policy.role.create');
-                Route::post('/create', [RoleController::class, 'store'])->middleware('can:role.create')->name('policy.role.store');
-                Route::get('/{role}', [RoleController::class, 'show'])->middleware('can:role.see')->name('policy.role.show');
-                Route::get('/{role}/edit', [RoleController::class, 'edit'])->middleware('can:role.update')->name('policy.role.edit');
-                Route::put('/{role}', [RoleController::class, 'update'])->middleware('can:role.update')->name('policy.role.update');
-                Route::get('/{role}/delete', [RoleController::class, 'delete'])->middleware('can:role.delete')->name('policy.role.delete');
-                // Route::delete('/destroy-multiple', [RoleController::class, 'destroyMultiple'])->middleware('can:role.delete')->name('policy.role.destroy-multiple');
-                Route::delete('/{role}', [RoleController::class, 'destroy'])->middleware('can:role.delete')->name('policy.role.destroy');
-            });
+        // Route::prefix('policy')->middleware(config('policy.route.web'))->group(function () {
+        //     Route::group(['prefix' => 'role'], function () {
+        //         Route::get('/', [RoleController::class, 'index'])->middleware('can:role.see')->name('policy.role.index');
+        //         // Route::get('/delete-multiple', [RoleController::class, 'deleteMultiple'])->middleware('can:role.delete')->name('policy.role.delete-multiple');
+        //         Route::get('/create', [RoleController::class, 'create'])->middleware('can:role.create')->name('policy.role.create');
+        //         Route::post('/create', [RoleController::class, 'store'])->middleware('can:role.create')->name('policy.role.store');
+        //         Route::get('/{role}', [RoleController::class, 'show'])->middleware('can:role.see')->name('policy.role.show');
+        //         Route::get('/{role}/edit', [RoleController::class, 'edit'])->middleware('can:role.update')->name('policy.role.edit');
+        //         Route::put('/{role}', [RoleController::class, 'update'])->middleware('can:role.update')->name('policy.role.update');
+        //         Route::get('/{role}/delete', [RoleController::class, 'delete'])->middleware('can:role.delete')->name('policy.role.delete');
+        //         // Route::delete('/destroy-multiple', [RoleController::class, 'destroyMultiple'])->middleware('can:role.delete')->name('policy.role.destroy-multiple');
+        //         Route::delete('/{role}', [RoleController::class, 'destroy'])->middleware('can:role.delete')->name('policy.role.destroy');
+        //     });
 
-            Route::group(['prefix' => 'permission'], function () {
-                Route::get('/', [RoleController::class, 'index'])->middleware('can:premission.see')->name('policy.premission.index');
-            });
-        });
+        //     Route::group(['prefix' => 'permission'], function () {
+        //         Route::get('/', [RoleController::class, 'index'])->middleware('can:premission.see')->name('policy.premission.index');
+        //     });
+        // });
 
         Route::prefix('policy')->middleware(config('policy.route.api'))->group(function () {
             Route::get('/authorization', [UserAuthorizationController::class, 'index'])->name('api.policy.authorization.index');
