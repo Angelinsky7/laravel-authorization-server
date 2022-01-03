@@ -3,7 +3,6 @@
 namespace Darkink\AuthorizationServer\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $id
@@ -11,7 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $label
  * @property string $description
  */
-class Permission extends Model
+class Permission extends BaseModel
 {
     use HasFactory;
 
@@ -21,5 +20,4 @@ class Permission extends Model
     {
         return $this->belongsToMany(Role::class, 'role_permission');
     }
-
 }

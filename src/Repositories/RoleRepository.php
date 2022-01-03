@@ -15,9 +15,7 @@ class RoleRepository
 
     public function gets()
     {
-        $role = Policy::role();
-        //return $role->all();
-        return Policy::role()->paginate(2);
+        return Policy::role();
     }
 
     public function create(string $name, string $label, string | null $description, bool $system = false): Role

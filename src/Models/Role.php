@@ -3,7 +3,6 @@
 namespace Darkink\AuthorizationServer\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property int $id
@@ -13,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property bool $system
  * @property Role $parent
  */
-class Role extends Model
+class Role extends BaseModel
 {
     use HasFactory;
 
@@ -44,4 +43,9 @@ class Role extends Model
         'system' => 'boolean',
     ];
 
+    protected $searchable = [
+        'name',
+        'label',
+        'description'
+    ];
 }
