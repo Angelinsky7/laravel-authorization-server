@@ -30,20 +30,20 @@ class PolicyServiceProvider extends ServiceProvider
     public function boot()
     {
 
-        $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'policy');
+        // $this->loadViewsFrom(__DIR__ . '/../../resources/views', 'policy');
 
-        $this->loadViewComponentsAs('policy', [
-            IconBoolTick::class,
-            ButtonRaised::class,
-            ButtonStroked::class,
-            ButtonDot::class,
-            ButtonCancel::class,
-            ButtonSubmit::class,
-            Table::class,
-            FormFieldError::class,
-            Dropdown::class,
-            DropdownLink::class
-        ]);
+        // $this->loadViewComponentsAs('policy', [
+        //     IconBoolTick::class,
+        //     ButtonRaised::class,
+        //     ButtonStroked::class,
+        //     ButtonDot::class,
+        //     ButtonCancel::class,
+        //     ButtonSubmit::class,
+        //     Table::class,
+        //     FormFieldError::class,
+        //     Dropdown::class,
+        //     DropdownLink::class
+        // ]);
 
         if ($this->app->runningInConsole()) {
             $this->registerMigrations();
@@ -52,21 +52,21 @@ class PolicyServiceProvider extends ServiceProvider
                 __DIR__ . '/../../database/migrations' => database_path('migrations'),
             ], 'policy-migrations');
 
-            $this->publishes([
-                __DIR__ . '/../../resources/views' => base_path('resources/views/vendor/policy'),
-            ], 'policy-views');
+            // $this->publishes([
+            //     __DIR__ . '/../../resources/views' => base_path('resources/views/vendor/policy'),
+            // ], 'policy-views');
 
             $this->publishes([
                 __DIR__ . '/../../config/policy.php' => config_path('policy.php'),
             ], 'policy-config');
 
-            $this->publishes([
-                __DIR__.'/../../public/css/app.css' => base_path('resources/css/vendor/laravel-authorization-server.css'),
-            ], 'policy-public-css');
+            // $this->publishes([
+            //     __DIR__.'/../../public/css/app.css' => base_path('resources/css/vendor/laravel-authorization-server.css'),
+            // ], 'policy-public-css');
 
-            $this->publishes([
-                __DIR__.'/../../public/js/app.js' => base_path('resources/js/vendor/laravel-authorization-server.js'),
-            ], 'policy-public-js');
+            // $this->publishes([
+            //     __DIR__.'/../../public/js/app.js' => base_path('resources/js/vendor/laravel-authorization-server.js'),
+            // ], 'policy-public-js');
 
             $this->commands([
                 \Darkink\AuthorizationServer\Console\InstallCommand::class,
