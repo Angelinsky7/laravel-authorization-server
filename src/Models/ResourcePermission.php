@@ -5,13 +5,11 @@ namespace Darkink\AuthorizationServer\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
- * @property-read int $id
- * @property string $name
- * @property string $description
- * @property DecisionStrategy strategy
- * @property Policy[] polices
+ * @property string $resourceType
+ * @property string $resourceId
+ * @property Resource $resource
  */
-class Permission extends BaseModel
+class ResourcePermission extends Permission
 {
     // use HasFactory;
 
