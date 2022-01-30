@@ -17,6 +17,14 @@ class Role extends BaseModel
 
     // protected $fillable = ['name', 'description'];
 
+    public function parents(){
+        return $this->belongsToMany(Role::class, 'role_role', 'role_id', 'parent_id');
+    }
+
+    public function children(){
+        return $this->belongsToMany(Role::class, 'role_role', 'parent_id', 'role_id');
+    }
+
     // public function permissions()
     // {
     //     return $this->belongsToMany(Permission::class, 'role_permission');

@@ -3,7 +3,8 @@
 namespace Darkink\AuthorizationServer\Models;
 
 /**
- * @property string[] $clients
+ * @obsolete
+ * @property Client[] $clients
  */
 class ClientPolicy extends Policy
 {

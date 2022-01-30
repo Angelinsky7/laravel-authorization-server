@@ -2,11 +2,13 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
+use Illuminate\Support\Facades\Date;
+
 /**
  * @property-read int $id
  * @property bool $enabled
  * @property string $clientId
- * @property string[] $secrets
+ * @property Secret[] $secrets
  * @property bool $requireClientSecret
  * @property string $clientName
  * @property string $description
@@ -20,8 +22,29 @@ namespace Darkink\AuthorizationServer\Models;
  * @property Role[] $roles
  * @property Policy[] $policies
  * @property Permission[] $permissions
- * missing timestamps
+ * @property-read Date $created_at
+ * @property-read Date $updated_at
  */
 class Client extends BaseModel {
+
+    public function secrets() {
+        return $this->belongsToMany(Secret::class, 'client_secret', 'client_id', 'secret_id');
+    }
+
+    public function resources() {
+        return $this->belongsToMany(Resource::class, 'client_resource', 'client_id', 'resource_id');
+    }
+
+    public function scopes() {
+        return $this->belongsToMany(Scope::class, 'client_scope', 'client_id', 'scope_id');
+    }
+
+    public function policies() {
+        return $this->belongsToMany(Policy::class, 'client_policy', 'client_id', 'policy_id');
+    }
+
+    public function permissions() {
+        return $this->belongsToMany(Permission::class, 'client_permission', 'client_id', 'permission_id');
+    }
 
 }
