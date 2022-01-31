@@ -10,5 +10,8 @@ namespace Darkink\AuthorizationServer\Models;
  */
 class Policy extends BaseModel
 {
-
+    public function __construct()
+    {
+        $this->table = config('policy.storage.database.prefix') . 'policies';
+    }
 }

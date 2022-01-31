@@ -15,5 +15,8 @@ use DateTime;
  */
 class TimePolicy extends Policy
 {
-
+    public function __construct()
+    {
+        $this->table = config('policy.storage.database.prefix') . 'time_policies';
+    }
 }

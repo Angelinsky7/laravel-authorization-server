@@ -27,6 +27,11 @@ use Illuminate\Support\Facades\Date;
  */
 class Client extends BaseModel {
 
+    public function __construct()
+    {
+        $this->table = config('policy.storage.database.prefix') . 'clients';
+    }
+
     public function secrets() {
         return $this->belongsToMany(Secret::class, 'client_secret', 'client_id', 'secret_id');
     }

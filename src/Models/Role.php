@@ -13,6 +13,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Role extends BaseModel
 {
+
+    public function __construct()
+    {
+        $this->table = config('policy.storage.database.prefix') . 'roles';
+    }
+
     // use HasFactory;
 
     // protected $fillable = ['name', 'description'];

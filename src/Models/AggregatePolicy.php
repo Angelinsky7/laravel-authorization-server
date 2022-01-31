@@ -10,6 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
  */
 class AggregatePolicy extends Policy
 {
+    public function __construct()
+    {
+        $this->table = config('policy.storage.database.prefix') . 'aggregate_policies';
+    }
 
     // public function policy(){
     //     return $this->hasOne(Policy::class, 'id');

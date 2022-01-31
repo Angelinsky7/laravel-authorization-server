@@ -9,6 +9,10 @@ use Illuminate\Support\Facades\Date;
  * @property int $from
  * @property int $to
  */
-class TimeRange extends BaseModel {
-
+class TimeRange extends BaseModel
+{
+    public function __construct()
+    {
+        $this->table = config('policy.storage.database.prefix') . 'timeranges';
+    }
 }

@@ -15,6 +15,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Resource extends BaseModel
 {
+    public function __construct()
+    {
+        $this->table = config('policy.storage.database.prefix') . 'resources';
+    }
 
     public function uris()
     {
@@ -25,5 +29,4 @@ class Resource extends BaseModel
     {
         return $this->belongsToMany(Scope::class, 'resource_scope', 'resource_id', 'scope_id');
     }
-
 }

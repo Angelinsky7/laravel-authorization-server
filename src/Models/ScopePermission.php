@@ -11,6 +11,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class ScopePermission extends Permission
 {
+
+    public function __construct()
+    {
+        $this->table = config('policy.storage.database.prefix') . 'scope_permissions';
+    }
+
     // use HasFactory;
 
     // protected $fillable = ['name', 'description'];
