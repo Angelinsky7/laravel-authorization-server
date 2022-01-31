@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateRoleParentTable extends Migration
 {
     protected $schema;
+    protected $prefix;
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
+        $this->prefix= $this->getPrefix();
     }
 
     /**
@@ -20,7 +22,7 @@ class CreateRoleParentTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('role_role', function (Blueprint $table) {
+        $this->schema->create($this->prefix . 'role_role', function (Blueprint $table) {
             $table->unsignedBigInteger('role_id');
             $table->foreign('role_id')
                 ->references('id')
@@ -44,11 +46,16 @@ class CreateRoleParentTable extends Migration
      */
     public function down()
     {
-        // Schema::dropIfExists('role_role');
+        Schema::dropIfExists($this->prefix . 'role_role');
     }
 
     public function getConnection()
     {
         return config('policy.storage.database.connection');
+    }
+
+    public function getPrefix()
+    {
+        return config('policy.storage.database.prefix');
     }
 }

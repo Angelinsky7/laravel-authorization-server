@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateUserRoleTable extends Migration
 {
     protected $schema;
+protected $prefix;
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
+        $this->prefix= $this->getPrefix();
     }
 
     /**
@@ -50,5 +52,10 @@ class CreateUserRoleTable extends Migration
     public function getConnection()
     {
         return config('policy.storage.database.connection');
+    }
+
+public function getPrefix()
+    {
+        return config('policy.storage.database.prefix');
     }
 }

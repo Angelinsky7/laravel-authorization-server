@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateClientScopeTable extends Migration
 {
     protected $schema;
+    protected $prefix;
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
+        $this->prefix= $this->getPrefix();
     }
 
     /**
@@ -20,7 +22,7 @@ class CreateClientScopeTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('client_scope', function (Blueprint $table) {
+        $this->schema->create($this->prefix . 'client_scope', function (Blueprint $table) {
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')
                 ->references('id')
@@ -44,11 +46,16 @@ class CreateClientScopeTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('client_scope');
+        Schema::dropIfExists($this->prefix . 'client_scope');
     }
 
     public function getConnection()
     {
         return config('policy.storage.database.connection');
+    }
+
+    public function getPrefix()
+    {
+        return config('policy.storage.database.prefix');
     }
 }

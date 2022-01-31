@@ -4,10 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateClientPolicyClientTable extends Migration
+class CreateScopePermissionScopeTable extends Migration
 {
     protected $schema;
-protected $prefix;
+    protected $prefix;
 
     public function __construct()
     {
@@ -22,20 +22,20 @@ protected $prefix;
      */
     public function up()
     {
-        $this->schema->create('client_policy_client', function (Blueprint $table) {
-            $table->unsignedBigInteger('client_policy_id');
-            $table->foreign('client_policy_id')
+        $this->schema->create($this->prefix . 'scope_permission_scope', function (Blueprint $table) {
+            $table->unsignedBigInteger('scope_permission_id');
+            $table->foreign('scope_permission_id')
                 ->references('id')
-                ->on('client_policies')
+                ->on('scope_permissions')
                 ->onDelete('cascade');
 
-            $table->unsignedBigInteger('client_id');
-            $table->foreign('client_id')
+            $table->unsignedBigInteger('scope_id');
+            $table->foreign('scope_id')
                 ->references('id')
-                ->on('clients')
-                ->onDelete('cascade');
+                ->on('scopes')
+                ->onDelete('restrict');
 
-            $table->primary(['client_policy_id', 'client_id']);
+            $table->primary(['scope_permission_id', 'scope_id']);
         });
     }
 
@@ -46,7 +46,7 @@ protected $prefix;
      */
     public function down()
     {
-        Schema::dropIfExists('client_policy_client');
+        Schema::dropIfExists($this->prefix . 'scope_permission_scope');
     }
 
     public function getConnection()
@@ -54,7 +54,7 @@ protected $prefix;
         return config('policy.storage.database.connection');
     }
 
-public function getPrefix()
+    public function getPrefix()
     {
         return config('policy.storage.database.prefix');
     }

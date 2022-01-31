@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSecretTable extends Migration
+class CreateUserPolicyUserTable extends Migration
 {
     protected $schema;
     protected $prefix;
@@ -12,7 +12,7 @@ class CreateSecretTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix = $this->getPrefix();
+        $this->prefix= $this->getPrefix();
     }
 
     /**
@@ -22,12 +22,18 @@ class CreateSecretTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'secrets', function (Blueprint $table) {
+        $this->schema->create($this->prefix . 'user_policy_user', function (Blueprint $table) {
             $table->id();
-            $table->string('description')->nullable();
-            $table->string('value');
-            $table->date('expiration')->nullable();
-            $table->timestamps();
+
+            $table->unsignedBigInteger('user_policy_id');
+            $table->foreign('user_policy_id')
+                ->references('id')
+                ->on('user_policies')
+                ->onDelete('cascade');
+
+            $table->string('user');
+
+            $table->unique(['user_policy_id', 'user']);
         });
     }
 
@@ -38,7 +44,7 @@ class CreateSecretTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'secrets');
+        Schema::dropIfExists($this->prefix . 'user_policy_user');
     }
 
     public function getConnection()

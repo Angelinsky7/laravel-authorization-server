@@ -4,13 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSecretTable extends Migration
+class CreateUriTable extends Migration
 {
     protected $schema;
+    protected $prefix;
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
+        $this->prefix= $this->getPrefix();
     }
 
     /**
@@ -20,7 +22,7 @@ class CreateSecretTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('uris', function (Blueprint $table) {
+        $this->schema->create($this->prefix . 'uris', function (Blueprint $table) {
             $table->id();
             $table->string('uri');
         });
@@ -33,11 +35,16 @@ class CreateSecretTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('uris');
+        Schema::dropIfExists($this->prefix . 'uris');
     }
 
     public function getConnection()
     {
         return config('policy.storage.database.connection');
+    }
+
+    public function getPrefix()
+    {
+        return config('policy.storage.database.prefix');
     }
 }

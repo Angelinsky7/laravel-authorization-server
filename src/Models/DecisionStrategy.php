@@ -3,7 +3,7 @@
 namespace Darkink\AuthorizationServer\Models;
 
 enum DecisionStrategy {
-    case Unanimous,
-    case Affirmative,
-    case Consensus
+    case Unanimous;
+    case Affirmative;
+    case Consensus;
 }

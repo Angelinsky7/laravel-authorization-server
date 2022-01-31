@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSecretTable extends Migration
+class CreateAggregatedPolicyPolicyTable extends Migration
 {
     protected $schema;
     protected $prefix;
@@ -22,12 +22,20 @@ class CreateSecretTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'secrets', function (Blueprint $table) {
-            $table->id();
-            $table->string('description')->nullable();
-            $table->string('value');
-            $table->date('expiration')->nullable();
-            $table->timestamps();
+        $this->schema->create($this->prefix . 'aggregated_policy_policy', function (Blueprint $table) {
+            $table->unsignedBigInteger('aggregated_policy_id');
+            $table->foreign('aggregated_policy_id')
+                ->references('id')
+                ->on('aggregated_policies')
+                ->onDelete('cascade');
+
+            $table->unsignedBigInteger('policy_id');
+            $table->foreign('policy_id')
+                ->references('id')
+                ->on('policies')
+                ->onDelete('cascade');
+
+            $table->primary(['aggregated_policy_id', 'policy_id']);
         });
     }
 
@@ -38,7 +46,7 @@ class CreateSecretTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'secrets');
+        Schema::dropIfExists($this->prefix . 'aggregated_policy_policy');
     }
 
     public function getConnection()

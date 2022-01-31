@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateClientResourceTable extends Migration
 {
     protected $schema;
+    protected $prefix;
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
+        $this->prefix= $this->getPrefix();
     }
 
     /**
@@ -20,7 +22,7 @@ class CreateClientResourceTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('client_resource', function (Blueprint $table) {
+        $this->schema->create($this->prefix . 'client_resource', function (Blueprint $table) {
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')
                 ->references('id')
@@ -44,11 +46,16 @@ class CreateClientResourceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('client_resource');
+        Schema::dropIfExists($this->prefix . 'client_resource');
     }
 
     public function getConnection()
     {
         return config('policy.storage.database.connection');
+    }
+
+    public function getPrefix()
+    {
+        return config('policy.storage.database.prefix');
     }
 }

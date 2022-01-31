@@ -7,10 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateResourceScopeTable extends Migration
 {
     protected $schema;
+    protected $prefix;
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
+        $this->prefix= $this->getPrefix();
     }
 
     /**
@@ -20,7 +22,7 @@ class CreateResourceScopeTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('resource_scope', function (Blueprint $table) {
+        $this->schema->create($this->prefix . 'resource_scope', function (Blueprint $table) {
             $table->unsignedBigInteger('resource_id');
             $table->foreign('resource_id')
                 ->references('id')
@@ -44,11 +46,16 @@ class CreateResourceScopeTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('resource_scope');
+        Schema::dropIfExists($this->prefix . 'resource_scope');
     }
 
     public function getConnection()
     {
         return config('policy.storage.database.connection');
+    }
+
+    public function getPrefix()
+    {
+        return config('policy.storage.database.prefix');
     }
 }

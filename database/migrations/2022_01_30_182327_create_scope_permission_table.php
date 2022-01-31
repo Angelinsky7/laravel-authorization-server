@@ -4,13 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateAggregatedPolicyPolicyTable extends Migration
+class CreateScopePermissionTable extends Migration
 {
     protected $schema;
+    protected $prefix;
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
+        $this->prefix= $this->getPrefix();
     }
 
     /**
@@ -20,20 +22,19 @@ class CreateAggregatedPolicyPolicyTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('aggregated_policy_policy', function (Blueprint $table) {
-            $table->unsignedBigInteger('aggregated_policy_id');
-            $table->foreign('aggregated_policy_id')
+        $this->schema->create($this->prefix . 'scope_permissions', function (Blueprint $table) {
+            $table->unsignedBigInteger('id');
+            $table->foreign('id')
                 ->references('id')
-                ->on('aggregated_policies')
+                ->on('permissions')
                 ->onDelete('cascade');
+            $table->primary(['id']);
 
-            $table->unsignedBigInteger('policy_id');
-            $table->foreign('policy_id')
+            $table->unsignedBigInteger('resource_id');
+            $table->foreign('resource_id')
                 ->references('id')
-                ->on('policies')
+                ->on('resources')
                 ->onDelete('cascade');
-
-            $table->primary(['aggregated_policy_id', 'policy_id']);
         });
     }
 
@@ -44,11 +45,16 @@ class CreateAggregatedPolicyPolicyTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('aggregated_policy_policy');
+        Schema::dropIfExists($this->prefix . 'scope_permissions');
     }
 
     public function getConnection()
     {
         return config('policy.storage.database.connection');
+    }
+
+    public function getPrefix()
+    {
+        return config('policy.storage.database.prefix');
     }
 }

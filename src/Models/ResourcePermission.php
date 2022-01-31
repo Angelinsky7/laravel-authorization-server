@@ -6,11 +6,15 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property string $resourceType
- * @property string $resourceId
  * @property Resource $resource
  */
 class ResourcePermission extends Permission
 {
+
+    // public function permission(){
+    //     return $this->hasOne()
+    // }
+
     // use HasFactory;
 
     // protected $fillable = ['name', 'description'];
