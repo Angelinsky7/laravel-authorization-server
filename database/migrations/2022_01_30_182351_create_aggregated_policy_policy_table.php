@@ -35,7 +35,7 @@ class CreateAggregatedPolicyPolicyTable extends Migration
                 ->on($this->prefix . 'policies')
                 ->onDelete('cascade');
 
-            $table->primary(['aggregated_policy_id', 'policy_id']);
+            $table->primary(['aggregated_policy_id', 'policy_id'], $this->prefix . 'aggregated_policy_policy_primary');
         });
     }
 
