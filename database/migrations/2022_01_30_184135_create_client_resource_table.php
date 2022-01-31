@@ -26,13 +26,13 @@ class CreateClientResourceTable extends Migration
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')
                 ->references('id')
-                ->on('clients')
+                ->on($this->prefix . 'clients')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('resource_id');
             $table->foreign('resource_id')
                 ->references('id')
-                ->on('resources')
+                ->on($this->prefix . 'resources')
                 ->onDelete('cascade');
 
             $table->primary(['client_id', 'resource_id']);

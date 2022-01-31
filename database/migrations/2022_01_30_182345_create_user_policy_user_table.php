@@ -28,7 +28,7 @@ class CreateUserPolicyUserTable extends Migration
             $table->unsignedBigInteger('user_policy_id');
             $table->foreign('user_policy_id')
                 ->references('id')
-                ->on('user_policies')
+                ->on($this->prefix . 'user_policies')
                 ->onDelete('cascade');
 
             $table->string('user');

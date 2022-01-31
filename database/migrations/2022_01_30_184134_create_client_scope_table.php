@@ -26,13 +26,13 @@ class CreateClientScopeTable extends Migration
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')
                 ->references('id')
-                ->on('clients')
+                ->on($this->prefix . 'clients')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('scope_id');
             $table->foreign('scope_id')
                 ->references('id')
-                ->on('scopes')
+                ->on($this->prefix . 'scopes')
                 ->onDelete('cascade');
 
             $table->primary(['client_id', 'scope_id']);

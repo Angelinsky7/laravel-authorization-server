@@ -26,13 +26,13 @@ class CreateClientSecretTable extends Migration
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')
                 ->references('id')
-                ->on('clients')
+                ->on($this->prefix . 'clients')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('secret_id');
             $table->foreign('secret_id')
                 ->references('id')
-                ->on('secrets')
+                ->on($this->prefix . 'secrets')
                 ->onDelete('cascade');
 
             $table->primary(['client_id', 'secret_id']);

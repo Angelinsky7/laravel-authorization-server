@@ -28,13 +28,13 @@ class CreateRolePolicyRoleTable extends Migration
             $table->unsignedBigInteger('role_policy_id');
             $table->foreign('role_policy_id')
                 ->references('id')
-                ->on('role_policies')
+                ->on($this->prefix . 'role_policies')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('role_id');
             $table->foreign('role_id')
                 ->references('id')
-                ->on('roles')
+                ->on($this->prefix . 'roles')
                 ->onDelete('cascade');
 
             $table->unique(['role_policy_id', 'role_id']);

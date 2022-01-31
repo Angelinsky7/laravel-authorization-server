@@ -26,7 +26,7 @@ class CreateResourcePermissionTable extends Migration
             $table->unsignedBigInteger('id');
             $table->foreign('id')
                 ->references('id')
-                ->on('permissions')
+                ->on($this->prefix . 'permissions')
                 ->onDelete('cascade');
             $table->primary(['id']);
 
@@ -35,7 +35,7 @@ class CreateResourcePermissionTable extends Migration
             $table->unsignedBigInteger('resource_id')->nullable();
             $table->foreign('resource_id')
                 ->references('id')
-                ->on('resources')
+                ->on($this->prefix . 'resources')
                 ->onDelete('cascade');
         });
     }

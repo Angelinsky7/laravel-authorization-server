@@ -26,13 +26,13 @@ class CreateResourceScopeTable extends Migration
             $table->unsignedBigInteger('resource_id');
             $table->foreign('resource_id')
                 ->references('id')
-                ->on('resources')
+                ->on($this->prefix . 'resources')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('scope_id');
             $table->foreign('scope_id')
                 ->references('id')
-                ->on('scopes')
+                ->on($this->prefix . 'scopes')
                 ->onDelete('cascade');
 
             $table->primary(['resource_id', 'scope_id']);

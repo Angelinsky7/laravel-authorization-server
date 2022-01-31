@@ -26,13 +26,13 @@ class CreateScopePermissionScopeTable extends Migration
             $table->unsignedBigInteger('scope_permission_id');
             $table->foreign('scope_permission_id')
                 ->references('id')
-                ->on('scope_permissions')
+                ->on($this->prefix . 'scope_permissions')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('scope_id');
             $table->foreign('scope_id')
                 ->references('id')
-                ->on('scopes')
+                ->on($this->prefix . 'scopes')
                 ->onDelete('restrict');
 
             $table->primary(['scope_permission_id', 'scope_id']);

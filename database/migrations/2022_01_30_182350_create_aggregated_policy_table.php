@@ -26,7 +26,7 @@ class CreateAggregatedPolicyTable extends Migration
             $table->unsignedBigInteger('id');
             $table->foreign('id')
                 ->references('id')
-                ->on('policies')
+                ->on($this->prefix . 'policies')
                 ->onDelete('cascade');
             $table->primary(['id']);
         });

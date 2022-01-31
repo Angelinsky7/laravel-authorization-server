@@ -26,13 +26,13 @@ class CreateResourceUriTable extends Migration
             $table->unsignedBigInteger('resource_id');
             $table->foreign('resource_id')
                 ->references('id')
-                ->on('resources')
+                ->on($this->prefix . 'resources')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('uri_id');
             $table->foreign('uri_id')
                 ->references('id')
-                ->on('uris')
+                ->on($this->prefix . 'uris')
                 ->onDelete('cascade');
 
             $table->primary(['resource_id', 'uri_id']);

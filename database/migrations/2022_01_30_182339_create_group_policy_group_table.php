@@ -28,7 +28,7 @@ class CreateGroupPolicyGroupTable extends Migration
             $table->unsignedBigInteger('group_policy_id');
             $table->foreign('group_policy_id')
                 ->references('id')
-                ->on('group_policies')
+                ->on($this->prefix . 'group_policies')
                 ->onDelete('cascade');
 
             $table->string('group');
