@@ -2,20 +2,22 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
+use Darkink\AuthorizationServer\Traits\HasInheritance;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property-read int $id
  * @property string $name
  * @property string $description
- * @property DecisionStrategy $decisionStrategy
+ * @property DecisionStrategy $decision_strategy
  * @property Policy[] polices
  */
 class Permission extends BaseModel
 {
-    protected $table = 'uma_permissions';
-
     // use HasFactory;
+    use HasInheritance;
+
+    protected $table = 'uma_permissions';
 
     // protected $fillable = ['name', 'description'];
 

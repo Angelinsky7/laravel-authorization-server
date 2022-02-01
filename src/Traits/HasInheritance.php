@@ -2,9 +2,13 @@
 
 namespace Darkink\AuthorizationServer\Traits;
 
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+
+use function PHPUnit\Framework\callback;
 
 trait HasInheritance
 {
@@ -45,51 +49,93 @@ trait HasInheritance
         });
     }
 
+    protected function untimestamps(callable $callback)
+    {
+        if (!$this->timestamps) {
+            return $callback();
+        }
+
+        $oldValue = $this->timestamps;
+        $this->timestamps = false;
+
+        try {
+            return $callback();
+        } finally {
+            $this->timestamps =  $oldValue;
+        }
+    }
+
     protected function inheritanceInsertAndSetId(Builder $query, $attributes)
     {
+        $keyName = $this->getKeyName();
+        unset($attributes[$keyName]);
         $parent_attributes = $this->filterAttributes($attributes);
-        $parent = $this->newSelfInstance($parent_attributes, false);
+        $parent = $this->newSelfInstanceUnguarded($parent_attributes, false);
         $parent->save();
         $id = $parent->id;
-        $keyName = $this->getKeyName();
         $this->setAttribute($keyName, $id);
         $result = array_diff_key($attributes, $parent_attributes);
         $result[$keyName] = $id;
         return $result;
     }
 
+    protected function inheritancePerformInsert(Builder $query)
+    {
+        DB::beginTransaction();
+        try {
+            $result = parent::performInsert($query);
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+        DB::commit();
+
+        return $result;
+    }
+
     protected function inheritancePerformUpdate(Builder $query)
     {
-        if ($this->fireModelEvent('updating') === false) {
-            return false;
+        DB::beginTransaction();
+
+        try {
+            if ($this->fireModelEvent('updating') === false) {
+                return false;
+            }
+
+            if ($this->usesTimestamps()) {
+                $this->updateTimestamps();
+            }
+
+            $dirty = $this->getDirty();
+            $parent_dirty = $this->filterAttributes($dirty);
+            $dirty = array_diff_key($dirty, $parent_dirty);
+            $updated = false;
+
+            if (count($parent_dirty) > 0) {
+                $parent = $this->newSelfInstanceUnguarded($this->getAttributes(), true);
+                $parent_query = $parent->newModelQuery();
+                $parent->setKeysForSaveQuery($parent_query)->update($parent_dirty);
+                $parent->syncChanges();
+                $updated = true;
+            }
+
+            if (count($dirty) > 0) {
+                $this->untimestamps(function () use ($query, $dirty) {
+                    $this->setKeysForSaveQuery($query)->update($dirty);
+                });
+                $this->syncChanges();
+                $updated = true;
+            }
+
+            if ($updated) {
+                $this->fireModelEvent('updated', false);
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
         }
 
-        if ($this->usesTimestamps()) {
-            $this->updateTimestamps();
-        }
-
-        $dirty = $this->getDirty();
-        $parent_dirty = $this->filterAttributes($dirty);
-        $dirty = array_diff_key($dirty, $parent_dirty);
-        $updated = false;
-
-        if (count($parent_dirty) > 0) {
-            $parent = $this->newSelfInstanceUnguarded($this->getAttributes(), true);
-            $parent_query = $parent->newModelQuery();
-            $parent->setKeysForSaveQuery($parent_query)->update($parent_dirty);
-            $parent->syncChanges();
-            $updated = true;
-        }
-
-        if (count($dirty) > 0) {
-            $this->setKeysForSaveQuery($query)->update($dirty);
-            $this->syncChanges();
-            $updated = true;
-        }
-
-        if ($updated) {
-            $this->fireModelEvent('updated', false);
-        }
+        DB::commit();
 
         return true;
     }
