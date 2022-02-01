@@ -11,8 +11,7 @@ use Illuminate\Support\Facades\Date;
  */
 class TimeRange extends BaseModel
 {
-    public function __construct()
-    {
-        $this->table = config('policy.storage.database.prefix') . 'timeranges';
-    }
+
+    protected $table = 'uma_timeranges';
+
 }

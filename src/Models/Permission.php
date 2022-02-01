@@ -13,11 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class Permission extends BaseModel
 {
-
-    public function __construct()
-    {
-        $this->table = config('policy.storage.database.prefix') . 'permissions';
-    }
+    protected $table = 'uma_permissions';
 
     // use HasFactory;
 

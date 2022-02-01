@@ -8,8 +8,7 @@ namespace Darkink\AuthorizationServer\Models;
  */
 class ClientPolicy extends Policy
 {
-    public function __construct()
-    {
-        $this->table = config('policy.storage.database.prefix') . 'client_policies';
-    }
+
+    protected $table = 'uma_client_policies';
+
 }

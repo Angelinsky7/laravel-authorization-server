@@ -15,9 +15,6 @@ use Illuminate\Support\Facades\Date;
 class Secret extends BaseModel
 {
 
-    public function __construct()
-    {
-        $this->table = config('policy.storage.database.prefix') . 'secrets';
-    }
+    protected $table = 'uma_secrets';
 
 }

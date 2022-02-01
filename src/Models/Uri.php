@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Date;
  */
 class Uri extends BaseModel
 {
-    public function __construct()
-    {
-        $this->table = config('policy.storage.database.prefix') . 'uris';
-    }
+
+    protected $table = 'uma_uris';
+
 }

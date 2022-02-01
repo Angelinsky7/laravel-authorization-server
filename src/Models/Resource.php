@@ -15,10 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Resource extends BaseModel
 {
-    public function __construct()
-    {
-        $this->table = config('policy.storage.database.prefix') . 'resources';
-    }
+
+    protected $table = 'uma_resources';
 
     public function uris()
     {

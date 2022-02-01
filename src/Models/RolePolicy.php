@@ -7,8 +7,7 @@ namespace Darkink\AuthorizationServer\Models;
  */
 class RolePolicy extends Policy
 {
-    public function __construct()
-    {
-        $this->table = config('policy.storage.database.prefix') . 'role_policies';
-    }
+
+    protected $table = 'uma_role_policies';
+
 }

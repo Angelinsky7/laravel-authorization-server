@@ -12,10 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ScopePermission extends Permission
 {
 
-    public function __construct()
-    {
-        $this->table = config('policy.storage.database.prefix') . 'scope_permissions';
-    }
+    protected $table = 'uma_scope_permissions';
 
     // use HasFactory;
 

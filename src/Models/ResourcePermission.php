@@ -11,10 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class ResourcePermission extends Permission
 {
 
-    public function __construct()
-    {
-        $this->table = config('policy.storage.database.prefix') . 'resource_permissions';
-    }
+    protected $table = 'uma_resource_permissions';
 
     // public function permission(){
     //     return $this->hasOne()
