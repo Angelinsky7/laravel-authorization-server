@@ -6,6 +6,7 @@ use Darkink\AuthorizationServer\Http\Controllers\ApiRoleController;
 use Darkink\AuthorizationServer\Http\Controllers\DiscoverController;
 use Darkink\AuthorizationServer\Http\Controllers\RoleController;
 use Darkink\AuthorizationServer\Http\Controllers\UserAuthorizationController;
+use Darkink\AuthorizationServer\Models\Permission;
 use Darkink\AuthorizationServer\Models\Role;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
@@ -18,6 +19,7 @@ class Policy
     public static $runsMigrations = true;
     public static $issuer = '';
     public static $roleModel = Role::class;
+    public static $permissionModel = Permission::class;
 
     public static function issuer(string $issuer)
     {
@@ -103,11 +105,15 @@ class Policy
 
     public static function gates()
     {
+        // Gate::after(function ($user, $ability, $result, $arguments) {
+        //     if ($user->hasRole('admin')) {
+        //         return true;
+        //     }
+        //     return $user->hasPermission($ability);
+        // });
+
         Gate::after(function ($user, $ability, $result, $arguments) {
-            if ($user->hasRole('admin')) {
-                return true;
-            }
-            return $user->hasPermission($ability);
+            return true;
         });
     }
 
@@ -125,4 +131,20 @@ class Policy
     {
         return new static::$roleModel;
     }
+
+    public static function usePermissionModel($permissionModel)
+    {
+        static::$permissionModel = $permissionModel;
+    }
+
+    public static function permissionModel()
+    {
+        return static::$permissionModel;
+    }
+
+    public static function permission(): Permission
+    {
+        return new static::$permissionModel;
+    }
+
 }

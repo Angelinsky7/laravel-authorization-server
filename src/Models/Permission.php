@@ -19,6 +19,11 @@ class Permission extends BaseModel
 
     protected $table = 'uma_permissions';
 
+    protected $child_classes = [
+        ScopePermission::class,
+        ResourcePermission::class
+    ];
+
     // protected $fillable = ['name', 'description'];
 
     // public function permissions()

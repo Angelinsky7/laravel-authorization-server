@@ -24,6 +24,12 @@ class Policy extends BaseModel
         ClientPolicy::class
     ];
 
+    protected $searchable = [
+        'name',
+        'description',
+        'logic'
+    ];
+
     protected $fillable = ['name', 'description', 'logic'];
 
 
