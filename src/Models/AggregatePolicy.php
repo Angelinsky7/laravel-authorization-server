@@ -38,48 +38,14 @@ class AggregatePolicy extends Policy
         return $query;
     }
 
-    public function newModelQuery()
-    {
-        $result = parent::newModelQuery();
-        Log::debug($result->toSql());
-        return $result;
-    }
-
-    protected function performInsert(Builder $query){
-        Log::debug($query->toSql());
-        parent::performInsert($query);
-    }
-
-    protected function performUpdate(Builder $query){
-        Log::debug($query->toSql());
-        parent::performUpdate($query);
-    }
-
-    protected function getAttributesForInsert(){
-        $result = parent::getAttributesForInsert();
-        Log::debug($result);
-        return $result;
-    }
-
     protected function insertAndSetId(Builder $query, $attributes){
-        Log::debug($attributes);
-        Log::debug($query->toSql());
-
-        $id = $query->insertGetId($attributes, $keyName = $this->getKeyName());
-
-        $parent = new Policy();
-
-        $this->setAttribute($keyName, $id);
+        $attributes = $this->inheritanceInsertAndSetId($query, $attributes);
+        parent::insertAndSetId($query, $attributes);
     }
 
-
-    // protected static function booted()
-    // {
-    //     static::addGlobalScope('parent', function (Builder $builder) {
-    //         $builder
-    //             ->join('uma_policies', 'uma_aggregated_policies.id', '=', 'uma_policies.id')
-    //             ->addSelect(['policies.name', 'policies.description', 'policies.logic']);
-    //     });
-    // }
+    protected function performUpdate(Builder $query)
+    {
+        $this->inheritancePerformUpdate($query);
+    }
 
 }

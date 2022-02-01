@@ -2,6 +2,10 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
+use Darkink\AuthorizationServer\Traits\HasInheritance;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
+
 /**
  * @property-read int $id
  * @property string $name
@@ -11,6 +15,8 @@ namespace Darkink\AuthorizationServer\Models;
 class Policy extends BaseModel
 {
 
+    use HasInheritance;
+
     protected $table = 'uma_policies';
 
     protected $child_classes = [
@@ -19,5 +25,6 @@ class Policy extends BaseModel
     ];
 
     protected $fillable = ['name', 'description', 'logic'];
+
 
 }
