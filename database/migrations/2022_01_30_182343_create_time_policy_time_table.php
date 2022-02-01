@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateTimePolicyTimeTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,43 +22,43 @@ class CreateTimePolicyTimeTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'time_policy_time', function (Blueprint $table) {
+        $this->schema->create('uma_time_policy_time', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('time_policy_id');
             $table->foreign('time_policy_id')
                 ->references('id')
-                ->on($this->prefix . 'time_policies')
+                ->on('uma_time_policies')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('day_of_month_id');
             $table->foreign('day_of_month_id')
                 ->references('id')
-                ->on($this->prefix . 'timeranges')
+                ->on('uma_timeranges')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('month_id');
             $table->foreign('month_id')
                 ->references('id')
-                ->on($this->prefix . 'timeranges')
+                ->on('uma_timeranges')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('year_id');
             $table->foreign('year_id')
                 ->references('id')
-                ->on($this->prefix . 'timeranges')
+                ->on('uma_timeranges')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('hour_id');
             $table->foreign('hour_id')
                 ->references('id')
-                ->on($this->prefix . 'timeranges')
+                ->on('uma_timeranges')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('minute_id');
             $table->foreign('minute_id')
                 ->references('id')
-                ->on($this->prefix . 'timeranges')
+                ->on('uma_timeranges')
                 ->onDelete('cascade');
         });
     }
@@ -70,7 +70,7 @@ class CreateTimePolicyTimeTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'time_policy_time');
+        Schema::dropIfExists('uma_time_policy_time');
     }
 
     public function getConnection()
@@ -78,8 +78,5 @@ class CreateTimePolicyTimeTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

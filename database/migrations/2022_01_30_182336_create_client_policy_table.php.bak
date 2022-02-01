@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateClientPolicyTable extends Migration
 {
     protected $schema;
-protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -47,8 +47,5 @@ protected $prefix;
         return config('policy.storage.database.connection');
     }
 
-public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

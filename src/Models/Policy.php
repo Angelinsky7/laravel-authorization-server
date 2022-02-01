@@ -10,8 +10,17 @@ namespace Darkink\AuthorizationServer\Models;
  */
 class Policy extends BaseModel
 {
+
+    protected $child_classes = [
+        AggregatePolicy::class,
+        ClientPolicy::class
+    ];
+
+    protected $fillable = ['name', 'description', 'logic'];
+
     public function __construct()
     {
         $this->table = config('policy.storage.database.prefix') . 'policies';
     }
+
 }

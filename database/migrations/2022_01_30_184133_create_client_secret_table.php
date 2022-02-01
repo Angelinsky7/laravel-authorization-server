@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateClientSecretTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,17 +22,17 @@ class CreateClientSecretTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'client_secret', function (Blueprint $table) {
+        $this->schema->create('uma_client_secret', function (Blueprint $table) {
             $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')
                 ->references('id')
-                ->on($this->prefix . 'clients')
+                ->on('uma_clients')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('secret_id');
             $table->foreign('secret_id')
                 ->references('id')
-                ->on($this->prefix . 'secrets')
+                ->on('uma_secrets')
                 ->onDelete('cascade');
 
             $table->primary(['client_id', 'secret_id']);
@@ -46,7 +46,7 @@ class CreateClientSecretTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'client_secret');
+        Schema::dropIfExists('uma_client_secret');
     }
 
     public function getConnection()
@@ -54,8 +54,5 @@ class CreateClientSecretTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

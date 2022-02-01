@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateScopePermissionTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,18 +22,18 @@ class CreateScopePermissionTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'scope_permissions', function (Blueprint $table) {
+        $this->schema->create('uma_scope_permissions', function (Blueprint $table) {
             $table->unsignedBigInteger('id');
             $table->foreign('id')
                 ->references('id')
-                ->on($this->prefix . 'permissions')
+                ->on('uma_permissions')
                 ->onDelete('cascade');
             $table->primary(['id']);
 
             $table->unsignedBigInteger('resource_id');
             $table->foreign('resource_id')
                 ->references('id')
-                ->on($this->prefix . 'resources')
+                ->on('uma_resources')
                 ->onDelete('cascade');
         });
     }
@@ -45,7 +45,7 @@ class CreateScopePermissionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'scope_permissions');
+        Schema::dropIfExists('uma_scope_permissions');
     }
 
     public function getConnection()
@@ -53,8 +53,5 @@ class CreateScopePermissionTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

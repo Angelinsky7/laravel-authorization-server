@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Schema;
 class CreatePermissionTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -23,7 +23,7 @@ class CreatePermissionTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'permissions', function (Blueprint $table) {
+        $this->schema->create('uma_permissions', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('description');
@@ -39,7 +39,7 @@ class CreatePermissionTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'permissions');
+        Schema::dropIfExists('uma_permissions');
     }
 
     public function getConnection()
@@ -47,8 +47,5 @@ class CreatePermissionTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

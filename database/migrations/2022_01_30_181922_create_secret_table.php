@@ -7,12 +7,10 @@ use Illuminate\Support\Facades\Schema;
 class CreateSecretTable extends Migration
 {
     protected $schema;
-    protected $prefix;
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix = $this->getPrefix();
     }
 
     /**
@@ -22,7 +20,7 @@ class CreateSecretTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'secrets', function (Blueprint $table) {
+        $this->schema->create('uma_secrets', function (Blueprint $table) {
             $table->id();
             $table->string('description')->nullable();
             $table->string('value');
@@ -38,7 +36,7 @@ class CreateSecretTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'secrets');
+        Schema::dropIfExists('uma_secrets');
     }
 
     public function getConnection()
@@ -46,8 +44,4 @@ class CreateSecretTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
 }

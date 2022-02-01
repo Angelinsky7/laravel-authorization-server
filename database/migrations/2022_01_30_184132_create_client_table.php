@@ -9,12 +9,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateClientTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -24,7 +24,7 @@ class CreateClientTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'clients', function (Blueprint $table) {
+        $this->schema->create('uma_clients', function (Blueprint $table) {
             $table->id();
             $table->boolean('enabled');
             $table->string('clientId')->unique();
@@ -46,7 +46,7 @@ class CreateClientTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'clients');
+        Schema::dropIfExists('uma_clients');
     }
 
     public function getConnection()
@@ -54,8 +54,5 @@ class CreateClientTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

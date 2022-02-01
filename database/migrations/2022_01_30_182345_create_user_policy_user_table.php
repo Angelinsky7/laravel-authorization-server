@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateUserPolicyUserTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,13 +22,13 @@ class CreateUserPolicyUserTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'user_policy_user', function (Blueprint $table) {
+        $this->schema->create('uma_user_policy_user', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('user_policy_id');
             $table->foreign('user_policy_id')
                 ->references('id')
-                ->on($this->prefix . 'user_policies')
+                ->on('uma_user_policies')
                 ->onDelete('cascade');
 
             $table->string('user');
@@ -44,7 +44,7 @@ class CreateUserPolicyUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'user_policy_user');
+        Schema::dropIfExists('uma_user_policy_user');
     }
 
     public function getConnection()
@@ -52,8 +52,5 @@ class CreateUserPolicyUserTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

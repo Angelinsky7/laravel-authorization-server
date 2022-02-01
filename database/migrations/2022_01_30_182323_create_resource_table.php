@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateResourceTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,7 +22,7 @@ class CreateResourceTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'resources', function (Blueprint $table) {
+        $this->schema->create('uma_resources', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('display_name');
@@ -39,7 +39,7 @@ class CreateResourceTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'resources');
+        Schema::dropIfExists('uma_resources');
     }
 
     public function getConnection()
@@ -47,8 +47,5 @@ class CreateResourceTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

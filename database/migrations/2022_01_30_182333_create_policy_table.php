@@ -8,12 +8,12 @@ use Illuminate\Support\Facades\Schema;
 class CreatePolicyTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -23,7 +23,7 @@ class CreatePolicyTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'policies', function (Blueprint $table) {
+        $this->schema->create('uma_policies', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('description')->nullable();
@@ -39,7 +39,7 @@ class CreatePolicyTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'policies');
+        Schema::dropIfExists('uma_policies');
     }
 
     public function getConnection()
@@ -47,8 +47,5 @@ class CreatePolicyTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

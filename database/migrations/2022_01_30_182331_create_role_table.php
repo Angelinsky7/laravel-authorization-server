@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateRoleTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,7 +22,7 @@ class CreateRoleTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'roles', function (Blueprint $table) {
+        $this->schema->create('uma_roles', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('description')->nullable();
@@ -38,7 +38,7 @@ class CreateRoleTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'roles');
+        Schema::dropIfExists('uma_roles');
     }
 
     public function getConnection()
@@ -46,8 +46,5 @@ class CreateRoleTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

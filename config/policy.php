@@ -25,8 +25,7 @@ return [
 
     'storage' => [
         'database' => [
-            'connection' => env('DB_CONNECTION', 'mysql'),
-            'prefix' => 'uma_'
+            'connection' => env('DB_CONNECTION', 'mysql')
         ],
     ],
 

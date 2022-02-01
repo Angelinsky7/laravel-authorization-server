@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateUriTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,7 +22,7 @@ class CreateUriTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'uris', function (Blueprint $table) {
+        $this->schema->create('uma_uris', function (Blueprint $table) {
             $table->id();
             $table->string('uri');
         });
@@ -35,7 +35,7 @@ class CreateUriTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'uris');
+        Schema::dropIfExists('uma_uris');
     }
 
     public function getConnection()
@@ -43,8 +43,5 @@ class CreateUriTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

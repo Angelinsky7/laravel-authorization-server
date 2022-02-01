@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateResourceUriTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,17 +22,17 @@ class CreateResourceUriTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'resource_uri', function (Blueprint $table) {
+        $this->schema->create('uma_resource_uri', function (Blueprint $table) {
             $table->unsignedBigInteger('resource_id');
             $table->foreign('resource_id')
                 ->references('id')
-                ->on($this->prefix . 'resources')
+                ->on('uma_resources')
                 ->onDelete('cascade');
 
             $table->unsignedBigInteger('uri_id');
             $table->foreign('uri_id')
                 ->references('id')
-                ->on($this->prefix . 'uris')
+                ->on('uma_uris')
                 ->onDelete('cascade');
 
             $table->primary(['resource_id', 'uri_id']);
@@ -46,7 +46,7 @@ class CreateResourceUriTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'resource_uri');
+        Schema::dropIfExists('uma_resource_uri');
     }
 
     public function getConnection()
@@ -54,8 +54,5 @@ class CreateResourceUriTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

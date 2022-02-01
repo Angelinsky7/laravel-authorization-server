@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateTimePolicyTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,11 +22,11 @@ class CreateTimePolicyTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'time_policies', function (Blueprint $table) {
+        $this->schema->create('uma_time_policies', function (Blueprint $table) {
             $table->unsignedBigInteger('id');
             $table->foreign('id')
                 ->references('id')
-                ->on($this->prefix . 'policies')
+                ->on('uma_policies')
                 ->onDelete('cascade');
             $table->primary(['id']);
         });
@@ -39,7 +39,7 @@ class CreateTimePolicyTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'time_policies');
+        Schema::dropIfExists('uma_time_policies');
     }
 
     public function getConnection()
@@ -47,8 +47,5 @@ class CreateTimePolicyTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

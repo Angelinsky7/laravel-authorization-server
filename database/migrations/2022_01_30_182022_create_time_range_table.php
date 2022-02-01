@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateTimeRangeTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,7 +22,7 @@ class CreateTimeRangeTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'timeranges', function (Blueprint $table) {
+        $this->schema->create('uma_timeranges', function (Blueprint $table) {
             $table->id();
             $table->integer('from');
             $table->integer('to');
@@ -37,7 +37,7 @@ class CreateTimeRangeTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'timeranges');
+        Schema::dropIfExists('uma_timeranges');
     }
 
     public function getConnection()
@@ -45,8 +45,5 @@ class CreateTimeRangeTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }

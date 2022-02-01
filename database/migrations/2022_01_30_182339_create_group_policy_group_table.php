@@ -7,12 +7,12 @@ use Illuminate\Support\Facades\Schema;
 class CreateGroupPolicyGroupTable extends Migration
 {
     protected $schema;
-    protected $prefix;
+
 
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix= $this->getPrefix();
+
     }
 
     /**
@@ -22,13 +22,13 @@ class CreateGroupPolicyGroupTable extends Migration
      */
     public function up()
     {
-        $this->schema->create($this->prefix . 'group_policy_group', function (Blueprint $table) {
+        $this->schema->create('uma_group_policy_group', function (Blueprint $table) {
             $table->id();
 
             $table->unsignedBigInteger('group_policy_id');
             $table->foreign('group_policy_id')
                 ->references('id')
-                ->on($this->prefix . 'group_policies')
+                ->on('uma_group_policies')
                 ->onDelete('cascade');
 
             $table->string('group');
@@ -44,7 +44,7 @@ class CreateGroupPolicyGroupTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists($this->prefix . 'group_policy_group');
+        Schema::dropIfExists('uma_group_policy_group');
     }
 
     public function getConnection()
@@ -52,8 +52,5 @@ class CreateGroupPolicyGroupTable extends Migration
         return config('policy.storage.database.connection');
     }
 
-    public function getPrefix()
-    {
-        return config('policy.storage.database.prefix');
-    }
+
 }
