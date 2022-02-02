@@ -11,11 +11,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property Resource $resource
  * @property Scope[] $scopes
  */
-class ScopePermission extends Permission
+class ScopePermission extends BaseModel
 {
-    use HasParent;
+    // use HasParent;
 
     protected $table = 'uma_scope_permissions';
+    public $incrementing = false;
+    public $timestamps = false;
+
+    public function parent(){
+        return $this->morphOne(Permission::class, 'parent', 'discriminator', 'id');
+    }
 
     public function resource(){
         return $this->belongsTo(Resource::class, 'resource_id');

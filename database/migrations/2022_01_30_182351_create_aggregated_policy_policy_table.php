@@ -12,7 +12,6 @@ class CreateAggregatedPolicyPolicyTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-        $this->prefix = $this->getPrefix();
     }
 
     /**

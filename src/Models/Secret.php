@@ -2,6 +2,8 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
+use Darkink\AuthorizationServer\Database\Factories\SecretFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Date;
 
 /**
@@ -14,7 +16,13 @@ use Illuminate\Support\Facades\Date;
  */
 class Secret extends BaseModel
 {
+    use HasFactory;
 
     protected $table = 'uma_secrets';
+
+    public static function newFactory()
+    {
+        return SecretFactory::new();
+    }
 
 }

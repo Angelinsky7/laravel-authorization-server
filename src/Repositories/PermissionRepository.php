@@ -2,8 +2,14 @@
 
 namespace Darkink\AuthorizationServer\Repositories;
 
+use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Darkink\AuthorizationServer\Models\Permission;
+use Darkink\AuthorizationServer\Models\Resource;
+use Darkink\AuthorizationServer\Models\Scope;
+use Darkink\AuthorizationServer\Models\ScopePermission;
 use Darkink\AuthorizationServer\Policy;
+use Exception;
+use Illuminate\Support\Facades\DB;
 
 class PermissionRepository
 {
@@ -15,19 +21,39 @@ class PermissionRepository
 
     public function gets()
     {
-        return Policy::permission();
+        return Policy::permission()->with('permission');
     }
 
-    public function create(string $name, string $label, string | null $description, bool $system = false): Permission
+    public function createScope(string $name, string $description, DecisionStrategy $decision_strategy, Resource $resource, array $scopes): ScopePermission
     {
-        $permission = Policy::permission()->forceFill([
-            'name' => $name,
-            'label' => $label,
-            'description' => $description,
-            'system' => $system,
-        ]);
+        DB::beginTransaction();
 
-        $permission->save();
+        try {
+
+            $parent = Policy::permission()->forceFill([
+                'name' => $name,
+                'description' => $description,
+                'decision_strategy' => $decision_strategy->name,
+                'discriminator' => 'null'
+            ]);
+
+            $parent->save();
+
+            $permission = Policy::scopePermission()->forceFill([
+                'id' => $parent->id,
+            ]);
+
+            $permission->resource()->associate($resource);
+            $permission->scopes()->saveMany($scopes);
+            $permission->parent()->save($parent);
+            $permission->save();
+
+        }catch(Exception $e){
+            DB::rollBack();
+            throw $e;
+        }
+
+        DB::commit();
 
         return $permission;
     }
@@ -44,8 +70,8 @@ class PermissionRepository
         return $permission;
     }
 
-    public function delete(Permission $permission)
+    public function deleteScope(ScopePermission $permission)
     {
-        $permission->delete();
+        $permission->parent->delete();
     }
 }

@@ -15,14 +15,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Permission extends BaseModel
 {
     // use HasFactory;
-    use HasInheritance;
+    // use HasInheritance;
 
     protected $table = 'uma_permissions';
 
-    protected $child_classes = [
-        ScopePermission::class,
-        ResourcePermission::class
-    ];
+    public function permission() {
+        return $this->morphTo('permission', 'discriminator', 'id');
+    }
+
+    // protected $child_classes = [
+    //     ScopePermission::class,
+    //     ResourcePermission::class
+    // ];
 
     // protected $fillable = ['name', 'description'];
 

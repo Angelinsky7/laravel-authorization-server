@@ -8,6 +8,7 @@ use Darkink\AuthorizationServer\Http\Controllers\RoleController;
 use Darkink\AuthorizationServer\Http\Controllers\UserAuthorizationController;
 use Darkink\AuthorizationServer\Models\Permission;
 use Darkink\AuthorizationServer\Models\Role;
+use Darkink\AuthorizationServer\Models\ScopePermission;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,7 @@ class Policy
     public static $issuer = '';
     public static $roleModel = Role::class;
     public static $permissionModel = Permission::class;
+    public static $scopePermissionModel = ScopePermission::class;
 
     public static function issuer(string $issuer)
     {
@@ -145,6 +147,21 @@ class Policy
     public static function permission(): Permission
     {
         return new static::$permissionModel;
+    }
+
+    public static function useScopePermissionModel($scopePermissionModel)
+    {
+        static::$scopePermissionModel = $scopePermissionModel;
+    }
+
+    public static function scopePermissionModel()
+    {
+        return static::$scopePermissionModel;
+    }
+
+    public static function scopePermission(): ScopePermission
+    {
+        return new static::$scopePermissionModel;
     }
 
 }

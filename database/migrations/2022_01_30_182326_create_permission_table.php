@@ -28,6 +28,7 @@ class CreatePermissionTable extends Migration
             $table->string('name')->unique();
             $table->string('description');
             $table->enum('decision_strategy', array_column(DecisionStrategy::cases(), 'name'));
+            $table->string('discriminator');
             $table->timestamps();
         });
     }
