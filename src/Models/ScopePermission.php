@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $resourceId
  * @property Resource $resource
  * @property Scope[] $scopes
+ * @property Permission $parent
  */
 class ScopePermission extends BaseModel
 {

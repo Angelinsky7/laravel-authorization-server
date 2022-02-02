@@ -33,10 +33,9 @@ class PermissionRepository
             $parent = Policy::permission()->forceFill([
                 'name' => $name,
                 'description' => $description,
-                'decision_strategy' => $decision_strategy->name,
+                'decision_strategy' => $decision_strategy->value,
                 'discriminator' => 'null'
             ]);
-
             $parent->save();
 
             $permission = Policy::scopePermission()->forceFill([
@@ -47,8 +46,7 @@ class PermissionRepository
             $permission->scopes()->saveMany($scopes);
             $permission->parent()->save($parent);
             $permission->save();
-
-        }catch(Exception $e){
+        } catch (Exception $e) {
             DB::rollBack();
             throw $e;
         }
@@ -58,20 +56,33 @@ class PermissionRepository
         return $permission;
     }
 
-    public function update(Permission $permission, string $name, string $label, string | null $description, bool $system = false): Permission
+    public function updateScope(ScopePermission $permission, string $name, string $description, DecisionStrategy $decision_strategy, Resource $resource, array $scopes): ScopePermission
     {
-        $permission->forceFill([
-            'name' => $name,
-            'label' => $label,
-            'description' => $description,
-            'system' => $system,
-        ])->save();
+        DB::beginTransaction();
+
+        try {
+            $permission->parent->forceFill([
+                'name' => $name,
+                'description' => $description,
+                'decision_strategy' => $decision_strategy->name,
+            ]);
+            $permission->parent->save();
+
+            $permission->resource()->associate($resource);
+            $permission->scopes()->saveMany($scopes);
+            $permission->save();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        DB::commit();
 
         return $permission;
     }
 
-    public function deleteScope(ScopePermission $permission)
+    public function delete(Permission $permission)
     {
-        $permission->parent->delete();
+        $permission->delete();
     }
 }

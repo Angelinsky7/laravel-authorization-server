@@ -14,7 +14,6 @@ class CreateClientTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-
     }
 
     /**
@@ -32,8 +31,8 @@ class CreateClientTable extends Migration
             $table->string('client_name')->unique();
             $table->string('description')->nullable();
             $table->string('client_uri');
-            $table->enum('policy_enforcement', array_column(PolicyEnforcement::cases(), 'name'));
-            $table->enum('decision_strategy', array_column(DecisionStrategy::cases(), 'name'));
+            $table->enum('policy_enforcement', array_slice(array_column(PolicyEnforcement::cases(), 'value'), 1));
+            $table->enum('decision_strategy', array_slice(array_column(DecisionStrategy::cases(), 'value'), 1));
             $table->boolean('analyse_mode_enabled')->default(false);
             $table->timestamps();
         });
@@ -53,6 +52,4 @@ class CreateClientTable extends Migration
     {
         return config('policy.storage.database.connection');
     }
-
-
 }

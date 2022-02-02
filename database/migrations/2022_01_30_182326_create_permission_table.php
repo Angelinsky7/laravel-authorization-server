@@ -9,11 +9,9 @@ class CreatePermissionTable extends Migration
 {
     protected $schema;
 
-
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-
     }
 
     /**
@@ -27,7 +25,7 @@ class CreatePermissionTable extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('description');
-            $table->enum('decision_strategy', array_column(DecisionStrategy::cases(), 'name'));
+            $table->enum('decision_strategy', array_slice(array_column(DecisionStrategy::cases(), 'value'), 1));
             $table->string('discriminator');
             $table->timestamps();
         });
@@ -47,6 +45,4 @@ class CreatePermissionTable extends Migration
     {
         return config('policy.storage.database.connection');
     }
-
-
 }

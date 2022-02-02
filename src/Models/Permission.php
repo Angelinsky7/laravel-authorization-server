@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $description
  * @property DecisionStrategy $decision_strategy
  * @property Policy[] polices
+ * @property ScopePermission | ResourcePermission $permission
  */
 class Permission extends BaseModel
 {
@@ -19,7 +20,12 @@ class Permission extends BaseModel
 
     protected $table = 'uma_permissions';
 
-    public function permission() {
+    protected $casts = [
+        'decision_strategy' => DecisionStrategy::class,
+    ];
+
+    public function permission()
+    {
         return $this->morphTo('permission', 'discriminator', 'id');
     }
 

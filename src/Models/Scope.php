@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * @property-read int $id
  * @property string $name
- * @property string $display-name
- * @property string $icon-uri
+ * @property string $display_name
+ * @property string $icon_uri
  */
 class Scope extends BaseModel
 {
@@ -21,5 +21,11 @@ class Scope extends BaseModel
     {
         return ScopeFactory::new();
     }
+
+    protected $searchable = [
+        'name',
+        'display_name',
+        'icon_uri'
+    ];
 
 }

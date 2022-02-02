@@ -9,11 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * @property-read int $id
  * @property string $name
- * @property string $display-name
+ * @property string $display_name
  * @property string $type
+ * @property string $icon_uri
  * @property Uri[] $uris
  * @property Scope[] scopes
- * @property string $icon-uri
  */
 class Resource extends BaseModel
 {
@@ -35,5 +35,12 @@ class Resource extends BaseModel
     {
         return ResourceFactory::new();
     }
+
+    protected $searchable = [
+        'name',
+        'display_name',
+        'type',
+        'icon_uri'
+    ];
 
 }
