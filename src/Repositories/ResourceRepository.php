@@ -13,7 +13,7 @@ class ResourceRepository
     public function find(int $id): Resource
     {
         $resource = Policy::resource();
-        return $resource->where($resource->id, $id)->first();
+        return $resource->where($resource->getKeyName(), $id)->first();
     }
 
     public function gets()

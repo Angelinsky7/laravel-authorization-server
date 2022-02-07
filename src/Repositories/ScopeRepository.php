@@ -10,7 +10,7 @@ class ScopeRepository
     public function find(int $id): Scope
     {
         $scope = Policy::scope();
-        return $scope->where($scope->id, $id)->first();
+        return $scope->where($scope->getKeyName(), $id)->first();
     }
 
     public function gets()

@@ -10,7 +10,7 @@ class RoleRepository
     public function find(int $id): Role
     {
         $role = Policy::role();
-        return $role->where($role->id, $id)->first();
+        return $role->where($role->getKeyName(), $id)->first();
     }
 
     public function gets()

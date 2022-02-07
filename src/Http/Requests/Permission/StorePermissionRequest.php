@@ -17,7 +17,7 @@ class StorePermissionRequest extends FormRequest
     {
         return [
             'name' => 'required|unique:uma_permissions|string|max:255',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             'decision_strategy' => ['required', new Enum(DecisionStrategy::class)]
         ];
     }

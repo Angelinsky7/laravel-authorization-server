@@ -16,8 +16,8 @@ class StoreScopePermissionRequest extends StorePermissionRequest
         return array_merge(
             parent::rules(),
             [
-                'resource' => 'required|unique:uma_resources,id',
-                'scopes' => 'nullable',
+                'resource' => 'required|exists:uma_resources,id',
+                'scopes' => 'present',
             ]
         );
     }
