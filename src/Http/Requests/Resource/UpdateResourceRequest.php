@@ -2,11 +2,10 @@
 
 namespace Darkink\AuthorizationServer\Http\Requests\Resource;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
+use Darkink\AuthorizationServer\Rules\IsScope;
 use Illuminate\Validation\Rule;
 
-class UpdateResourceRequest extends FormRequest
+class UpdateResourceRequest extends StoreResourceRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -15,13 +14,12 @@ class UpdateResourceRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name' => ['required', Rule::unique('uma_resources')->ignore($this->resource), 'string', 'max:255'],
-            'display_name' => 'required|string|max:255',
-            'type' => 'nullable|string',
-            'icon_uri' => 'nullable|string',
-            'uris' => 'nullable',
-            'scopes' => 'nullable'
-        ];
+        return array_merge(
+            parent::rules(),
+            [
+                'id' => 'required|exists:uma_resources,id',
+                'name' => ['required', Rule::unique('uma_resources')->ignore($this->resource), 'string', 'max:255'],
+            ]
+        );
     }
 }

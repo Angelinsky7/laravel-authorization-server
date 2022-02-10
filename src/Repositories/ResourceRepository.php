@@ -32,7 +32,7 @@ class ResourceRepository
         }
     }
 
-    public function create(string $name, string $displayName, string | null $type, string | null $iconUri, array $uris = [], array $scopes = []): Resource
+    public function create(string $name, string $displayName, string | null $type, string | null $iconUri, array $uris = [], array $scopes): Resource
     {
         DB::beginTransaction();
 
@@ -47,7 +47,7 @@ class ResourceRepository
             $resource->save();
 
             $resource->uris()->createMany(array_map([$this, 'uriMap'], $uris));
-            $resource->scopes()->saveMany($scopes);
+            $resource->scopes()->attach($scopes);
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -58,9 +58,8 @@ class ResourceRepository
         return $resource;
     }
 
-    public function update(Resource $resource, string $name, string $displayName, string | null $type, string | null $iconUri, array $uris = [], array $scopes = []): Resource
+    public function update(Resource $resource, string $name, string $displayName, string | null $type, string | null $iconUri, array $uris = [], array $scopes): Resource
     {
-
         DB::beginTransaction();
 
         try {
@@ -73,7 +72,7 @@ class ResourceRepository
             ])->save();
 
             $resource->uris()->sync(array_column($uris, 'id'));
-            $resource->scopes()->sync(array_column($scopes, 'id'));
+            $resource->scopes()->sync($scopes);
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;

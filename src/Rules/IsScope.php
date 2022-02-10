@@ -6,9 +6,8 @@ use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\DatabaseRule;
 
-class IsResource extends IsModelRule implements Rule
+class IsScope extends IsModelRule implements Rule
 {
-
     use DatabaseRule;
 
     public function __construct()
@@ -22,7 +21,7 @@ class IsResource extends IsModelRule implements Rule
         $validator = Validator::make([
             'id' => $id
         ], [
-            'id' => 'exists:uma_resources,id'
+            'id' => 'exists:uma_scopes,id'
         ]);
 
         return $validator->fails() === false;
@@ -35,6 +34,6 @@ class IsResource extends IsModelRule implements Rule
      */
     public function message()
     {
-        return 'The :attribute is not a valid resource.';
+        return 'The :attribute is not a valid scope.';
     }
 }

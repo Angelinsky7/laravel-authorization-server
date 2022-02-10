@@ -2,6 +2,8 @@
 
 namespace Darkink\AuthorizationServer\Http\Requests\Permission;
 
+use Darkink\AuthorizationServer\Rules\IsResource;
+use Darkink\AuthorizationServer\Rules\IsScope;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreScopePermissionRequest extends StorePermissionRequest
@@ -16,8 +18,9 @@ class StoreScopePermissionRequest extends StorePermissionRequest
         return array_merge(
             parent::rules(),
             [
-                'resource' => 'required|exists:uma_resources,id',
-                'scopes' => 'present',
+                'resource' => ['required', new IsResource()],
+                'scopes' => 'required|array',
+                'scopes.*' => ['required', 'distinct', new IsScope()],
             ]
         );
     }

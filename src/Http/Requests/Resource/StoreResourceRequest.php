@@ -2,6 +2,7 @@
 
 namespace Darkink\AuthorizationServer\Http\Requests\Resource;
 
+use Darkink\AuthorizationServer\Rules\IsScope;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreResourceRequest extends FormRequest
@@ -18,8 +19,8 @@ class StoreResourceRequest extends FormRequest
             'display_name' => 'required|string|max:255',
             'type' => 'nullable|string',
             'icon_uri' => 'nullable|string',
-            'uris' => 'nullable',
-            'scopes' => 'nullable'
+            'scopes' => 'required|array',
+            'scopes.*' => ['required', 'distinct', new IsScope()],
         ];
     }
 }

@@ -42,7 +42,7 @@ class PermissionRepository
             $decision_strategy = is_int($decision_strategy) ? DecisionStrategy::tryFrom($decision_strategy) : $decision_strategy;
             $resource = is_int($resource) ? $this->resourceRepository->find($resource) : $resource;
 
-            if (count($scopes) != 0 && !is_object(0)) {
+            if (count($scopes) != 0 && !is_object($scopes[0])) {
                 $scopes = $this->scopeRepository->gets()->all()->whereIn(Policy::scope()->getKeyName(), $scopes);
             }
 
