@@ -35,28 +35,35 @@ class ScopePermissionRepository
         return Policy::scopePermission()->with('parent');
     }
 
-    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, Resource | int $resource, array $scopes): ScopePermission
+    protected function resolve(DecisionStrategy | int $decision_strategy, Resource | int $resource, array $scopes)
+    {
+        //TODO(demarco): this is stupid 5 lines later we use only the ids...
+        // {
+        $decision_strategy = is_int($decision_strategy) ? DecisionStrategy::tryFrom($decision_strategy) : $decision_strategy;
+        $resource = is_int($resource) ? $this->resourceRepository->find($resource) : $resource;
+
+        if (count($scopes) != 0 && !is_object($scopes[0])) {
+            $scopes = $this->scopeRepository->gets()->all()->whereIn(Policy::scope()->getKeyName(), $scopes);
+        }
+        // }
+
+        return [
+            'decision_strategy' => $decision_strategy,
+            'resource' => $resource,
+            'scopes' => $scopes
+        ];
+    }
+
+    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, Resource | int $resource, mixed $scopes): ScopePermission
     {
         DB::beginTransaction();
 
         try {
 
-            $decision_strategy = is_int($decision_strategy) ? DecisionStrategy::tryFrom($decision_strategy) : $decision_strategy;
-            $resource = is_int($resource) ? $this->resourceRepository->find($resource) : $resource;
-
-            if (count($scopes) != 0 && !is_object($scopes[0])) {
-                $scopes = $this->scopeRepository->gets()->all()->whereIn(Policy::scope()->getKeyName(), $scopes);
-            }
+            //TODO(demarco): this is stupid 5 lines later we use only the ids...
+            extract($this->resolve($decision_strategy, $resource, $scopes));
 
             $parent = $this->permisisonRepository->create($name, $description, $decision_strategy);
-
-            // $parent = Policy::permission()->forceFill([
-            //     'name' => $name,
-            //     'description' => $description,
-            //     'decision_strategy' => $decision_strategy->value,
-            //     'discriminator' => 'null'
-            // ]);
-            // $parent->save();
 
             $permission = Policy::scopePermission()->forceFill([
                 'id' => $parent->id,
@@ -64,7 +71,6 @@ class ScopePermissionRepository
             $permission->parent()->save($parent);
             $permission->resource()->associate($resource);
             $permission->save();
-
             $permission->scopes()->saveMany($scopes);
         } catch (Exception $e) {
             DB::rollBack();
@@ -76,21 +82,19 @@ class ScopePermissionRepository
         return $permission;
     }
 
-    public function update(ScopePermission $permission, string $name, string $description, DecisionStrategy $decision_strategy, Resource $resource, array $scopes): ScopePermission
+    public function update(ScopePermission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, Resource | int $resource, mixed $scopes): ScopePermission
     {
         DB::beginTransaction();
 
         try {
+
+            //TODO(demarco): this is stupid 5 lines later we use only the ids...
+            extract($this->resolve($decision_strategy, $resource, $scopes));
+
             $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy);
-            // $permission->parent->forceFill([
-            //     'name' => $name,
-            //     'description' => $description,
-            //     'decision_strategy' => $decision_strategy->value,
-            // ]);
-            // $permission->parent->save();
 
             $permission->resource()->associate($resource);
-            $permission->scopes()->saveMany($scopes);
+            $permission->scopes()->sync($scopes->map(fn ($p) => $p->id));
             $permission->save();
         } catch (Exception $e) {
             DB::rollBack();
