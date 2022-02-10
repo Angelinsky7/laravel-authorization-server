@@ -18,9 +18,9 @@ class ScopeFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->unique()->word(),
-            'display_name' => $this->faker->text(),
-            'icon_uri' => $this->faker->url(),
+            'name' => 'scope_' . $this->faker->unique()->word(),
+            'display_name' => 'Scope ' . $this->faker->word(),
+            'icon_uri' => $this->faker->imageUrl(),
         ];
     }
 }

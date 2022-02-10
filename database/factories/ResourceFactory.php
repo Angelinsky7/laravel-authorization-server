@@ -21,10 +21,10 @@ class ResourceFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->unique()->word(),
-            'display_name' => $this->faker->text(),
-            'type' => $this->faker->text(),
-            'icon_uri' => $this->faker->url(),
+            'name' => 'res_' . $this->faker->unique()->word(),
+            'display_name' => 'Resource ' . $this->faker->word(),
+            'type' => 'urn:res:' . $this->faker->word(),
+            'icon_uri' => $this->faker->imageUrl(),
         ];
     }
 
@@ -32,7 +32,7 @@ class ResourceFactory extends Factory
     {
         return $this->afterCreating(function (Resource $resource) {
             $resource->uris()->saveMany(Uri::factory($this->faker->numberBetween(1,3))->create());
-            $resource->scopes()->saveMany(Scope::inRandomOrder()->limit($this->faker->numberBetween(1,3))->get());
+            $resource->scopes()->saveMany(Scope::inRandomOrder()->limit($this->faker->numberBetween(3,6))->get());
         });
     }
 }

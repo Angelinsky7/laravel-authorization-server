@@ -29,11 +29,16 @@ class CreateScopePermissionScopeTable extends Migration
                 ->on('uma_scope_permissions')
                 ->onDelete('cascade');
 
+            //TODO(demarco): We should not have uma_scopes as a base table for this
+            //               We should instead use uma_resource_scope because when a Resource
+            //               will change it's scopes it will be reflected there...
+            // {
             $table->unsignedBigInteger('scope_id');
             $table->foreign('scope_id')
                 ->references('id')
                 ->on('uma_scopes')
                 ->onDelete('restrict');
+            // }
 
             $table->primary(['scope_permission_id', 'scope_id']);
         });

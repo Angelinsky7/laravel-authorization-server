@@ -2,8 +2,7 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
-use Darkink\AuthorizationServer\Traits\HasParent;
-use Illuminate\Database\Eloquent\Builder;
+use Darkink\AuthorizationServer\Database\Factories\ScopePermissionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
@@ -14,7 +13,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class ScopePermission extends BaseModel
 {
-    // use HasParent;
+    use HasFactory;
 
     protected $table = 'uma_scope_permissions';
     public $incrementing = false;
@@ -30,6 +29,11 @@ class ScopePermission extends BaseModel
 
     public function scopes(){
         return $this->belongsToMany(Scope::class, 'uma_scope_permission_scope', 'scope_permission_id', 'scope_id');
+    }
+
+    public static function newFactory()
+    {
+        return ScopePermissionFactory::new();
     }
 
 }

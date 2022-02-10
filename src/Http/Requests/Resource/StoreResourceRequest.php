@@ -19,7 +19,7 @@ class StoreResourceRequest extends FormRequest
             'display_name' => 'required|string|max:255',
             'type' => 'nullable|string',
             'icon_uri' => 'nullable|string',
-            'scopes' => 'required|array',
+            'scopes' => 'array',
             'scopes.*' => ['required', 'distinct', new IsScope()],
         ];
     }
