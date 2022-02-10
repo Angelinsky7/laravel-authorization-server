@@ -3,6 +3,7 @@
 namespace Darkink\AuthorizationServer\Database\Factories;
 
 use Darkink\AuthorizationServer\Models\DecisionStrategy;
+use Darkink\AuthorizationServer\Models\Permission;
 use Darkink\AuthorizationServer\Models\Resource;
 use Darkink\AuthorizationServer\Models\Scope;
 use Darkink\AuthorizationServer\Models\ScopePermission;
@@ -22,21 +23,23 @@ class ScopePermissionFactory extends Factory
      */
     public function definition()
     {
-        return [
-            'name' => 'perm_' . $this->faker->unique()->word(),
-            'description' => 'Permission ' . $this->faker->word(),
-            'decision_strategy' => (DecisionStrategy::cases()[$this->faker->numberBetween(1, 3)])->value,
-            'icon_uri' => $this->faker->imageUrl(),
-        ];
+        return [];
     }
 
     public function configure()
     {
-        return $this->afterCreating(function (ScopePermission $permision) {
-            /** @var Resource $resource */
+        return $this->afterMaking(function (ScopePermission $permission) {
+            /** @var Permission $parent */
+            $parent = Permission::factory()->make();
+            $parent->discriminator = get_class($permission);
+            $parent->save();
+            $permission->id = $parent->id;
             $resource = Resource::inRandomOrder()->limit(1)->first();
-            $permision->resource()->associate($resource);
-            $permision->scopes()->saveMany($resource->scopes()::inRandomOrder()->limit($this->faker->numberBetween(1, 3))->get());
+            $permission->resource()->associate($resource);
+        })->afterCreating(function (ScopePermission $permission) {
+            /** @var Resource $resource */
+            $resource = $permission->resource;
+            $permission->scopes()->saveMany($resource->scopes()->inRandomOrder()->limit($this->faker->numberBetween(1, 3))->get());
         });
     }
 }

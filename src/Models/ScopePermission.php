@@ -6,6 +6,7 @@ use Darkink\AuthorizationServer\Database\Factories\ScopePermissionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
+ * @property int $id
  * @property string $resourceId
  * @property Resource $resource
  * @property Scope[] $scopes
