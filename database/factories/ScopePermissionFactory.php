@@ -39,7 +39,8 @@ class ScopePermissionFactory extends Factory
         })->afterCreating(function (ScopePermission $permission) {
             /** @var Resource $resource */
             $resource = $permission->resource;
-            $permission->scopes()->saveMany($resource->scopes()->inRandomOrder()->limit($this->faker->numberBetween(1, 3))->get());
+            $scopes = $resource->scopes()->inRandomOrder()->limit($this->faker->numberBetween(1, 3))->get();
+            $permission->scopes()->saveMany($scopes, $scopes->map(fn($p) => ['resource_id' => $resource->id])->toArray());
         });
     }
 }

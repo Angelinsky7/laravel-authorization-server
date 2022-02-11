@@ -12,7 +12,6 @@ class CreateScopePermissionScopeTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-
     }
 
     /**
@@ -24,21 +23,18 @@ class CreateScopePermissionScopeTable extends Migration
     {
         $this->schema->create('uma_scope_permission_scope', function (Blueprint $table) {
             $table->unsignedBigInteger('scope_permission_id');
-            $table->foreign('scope_permission_id')
-                ->references('id')
+            $table->unsignedBigInteger('resource_id');
+
+            $table->foreign(['scope_permission_id', 'resource_id'], 'uma_scope_permission_scope_sprid_foreign')
+                ->references(['id', 'resource_id'])
                 ->on('uma_scope_permissions')
                 ->onDelete('cascade');
 
-            //TODO(demarco): We should not have uma_scopes as a base table for this
-            //               We should instead use uma_resource_scope because when a Resource
-            //               will change it's scopes it will be reflected there...
-            // {
             $table->unsignedBigInteger('scope_id');
-            $table->foreign('scope_id')
-                ->references('id')
-                ->on('uma_scopes')
+            $table->foreign(['resource_id', 'scope_id'], 'uma_scope_permission_scope_rsid_foreign')
+                ->references(['resource_id', 'scope_id'])
+                ->on('uma_resource_scope')
                 ->onDelete('restrict');
-            // }
 
             $table->primary(['scope_permission_id', 'scope_id']);
         });
@@ -58,6 +54,4 @@ class CreateScopePermissionScopeTable extends Migration
     {
         return config('policy.storage.database.connection');
     }
-
-
 }

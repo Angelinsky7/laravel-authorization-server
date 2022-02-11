@@ -35,6 +35,8 @@ class CreateScopePermissionTable extends Migration
                 ->references('id')
                 ->on('uma_resources')
                 ->onDelete('cascade');
+
+            $table->unique(['id', 'resource_id']);
         });
     }
 

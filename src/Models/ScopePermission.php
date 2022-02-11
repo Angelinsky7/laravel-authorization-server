@@ -29,7 +29,7 @@ class ScopePermission extends BaseModel
     }
 
     public function scopes(){
-        return $this->belongsToMany(Scope::class, 'uma_scope_permission_scope', 'scope_permission_id', 'scope_id');
+        return $this->belongsToMany(Scope::class, 'uma_scope_permission_scope', 'scope_permission_id', 'scope_id')->withPivot('resource_id');
     }
 
     public static function newFactory()
