@@ -71,7 +71,7 @@ class ScopePermissionRepository
             $permission->parent()->save($parent);
             $permission->resource()->associate($resource);
             $permission->save();
-            $permission->scopes()->saveMany($scopes, $scopes->map(fn ($p) => ['resource_id' => $resource->id]));
+            $permission->scopes()->saveMany($scopes, $scopes->map(fn ($p) => ['resource_id' => $resource->id])->toArray());
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -92,13 +92,13 @@ class ScopePermissionRepository
             extract($this->resolve($decision_strategy, $resource, $scopes));
 
             $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy);
-
             if ($resource->id != $permission->resource->id) {
                 $permission->scopes()->sync([]);
             }
 
             $permission->resource()->associate($resource);
-            $permission->scopes()->syncWithPivotValues($scopes->map(fn ($p) => $p->id), ['resource_id' => $resource->id]);
+            $permission->save();
+            $permission->scopes()->syncWithPivotValues($scopes->map(fn ($p) => $p->id)->toArray(), ['resource_id' => $resource->id]);
             $permission->save();
         } catch (Exception $e) {
             DB::rollBack();
