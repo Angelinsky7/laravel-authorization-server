@@ -2,17 +2,12 @@
 
 namespace Darkink\AuthorizationServer\Http\Requests\Permission;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rules\Enum;
-use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Darkink\AuthorizationServer\Rules\IsResource;
 use Darkink\AuthorizationServer\Rules\IsScope;
-use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateScopePermissionRequest extends StoreScopePermissionRequest
+class StoreResourcePermissionRequest extends StorePermissionRequest
 {
-    use RequestPermissionTrait;
-
     /**
      * Get the validation rules that apply to the request.
      *
@@ -22,7 +17,10 @@ class UpdateScopePermissionRequest extends StoreScopePermissionRequest
     {
         return array_merge(
             parent::rules(),
-            $this->permission_update_rules()
+            [
+                'resource_type' => ['required_if:resource,null'],
+                'resource' => ['required_if:resource_type,null', new IsResource(true)],
+            ]
         );
     }
 }

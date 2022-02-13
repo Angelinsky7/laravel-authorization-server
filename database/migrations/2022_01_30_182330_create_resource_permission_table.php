@@ -1,13 +1,15 @@
 <?php
 
+use Darkink\AuthorizationServer\Database\Traits\MigrationHelperTrait;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 class CreateResourcePermissionTable extends Migration
 {
-    protected $schema;
+    use MigrationHelperTrait;
 
+    protected $schema;
 
     public function __construct()
     {
@@ -30,7 +32,7 @@ class CreateResourcePermissionTable extends Migration
                 ->onDelete('cascade');
             $table->primary(['id']);
 
-            $table->string('resource_type')->unique();
+            $table->string('resource_type')->nullable();
 
             $table->unsignedBigInteger('resource_id')->nullable();
             $table->foreign('resource_id')
@@ -38,6 +40,8 @@ class CreateResourcePermissionTable extends Migration
                 ->on('uma_resources')
                 ->onDelete('cascade');
         });
+
+        $this->check('uma_resource_permissions', 'ck_uma_resource_permissions_resource', 'resource_type IS NOT NULL OR resource_id IS NOT NULL');
     }
 
     /**

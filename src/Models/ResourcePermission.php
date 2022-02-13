@@ -2,8 +2,7 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
-use Darkink\AuthorizationServer\Traits\HasParent;
-use Illuminate\Database\Eloquent\Builder;
+use Darkink\AuthorizationServer\Database\Factories\ResourcePermissionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
@@ -12,12 +11,25 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  */
 class ResourcePermission extends Permission
 {
-    use HasParent;
+    use HasFactory;
 
     protected $table = 'uma_resource_permissions';
+    public $incrementing = false;
+    public $timestamps = false;
 
-    public function resource(){
+    public function parent()
+    {
+        return $this->morphOne(Permission::class, 'parent', 'discriminator', 'id');
+    }
+
+    public function resource()
+    {
         return $this->belongsTo(Resource::class, 'resource_id');
+    }
+
+    public static function newFactory()
+    {
+        return ResourcePermissionFactory::new();
     }
 
 }

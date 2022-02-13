@@ -33,7 +33,8 @@
     "autoload": {
         "psr-4": {
             "Darkink\\AuthorizationServer\\": "src/",
-            "Darkink\\AuthorizationServer\\Database\\Factories\\": "database/factories/"
+            "Darkink\\AuthorizationServer\\Database\\Factories\\": "database/factories/",
+            "Darkink\\AuthorizationServer\\Database\\Traits\\": "database/traits/"
         }
     },
     "autoload-dev": {

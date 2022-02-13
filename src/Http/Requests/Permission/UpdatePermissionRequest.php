@@ -9,6 +9,7 @@ use Illuminate\Validation\Rule;
 
 class UpdatePermissionRequest extends StorePermissionRequest
 {
+    use RequestPermissionTrait;
     /**
      * Get the validation rules that apply to the request.
      *
@@ -18,10 +19,7 @@ class UpdatePermissionRequest extends StorePermissionRequest
     {
         return array_merge(
             parent::rules(),
-            [
-                'id' => 'required|exists:uma_permissions,id',
-                'name' => ['required', Rule::unique('uma_permissions')->ignore($this->permission), 'string', 'max:255'],
-            ]
+            $this->permission_update_rules()
         );
     }
 }

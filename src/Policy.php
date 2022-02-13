@@ -8,6 +8,7 @@ use Darkink\AuthorizationServer\Http\Controllers\RoleController;
 use Darkink\AuthorizationServer\Http\Controllers\UserAuthorizationController;
 use Darkink\AuthorizationServer\Models\Permission;
 use Darkink\AuthorizationServer\Models\Resource;
+use Darkink\AuthorizationServer\Models\ResourcePermission;
 use Darkink\AuthorizationServer\Models\Role;
 use Darkink\AuthorizationServer\Models\Scope;
 use Darkink\AuthorizationServer\Models\ScopePermission;
@@ -22,11 +23,16 @@ class Policy
     public static $runsMigrations = true;
     public static $issuer = '';
 
+    #region model
+
     public static $scopeModel = Scope::class;
     public static $resourceModel = Resource::class;
     public static $roleModel = Role::class;
     public static $permissionModel = Permission::class;
     public static $scopePermissionModel = ScopePermission::class;
+    public static $resourcePermissionModel = ResourcePermission::class;
+
+    #endregion
 
     public static function issuer(string $issuer)
     {
@@ -105,6 +111,8 @@ class Policy
         });
     }
 
+    #region scope
+
     public static function useScopeModel($scopeModel)
     {
         static::$scopeModel = $scopeModel;
@@ -119,6 +127,10 @@ class Policy
     {
         return new static::$scopeModel;
     }
+
+    #endregion
+
+    #region resource
 
     public static function useResourceModel($resourceModel)
     {
@@ -135,6 +147,10 @@ class Policy
         return new static::$resourceModel;
     }
 
+    #endregion
+
+    #region role
+
     public static function useRoleModel($roleModel)
     {
         static::$roleModel = $roleModel;
@@ -149,6 +165,10 @@ class Policy
     {
         return new static::$roleModel;
     }
+
+    #endregion
+
+    #region permission
 
     public static function usePermissionModel($permissionModel)
     {
@@ -165,6 +185,10 @@ class Policy
         return new static::$permissionModel;
     }
 
+    #endregion
+
+    #region scopePermission
+
     public static function useScopePermissionModel($scopePermissionModel)
     {
         static::$scopePermissionModel = $scopePermissionModel;
@@ -179,5 +203,26 @@ class Policy
     {
         return new static::$scopePermissionModel;
     }
+
+    #endregion
+
+    #region resourcePermission
+
+    public static function useResourcePermissionModel($resourcePermissionModel)
+    {
+        static::$resourcePermissionModel = $resourcePermissionModel;
+    }
+
+    public static function resourcePermissionModel()
+    {
+        return static::$resourcePermissionModel;
+    }
+
+    public static function resourcePermission(): ResourcePermission
+    {
+        return new static::$resourcePermissionModel;
+    }
+
+    #endregion
 
 }
