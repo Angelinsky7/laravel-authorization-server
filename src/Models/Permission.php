@@ -42,6 +42,11 @@ class Permission extends BaseModel
     //     return $this->belongsToMany(Role::class, 'role_permission');
     // }
 
+    protected $searchable = [
+        'name',
+        'description',
+    ];
+
     public static function newFactory()
     {
         return PermissionFactory::new();

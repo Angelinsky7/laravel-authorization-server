@@ -2,17 +2,20 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
+use Darkink\AuthorizationServer\Database\Factories\RoleFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property int $id
  * @property string $name
+ * @property string $display_name
  * @property string $description
  * @property bool $system
  * @property Role[] $parents
  */
 class Role extends BaseModel
 {
+    use HasFactory;
 
     protected $table = 'uma_roles';
 
@@ -58,4 +61,15 @@ class Role extends BaseModel
     //     'label',
     //     'description'
     // ];
+
+    protected $searchable = [
+        'name',
+        'display_name',
+        'description'
+    ];
+
+    public static function newFactory()
+    {
+        return RoleFactory::new();
+    }
 }

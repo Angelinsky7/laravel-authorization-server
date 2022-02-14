@@ -25,6 +25,7 @@ class CreateRoleTable extends Migration
         $this->schema->create('uma_roles', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
+            $table->string('display_name');
             $table->string('description')->nullable();
             $table->boolean('system')->default(false);
             $table->timestamps();
