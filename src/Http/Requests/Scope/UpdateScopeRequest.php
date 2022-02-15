@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
-class UpdateScopeRequest extends FormRequest
+class UpdateScopeRequest extends StoreScopeRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -15,10 +15,12 @@ class UpdateScopeRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name' => ['required', Rule::unique('uma_scopes')->ignore($this->scope), 'string', 'max:255'],
-            'display_name' => 'required|string|max:255',
-            'icon_uri' => 'nullable|string',
-        ];
+        return array_merge(
+            parent::rules(),
+            [
+                'id' => 'required|exists:uma_scopes,id',
+                'name' => ['required', Rule::unique('uma_scopes')->ignore($this->scope), 'string', 'max:255'],
+            ]
+        );
     }
 }

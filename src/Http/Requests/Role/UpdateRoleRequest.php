@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 
-class UpdateRoleRequest extends FormRequest
+class UpdateRoleRequest extends StoreRoleRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -15,10 +15,12 @@ class UpdateRoleRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name' => ['required', Rule::unique('uma_roles')->ignore($this->role), 'string', 'max:255'],
-            'display_name' => 'required|string|max:255',
-            'description' => 'nullable|string'
-        ];
+        return array_merge(
+            parent::rules(),
+            [
+                'id' => 'required|exists:uma_roles,id',
+                'name' => ['required', Rule::unique('uma_roles')->ignore($this->role), 'string', 'max:255'],
+            ]
+        );
     }
 }
