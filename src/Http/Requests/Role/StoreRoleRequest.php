@@ -2,6 +2,8 @@
 
 namespace Darkink\AuthorizationServer\Http\Requests\Role;
 
+use Darkink\AuthorizationServer\Rules\IsRole;
+use Darkink\AuthorizationServer\Rules\IsRoleCyclicParent;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreRoleRequest extends FormRequest
@@ -16,7 +18,19 @@ class StoreRoleRequest extends FormRequest
         return [
             'name' => 'required|unique:uma_roles|string|max:255',
             'display_name' => 'required|string|max:255',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'parents' => ['required', 'array', new IsRoleCyclicParent($this->input())],
+            'parents.*' => ['required', 'distinct', new IsRole()],
         ];
     }
+
+    public function validated()
+    {
+        $result = parent::validated();
+
+
+
+        return $result;
+    }
+
 }
