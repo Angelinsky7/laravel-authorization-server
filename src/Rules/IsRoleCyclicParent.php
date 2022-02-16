@@ -28,7 +28,7 @@ class IsRoleCyclicParent implements Rule
             $visitedRoles = [];
         }
 
-        if (array_key_exists($role->id, $visitedRoles)) {
+        if (in_array($role->id, $visitedRoles)) {
             return false;
         }
 

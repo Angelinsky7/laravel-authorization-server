@@ -2,6 +2,8 @@
 
 namespace Darkink\AuthorizationServer;
 
+use Darkink\AuthorizationServer\Helpers\FlashMessage;
+use Darkink\AuthorizationServer\Helpers\FlashMessageSize;
 use Darkink\AuthorizationServer\Http\Controllers\ApiRoleController;
 use Darkink\AuthorizationServer\Http\Controllers\DiscoverController;
 use Darkink\AuthorizationServer\Http\Controllers\RoleController;
@@ -12,9 +14,12 @@ use Darkink\AuthorizationServer\Models\ResourcePermission;
 use Darkink\AuthorizationServer\Models\Role;
 use Darkink\AuthorizationServer\Models\Scope;
 use Darkink\AuthorizationServer\Models\ScopePermission;
+use Illuminate\Database\QueryException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Validation\ValidationException;
 
 class Policy
 {
@@ -94,6 +99,15 @@ class Policy
                     Route::get('/', [RoleController::class, 'index'])->name('api.policy.permission.index');
                 });
             });
+        });
+    }
+
+    public static function registerExceptionHanlder(ExceptionHandler $hanlder)
+    {
+        $hanlder->reportable(function (QueryException $e) {
+            request()->session()->flash('error_message', new FlashMessage($e->errorInfo[2], false, 3000, FlashMessageSize::NORMAL));
+            $error = ValidationException::withMessages([]);
+            throw $error;
         });
     }
 

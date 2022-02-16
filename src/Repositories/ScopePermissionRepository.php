@@ -99,8 +99,10 @@ class ScopePermissionRepository
 
             $permission->resource()->associate($resource);
             $permission->save();
+
+            /** @var \Illuminate\Support\Collection $scopes */
             $permission->scopes()->syncWithPivotValues($scopes->map(fn ($p) => $p->id)->toArray(), ['resource_id' => $resource->id]);
-            $permission->save();
+            // $permission->save();
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;

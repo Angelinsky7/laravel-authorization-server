@@ -19,7 +19,7 @@ class StoreRoleRequest extends FormRequest
             'name' => 'required|unique:uma_roles|string|max:255',
             'display_name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'parents' => ['nullable', 'array', new IsRoleCyclicParent($this->input())],
+            'parents' => ['nullable', 'array'],
             'parents.*' => ['required', 'distinct', new IsRole()],
         ];
     }
