@@ -8,6 +8,7 @@ use Darkink\AuthorizationServer\Http\Controllers\ApiRoleController;
 use Darkink\AuthorizationServer\Http\Controllers\DiscoverController;
 use Darkink\AuthorizationServer\Http\Controllers\RoleController;
 use Darkink\AuthorizationServer\Http\Controllers\UserAuthorizationController;
+use Darkink\AuthorizationServer\Models\Group;
 use Darkink\AuthorizationServer\Models\Permission;
 use Darkink\AuthorizationServer\Models\Resource;
 use Darkink\AuthorizationServer\Models\ResourcePermission;
@@ -36,6 +37,7 @@ class Policy
     public static $permissionModel = Permission::class;
     public static $scopePermissionModel = ScopePermission::class;
     public static $resourcePermissionModel = ResourcePermission::class;
+    public static $groupModel = Group::class;
 
     #endregion
 
@@ -235,6 +237,25 @@ class Policy
     public static function resourcePermission(): ResourcePermission
     {
         return new static::$resourcePermissionModel;
+    }
+
+    #endregion
+
+    #region group
+
+    public static function useGroupModel($groupModel)
+    {
+        static::$groupModel = $groupModel;
+    }
+
+    public static function groupModel()
+    {
+        return static::$groupModel;
+    }
+
+    public static function group(): Group
+    {
+        return new static::$groupModel;
     }
 
     #endregion

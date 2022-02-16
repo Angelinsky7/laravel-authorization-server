@@ -24,13 +24,4 @@ class StoreRoleRequest extends FormRequest
         ];
     }
 
-    public function validated()
-    {
-        $result = parent::validated();
-
-
-
-        return $result;
-    }
-
 }

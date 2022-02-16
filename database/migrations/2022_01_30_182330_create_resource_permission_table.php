@@ -14,7 +14,6 @@ class CreateResourcePermissionTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-
     }
 
     /**

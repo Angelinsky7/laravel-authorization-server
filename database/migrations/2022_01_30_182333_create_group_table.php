@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateRoleTable extends Migration
+class CreateGroupTable extends Migration
 {
     protected $schema;
 
@@ -21,7 +21,7 @@ class CreateRoleTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('uma_roles', function (Blueprint $table) {
+        $this->schema->create('uma_groups', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
             $table->string('display_name');
@@ -38,7 +38,7 @@ class CreateRoleTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('uma_roles');
+        Schema::dropIfExists('uma_groups');
     }
 
     public function getConnection()
