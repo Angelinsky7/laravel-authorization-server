@@ -21,35 +21,49 @@ class GroupRepository
         return Policy::group();
     }
 
-    protected function resolve(array $memberOfs, array $members)
+    protected function resolve(mixed $memberOfs, mixed $members)
     {
-        // if (count($parents) != 0 && !is_object($parents[0])) {
-        //     $parents = $this->gets()->all()->whereIn(Policy::group()->getKeyName(), $parents);
-        // }
+        if (count($memberOfs) != 0 && !is_object($memberOfs[0])) {
+            $memberOfs = $this->gets()->all()->whereIn(Policy::group()->getKeyName(), $memberOfs);
+        }
+
+        //TODO(demarco): this is not correct
+        $groups = [];
+        $users = [];
+
+        if (count($members) != 0 && !is_object($members[0])) {
+            $lookGroups = array_filter($members, fn ($p) => str_starts_with($p, 'g'));
+            $groups = $this->gets()->all()->whereIn(Policy::group()->getKeyName(), $lookGroups);
+            $lookUsers = array_filter($members, fn ($p) => str_starts_with($p, 'u'));
+            $users = Policy::user()->gets()->all()->whereIn(Policy::user()->getKeyName(), $lookUsers);
+        }
 
         return [
             'memberOfs' => $memberOfs,
-            'members' => $members
+            'members_groups' => $groups,
+            'members_users' => $users
         ];
     }
 
     protected function checkCircualReferences(Group $group, array &$visitedGroups = null)
     {
-        if ($visitedGroups == null) {
-            $visitedGroups = [];
-        }
+        //TODO(demarco): Please implement correctly
 
-        if (in_array($group->id, $visitedGroups)) {
-            return false;
-        }
+        // if ($visitedGroups == null) {
+        //     $visitedGroups = [];
+        // }
 
-        $visitedGroups[] = $group->id;
+        // if (in_array($group->id, $visitedGroups)) {
+        //     return false;
+        // }
 
-        foreach ($group->parents()->get() as $parent) {
-            if (!$this->checkCircualReferences($parent, $visitedGroups)) {
-                return false;
-            }
-        }
+        // $visitedGroups[] = $group->id;
+
+        // foreach ($group->parents()->get() as $parent) {
+        //     if (!$this->checkCircualReferences($parent, $visitedGroups)) {
+        //         return false;
+        //     }
+        // }
 
         return true;
     }
@@ -82,7 +96,8 @@ class GroupRepository
             $group->save();
 
             $group->memberOfs()->saveMany($memberOfs);
-            $group->members()->saveMany($members);
+            $group->group_members()->saveMany($members_groups);
+            $group->user_members()->saveMany($members_users);
 
             $this->checkValidation($group);
         } catch (Exception $e) {
@@ -111,9 +126,11 @@ class GroupRepository
             ])->save();
 
             /** @var \Illuminate\Support\Collection $memberOfs */
-            $group->memberOfs()->sync($memberOfs->map(fn ($p) => $p->id)->toArray());
-            /** @var \Illuminate\Support\Collection $members */
-            $group->members()->sync($members->map(fn ($p) => $p->id)->toArray());
+            $group->memberOfs()->sync(is_array($memberOfs) ? $memberOfs : $memberOfs->map(fn ($p) => $p->id)->toArray());
+            /** @var \Illuminate\Support\Collection $members_groups */
+            $group->group_members()->sync(is_array($members_groups) ? $members_groups : $members_groups->map(fn ($p) => $p->id)->toArray());
+            /** @var \Illuminate\Support\Collection $members_users */
+            $group->user_members()->sync(is_array($members_users) ? $members_users : $members_users->map(fn ($p) => $p->id)->toArray());
 
             $this->checkValidation($group);
         } catch (Exception $e) {

@@ -109,7 +109,7 @@ class RoleRepository
             ])->save();
 
             /** @var \Illuminate\Support\Collection $parents */
-            $role->parents()->sync($parents->map(fn ($p) => $p->id)->toArray());
+            $role->parents()->sync(is_array($parents) ? $parents : $parents->map(fn ($p) => $p->id)->toArray());
 
             $this->checkValidation($role);
         } catch (Exception $e) {

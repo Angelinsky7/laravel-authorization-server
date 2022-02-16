@@ -24,6 +24,8 @@ class CreateGroupMemberTable extends Migration
     public function up()
     {
         $this->schema->create('uma_group_member', function (Blueprint $table) {
+            $table->id();
+
             $table->unsignedBigInteger('group_id');
             $table->foreign('group_id')
                 ->references('id')
@@ -42,9 +44,10 @@ class CreateGroupMemberTable extends Migration
                 ->on('users')
                 ->onDelete('cascade');
 
-            $table->primary(['group_id', 'member_group_id', 'member_user_id']);
+            $table->unique(['group_id', 'member_group_id', 'member_user_id']);
         });
 
+        //TODO(demarco): We must add a constraint for when both are not null -> not possible
         $this->check('uma_group_member', 'ck_uma_group_member_member', 'member_group_id IS NOT NULL OR member_user_id IS NOT NULL');
     }
 

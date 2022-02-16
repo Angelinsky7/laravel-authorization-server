@@ -2,6 +2,7 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
+use App\Models\User;
 use Darkink\AuthorizationServer\Database\Factories\GroupFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -22,22 +23,23 @@ class Group extends BaseModel
 
     public function memberOfs()
     {
-        return $this->belongsToMany(Group::class, 'uma_group_group', 'member_group_id', 'group_id');
+        return $this->belongsToMany(Group::class, 'uma_group_member', 'member_group_id', 'group_id');
     }
 
     public function members()
     {
-        return $this->group_members()->concat($this->user_members());
+        //ddd($this->group_members()->get(), $this->user_members()->get(), $this->group_members()->get()->concat($this->user_members()->get()));
+        return $this->group_members()->get()->concat($this->user_members()->get());
     }
 
     public function group_members()
     {
-        return $this->belongsToMany(Group::class, 'uma_group_group', 'group_id', 'member_group_id');
+        return $this->belongsToMany(Group::class, 'uma_group_member', 'group_id', 'member_group_id');
     }
 
     public function user_members()
     {
-        return $this->belongsToMany(Group::class, 'uma_group_group', 'group_id', 'member_user_id');
+        return $this->belongsToMany(User::class, 'uma_group_member', 'group_id', 'member_user_id');
     }
 
     protected $searchable = [

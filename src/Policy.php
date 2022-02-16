@@ -2,6 +2,7 @@
 
 namespace Darkink\AuthorizationServer;
 
+use App\Models\User;
 use Darkink\AuthorizationServer\Helpers\FlashMessage;
 use Darkink\AuthorizationServer\Helpers\FlashMessageSize;
 use Darkink\AuthorizationServer\Http\Controllers\ApiRoleController;
@@ -38,6 +39,7 @@ class Policy
     public static $scopePermissionModel = ScopePermission::class;
     public static $resourcePermissionModel = ResourcePermission::class;
     public static $groupModel = Group::class;
+    public static $userModel = User::class;
 
     #endregion
 
@@ -256,6 +258,25 @@ class Policy
     public static function group(): Group
     {
         return new static::$groupModel;
+    }
+
+    #endregion
+
+    #region user
+
+    public static function useUserModel($userModel)
+    {
+        static::$userModel = $userModel;
+    }
+
+    public static function userModel()
+    {
+        return static::$userModel;
+    }
+
+    public static function user(): User
+    {
+        return new static::$userModel;
     }
 
     #endregion
