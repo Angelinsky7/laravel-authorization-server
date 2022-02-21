@@ -19,10 +19,10 @@ class StoreGroupRequest extends FormRequest
             'name' => 'required|unique:uma_groups|string|max:255',
             'display_name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'memberOfs' => ['nullable', 'array'],
-            'memberOfs.*' => ['required', 'distinct', new IsGroup()],
+            'memberofs' => ['nullable', 'array'],
+            'memberofs.*' => ['required', 'distinct', new IsGroup('g')],
             'members' => ['nullable', 'array'],
-            'members.*' => ['required', 'distinct', new IsGroupOrUser()],
+            'members.*' => ['required', 'distinct', new IsGroupOrUser('g', 'u')],
         ];
     }
 

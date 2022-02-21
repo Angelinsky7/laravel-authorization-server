@@ -10,8 +10,13 @@ class IsGroupOrUser extends IsModelRule implements Rule
 {
     use DatabaseRule;
 
-    public function __construct()
+    public string $groupPrefix;
+    public string $userPrefix;
+
+    public function __construct(string $groupPrefix = '', string $userPrefix = '')
     {
+        $this->groupPrefix = $groupPrefix;
+        $this->userPrefix = $userPrefix;
     }
 
     public function passes($attribute, $value)
@@ -22,10 +27,10 @@ class IsGroupOrUser extends IsModelRule implements Rule
             'id' => $id
         ], [
             'id' => function ($attribute, $value) {
-                if ((new IsGroup())->passes($attribute, $value)) {
+                if ((new IsGroup($this->groupPrefix))->passes($attribute, $value)) {
                     return true;
                 }
-                return (new IsUser())->passes($attribute, $value);
+                return (new IsUser($this->userPrefix))->passes($attribute, $value);
             }
         ]);
 

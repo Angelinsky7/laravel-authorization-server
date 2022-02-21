@@ -10,13 +10,25 @@ class IsGroup extends IsModelRule implements Rule
 {
     use DatabaseRule;
 
-    public function __construct()
+    public string $prefix;
+
+    public function __construct(string $prefix = '')
     {
+        $this->prefix = $prefix;
     }
 
     public function passes($attribute, $value)
     {
-        $id = $this->getId($value, 'id');
+        $valueWitoutPrefix = $value;
+
+        if ($this->prefix != '') {
+            if (!str_starts_with($value, $this->prefix)) {
+                return false;
+            }
+            $valueWitoutPrefix = substr($value, strlen($this->prefix));
+        }
+
+        $id = $this->getId($valueWitoutPrefix, 'id');
 
         $validator = Validator::make([
             'id' => $id
