@@ -3,18 +3,18 @@
 namespace Darkink\AuthorizationServer\Repositories;
 
 use Darkink\AuthorizationServer\Models\Policy;
+use Darkink\AuthorizationServer\Models\PolicyLogic;
 use Darkink\AuthorizationServer\Policy as AuthorizationServerPolicy;
 use Exception;
 
 class PolicyRepository
 {
     // protected ResourceRepository $resourceRepository;
-    // protected ScopeRepository $scopeRepository;
+    // protected PolicyRepository $policyRepository;
 
-    // public function __construct(ResourceRepository $resourceRepository, ScopeRepository $scopeRepository)
+    // public function __construct(PolicyRepository $policyRepository)
     // {
-    //     $this->resourceRepository = $resourceRepository;
-    //     $this->scopeRepository = $scopeRepository;
+    //     $this->policyRepository = $policyRepository;
     // }
 
     public function find(int $id): Policy
@@ -28,25 +28,48 @@ class PolicyRepository
         return AuthorizationServerPolicy::policy()->with('policy');
     }
 
-    public function create(string $name): Policy
+    protected function resolve(PolicyLogic | int $logic)
     {
-        $policy = Policy::permission()->forceFill([
-            // 'name' => $name,
-            // 'description' => $description,
-            // 'decision_strategy' => $decision_strategy->value,
-            // 'discriminator' => 'null'
+        //TODO(demarco): this is stupid 5 lines later we use only the ids...
+        // {
+        $logic = is_int($logic) ? PolicyLogic::tryFrom($logic) : $logic;
+
+        // if (count($permissions) != 0 && !is_object($permissions[0])) {
+        //     $permissions = $this->permissionRepository->gets()->all()->whereIn(AuthorizationServerPolicy::policy()->getKeyName(), $scopes);
+        // }
+
+        // }
+
+        return [
+            'logic' => $logic,
+            // 'permissions' => $permissions
+        ];
+    }
+
+    public function create(string $name, string $description, PolicyLogic | int $logic): Policy
+    {
+        extract($this->resolve($logic));
+
+        $policy = AuthorizationServerPolicy::policy()->forceFill([
+            'name' => $name,
+            'description' => $description,
+            'logic' => $logic->value,
+            'discriminator' => 'null'
         ]);
+
         $policy->save();
 
         return $policy;
     }
 
-    public function update(Policy $policy, string $name): Policy
+    public function update(Policy $policy, string $name, string $description, PolicyLogic | int $logic): Policy
     {
+        extract($this->resolve($logic));
+
         $policy->forceFill([
-            // 'name' => $name,
-            // 'description' => $description,
-            // 'decision_strategy' => $decision_strategy->value,
+            'name' => $name,
+            'description' => $description,
+            'logic' => $logic->value,
         ]);
         $policy->save();
 

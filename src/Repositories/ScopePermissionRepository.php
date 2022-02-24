@@ -36,11 +36,10 @@ class ScopePermissionRepository
     }
 
     //TODO(demarco): This method has some properties that are like the other one in ResourcePermissionRepository
-    protected function resolve(DecisionStrategy | int $decision_strategy, Resource | int $resource, array $scopes)
+    protected function resolve(Resource | int $resource, array $scopes)
     {
         //TODO(demarco): this is stupid 5 lines later we use only the ids...
         // {
-        $decision_strategy = is_int($decision_strategy) ? DecisionStrategy::tryFrom($decision_strategy) : $decision_strategy;
         $resource = is_int($resource) ? $this->resourceRepository->find($resource) : $resource;
 
         if (count($scopes) != 0 && !is_object($scopes[0])) {
@@ -49,22 +48,21 @@ class ScopePermissionRepository
         // }
 
         return [
-            'decision_strategy' => $decision_strategy,
             'resource' => $resource,
             'scopes' => $scopes
         ];
     }
 
-    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, Resource | int $resource, mixed $scopes): ScopePermission
+    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies, Resource | int $resource, mixed $scopes): ScopePermission
     {
         DB::beginTransaction();
 
         try {
 
             //TODO(demarco): this is stupid 5 lines later we use only the ids...
-            extract($this->resolve($decision_strategy, $resource, $scopes));
+            extract($this->resolve($resource, $scopes));
 
-            $parent = $this->permisisonRepository->create($name, $description, $decision_strategy);
+            $parent = $this->permisisonRepository->create($name, $description, $decision_strategy, $policies);
 
             $permission = Policy::scopePermission()->forceFill([
                 'id' => $parent->id,
@@ -83,16 +81,16 @@ class ScopePermissionRepository
         return $permission;
     }
 
-    public function update(ScopePermission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, Resource | int $resource, mixed $scopes): ScopePermission
+    public function update(ScopePermission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies, Resource | int $resource, mixed $scopes): ScopePermission
     {
         DB::beginTransaction();
 
         try {
 
             //TODO(demarco): this is stupid 5 lines later we use only the ids...
-            extract($this->resolve($decision_strategy, $resource, $scopes));
+            extract($this->resolve($resource, $scopes));
 
-            $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy);
+            $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy, $policies);
             if ($resource->id != $permission->resource->id) {
                 $permission->scopes()->sync([]);
             }

@@ -112,11 +112,14 @@ class Policy
 
     public static function registerExceptionHanlder(ExceptionHandler $hanlder)
     {
-        $hanlder->reportable(function (QueryException $e) {
-            request()->session()->flash('error_message', new FlashMessage($e->errorInfo[2], false, 3000, FlashMessageSize::NORMAL));
-            $error = ValidationException::withMessages([]);
-            throw $error;
-        });
+        $command = request()->server('argv', []);
+        if (!in_array('artisan', $command)) {
+            $hanlder->reportable(function (QueryException $e) {
+                request()->session()->flash('error_message', new FlashMessage($e->errorInfo[2], false, 3000, FlashMessageSize::NORMAL));
+                $error = ValidationException::withMessages([]);
+                throw $error;
+            });
+        }
     }
 
     public static function gates()
@@ -304,23 +307,23 @@ class Policy
 
     #endregion
 
-     #region groupPolicy
+    #region groupPolicy
 
-     public static function useGroupPolicyModel($groupPolicyModel)
-     {
-         static::$groupPolicyModel = $groupPolicyModel;
-     }
+    public static function useGroupPolicyModel($groupPolicyModel)
+    {
+        static::$groupPolicyModel = $groupPolicyModel;
+    }
 
-     public static function groupPolicyModel()
-     {
-         return static::$groupPolicyModel;
-     }
+    public static function groupPolicyModel()
+    {
+        return static::$groupPolicyModel;
+    }
 
-     public static function groupPolicy(): GroupPolicy
-     {
-         return new static::$groupPolicyModel;
-     }
+    public static function groupPolicy(): GroupPolicy
+    {
+        return new static::$groupPolicyModel;
+    }
 
-     #endregion
+    #endregion
 
 }

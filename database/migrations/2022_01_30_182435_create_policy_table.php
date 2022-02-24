@@ -13,7 +13,6 @@ class CreatePolicyTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-
     }
 
     /**
@@ -27,7 +26,8 @@ class CreatePolicyTable extends Migration
             $table->id();
             $table->string('name')->unique();
             $table->string('description')->nullable();
-            $table->enum('logic', array_column(PolicyLogic::cases(), 'value'));
+            $table->enum('logic', array_slice(array_column(PolicyLogic::cases(), 'value'), 1));
+            $table->string('discriminator');
             $table->timestamps();
         });
     }
@@ -46,6 +46,4 @@ class CreatePolicyTable extends Migration
     {
         return config('policy.storage.database.connection');
     }
-
-
 }

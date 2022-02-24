@@ -33,32 +33,30 @@ class ResourcePermissionRepository
     }
 
     //TODO(demarco): This method has some properties that are like the other one in ScopePermissionRepository
-    protected function resolve(DecisionStrategy | int $decision_strategy, Resource | int | null $resource)
+    protected function resolve(Resource | int | null $resource)
     {
         //TODO(demarco): this is stupid 5 lines later we use only the ids...
         // {
-        $decision_strategy = is_int($decision_strategy) ? DecisionStrategy::tryFrom($decision_strategy) : $decision_strategy;
         if ($resource != null) {
             $resource = is_int($resource) ? $this->resourceRepository->find($resource) : $resource;
         }
         // }
 
         return [
-            'decision_strategy' => $decision_strategy,
             'resource' => $resource,
         ];
     }
 
-    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, string | null $resource_type, Resource | int | null $resource): ResourcePermission
+    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies, string | null $resource_type, Resource | int | null $resource): ResourcePermission
     {
         DB::beginTransaction();
 
         try {
 
             //TODO(demarco): this is stupid 5 lines later we use only the ids...
-            extract($this->resolve($decision_strategy, $resource));
+            extract($this->resolve($resource));
 
-            $parent = $this->permisisonRepository->create($name, $description, $decision_strategy);
+            $parent = $this->permisisonRepository->create($name, $description, $decision_strategy, $policies);
 
             $permission = Policy::resourcePermission()->forceFill([
                 'id' => $parent->id,
@@ -77,16 +75,16 @@ class ResourcePermissionRepository
         return $permission;
     }
 
-    public function update(ResourcePermission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, string | null $resource_type, Resource | int | null $resource): ResourcePermission
+    public function update(ResourcePermission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies, string | null $resource_type, Resource | int | null $resource): ResourcePermission
     {
         DB::beginTransaction();
 
         try {
 
             //TODO(demarco): this is stupid 5 lines later we use only the ids...
-            extract($this->resolve($decision_strategy, $resource));
+            extract($this->resolve($resource));
 
-            $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy);
+            $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy, $policies);
 
             $permission->resource_type = $resource_type;
             $permission->resource()->associate($resource);

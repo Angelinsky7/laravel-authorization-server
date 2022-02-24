@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateGroupPolicyGroupTable extends Migration
+class CreatePermissionPolicyTable extends Migration
 {
     protected $schema;
 
@@ -12,6 +12,7 @@ class CreateGroupPolicyGroupTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
+
     }
 
     /**
@@ -21,20 +22,20 @@ class CreateGroupPolicyGroupTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('uma_group_policy_group', function (Blueprint $table) {
-            $table->unsignedBigInteger('group_policy_id');
-            $table->foreign('group_policy_id')
+        $this->schema->create('uma_permission_policy', function (Blueprint $table) {
+            $table->unsignedBigInteger('permission_id');
+            $table->foreign('permission_id')
                 ->references('id')
-                ->on('uma_group_policies')
+                ->on('uma_permissions')
                 ->onDelete('cascade');
 
-            $table->unsignedBigInteger('group_id');
-            $table->foreign('group_id')
+            $table->unsignedBigInteger('policy_id');
+            $table->foreign('policy_id')
                 ->references('id')
-                ->on('uma_groups')
+                ->on('uma_policies')
                 ->onDelete('cascade');
 
-            $table->primary(['group_policy_id', 'group_id']);
+            $table->primary(['permission_id', 'policy_id']);
         });
     }
 
@@ -45,11 +46,13 @@ class CreateGroupPolicyGroupTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('uma_group_policy_group');
+        Schema::dropIfExists('uma_permission_policy');
     }
 
     public function getConnection()
     {
         return config('policy.storage.database.connection');
     }
+
+
 }

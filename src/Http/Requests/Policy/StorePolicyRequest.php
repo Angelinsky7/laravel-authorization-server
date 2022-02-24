@@ -4,7 +4,7 @@ namespace Darkink\AuthorizationServer\Http\Requests\Policy;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
-use Darkink\AuthorizationServer\Models\DecisionStrategy;
+use Darkink\AuthorizationServer\Models\PolicyLogic;
 
 class StorePolicyRequest extends FormRequest
 {
@@ -17,6 +17,8 @@ class StorePolicyRequest extends FormRequest
     {
         return [
             'name' => 'required|unique:uma_policies|string|max:255',
+            'description' => 'required|string',
+            'logic' => ['required', new Enum(PolicyLogic::class)]
         ];
     }
 }

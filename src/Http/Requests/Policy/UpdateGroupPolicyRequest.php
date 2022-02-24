@@ -4,7 +4,7 @@ namespace Darkink\AuthorizationServer\Http\Requests\Policy;
 
 use Illuminate\Validation\Rule;
 
-class UpdateGroupPolicyRequest extends StorePolicyRequest
+class UpdateGroupPolicyRequest extends StoreGroupPolicyRequest
 {
     use RequestPolicyTrait;
 

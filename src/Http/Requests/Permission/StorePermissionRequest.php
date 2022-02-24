@@ -5,6 +5,7 @@ namespace Darkink\AuthorizationServer\Http\Requests\Permission;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 use Darkink\AuthorizationServer\Models\DecisionStrategy;
+use Darkink\AuthorizationServer\Rules\IsPolicy;
 
 class StorePermissionRequest extends FormRequest
 {
@@ -18,7 +19,9 @@ class StorePermissionRequest extends FormRequest
         return [
             'name' => 'required|unique:uma_permissions|string|max:255',
             'description' => 'required|string',
-            'decision_strategy' => ['required', new Enum(DecisionStrategy::class)]
+            'decision_strategy' => ['required', new Enum(DecisionStrategy::class)],
+            'policies' => 'nullable|array',
+            'policies.*' => ['required', 'distinct', new IsPolicy()],
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Darkink\AuthorizationServer\Http\Requests\Policy;
 
+use Darkink\AuthorizationServer\Rules\IsGroup;
 use Darkink\AuthorizationServer\Rules\IsResource;
 use Darkink\AuthorizationServer\Rules\IsScope;
 use Illuminate\Foundation\Http\FormRequest;
@@ -18,8 +19,8 @@ class StoreGroupPolicyRequest extends StorePolicyRequest
         return array_merge(
             parent::rules(),
             [
-                // 'resource_type' => ['required_if:resource,null'],
-                // 'resource' => ['required_if:resource_type,null', new IsResource(true)],
+                'groups' => ['required', 'array', 'min:1'],
+                'groups.*' => ['required', 'distinct', new IsGroup('g')],
             ]
         );
     }

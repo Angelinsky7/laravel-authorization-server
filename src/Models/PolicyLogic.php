@@ -3,6 +3,7 @@
 namespace Darkink\AuthorizationServer\Models;
 
 enum PolicyLogic : int {
-    case Negative = 0;
-    case Positive = 1;
+    case None = 0;
+    case Negative = 1;
+    case Positive = 2;
 }

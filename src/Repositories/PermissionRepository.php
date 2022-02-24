@@ -15,11 +15,16 @@ class PermissionRepository
 {
     protected ResourceRepository $resourceRepository;
     protected ScopeRepository $scopeRepository;
+    protected PolicyRepository $policyRepository;
 
-    public function __construct(ResourceRepository $resourceRepository, ScopeRepository $scopeRepository)
-    {
+    public function __construct(
+        ResourceRepository $resourceRepository,
+        ScopeRepository $scopeRepository,
+        PolicyRepository $policyRepository
+    ) {
         $this->resourceRepository = $resourceRepository;
         $this->scopeRepository = $scopeRepository;
+        $this->policyRepository = $policyRepository;
     }
 
     public function find(int $id): Permission
@@ -33,8 +38,28 @@ class PermissionRepository
         return Policy::permission()->with('permission');
     }
 
-    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy): Permission
+    protected function resolve(DecisionStrategy | int $decision_strategy, mixed $policies)
     {
+        //TODO(demarco): this is stupid 5 lines later we use only the ids...
+        // {
+        $decision_strategy = is_int($decision_strategy) ? DecisionStrategy::tryFrom($decision_strategy) : $decision_strategy;
+
+        if (count($policies) != 0 && !is_object($policies[0])) {
+            $policies = $this->policyRepository->gets()->get()->whereIn(Policy::policy()->getKeyName(), $policies);
+        }
+
+        // }
+
+        return [
+            'decision_strategy' => $decision_strategy,
+            'policies' => $policies
+        ];
+    }
+
+    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies): Permission
+    {
+        extract($this->resolve($decision_strategy, $policies));
+
         $permission = Policy::permission()->forceFill([
             'name' => $name,
             'description' => $description,
@@ -42,85 +67,26 @@ class PermissionRepository
             'discriminator' => 'null'
         ]);
         $permission->save();
+        $permission->policies()->saveMany($policies);
 
         return $permission;
     }
 
-    public function update(Permission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy): Permission
+    public function update(Permission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies): Permission
     {
+        extract($this->resolve($decision_strategy, $policies));
+
         $permission->forceFill([
             'name' => $name,
             'description' => $description,
             'decision_strategy' => $decision_strategy->value,
         ]);
         $permission->save();
+        /** @var \Illuminate\Support\Collection $policies */
+        $permission->policies()->sync(is_array($policies) ? $policies : $policies->map(fn ($p) => $p->id)->toArray());
 
         return $permission;
     }
-
-    // public function createScope(string $name, string $description, DecisionStrategy | int $decision_strategy, Resource | int $resource, array $scopes): ScopePermission
-    // {
-    //     DB::beginTransaction();
-
-    //     try {
-
-    //         $decision_strategy = is_int($decision_strategy) ? DecisionStrategy::tryFrom($decision_strategy) : $decision_strategy;
-    //         $resource = is_int($resource) ? $this->resourceRepository->find($resource) : $resource;
-
-    //         if (count($scopes) != 0 && !is_object($scopes[0])) {
-    //             $scopes = $this->scopeRepository->gets()->all()->whereIn(Policy::scope()->getKeyName(), $scopes);
-    //         }
-
-    //         $parent = Policy::permission()->forceFill([
-    //             'name' => $name,
-    //             'description' => $description,
-    //             'decision_strategy' => $decision_strategy->value,
-    //             'discriminator' => 'null'
-    //         ]);
-    //         $parent->save();
-
-    //         $permission = Policy::scopePermission()->forceFill([
-    //             'id' => $parent->id,
-    //         ]);
-    //         $permission->parent()->save($parent);
-    //         $permission->resource()->associate($resource);
-    //         $permission->save();
-
-    //         $permission->scopes()->saveMany($scopes);
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         throw $e;
-    //     }
-
-    //     DB::commit();
-
-    //     return $permission;
-    // }
-
-    // public function updateScope(ScopePermission $permission, string $name, string $description, DecisionStrategy $decision_strategy, Resource $resource, array $scopes): ScopePermission
-    // {
-    //     DB::beginTransaction();
-
-    //     try {
-    //         $permission->parent->forceFill([
-    //             'name' => $name,
-    //             'description' => $description,
-    //             'decision_strategy' => $decision_strategy->name,
-    //         ]);
-    //         $permission->parent->save();
-
-    //         $permission->resource()->associate($resource);
-    //         $permission->scopes()->saveMany($scopes);
-    //         $permission->save();
-    //     } catch (Exception $e) {
-    //         DB::rollBack();
-    //         throw $e;
-    //     }
-
-    //     DB::commit();
-
-    //     return $permission;
-    // }
 
     public function delete(Permission $permission)
     {

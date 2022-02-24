@@ -5,6 +5,7 @@ namespace Darkink\AuthorizationServer\Repositories;
 use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Darkink\AuthorizationServer\Models\Group;
 use Darkink\AuthorizationServer\Models\GroupPolicy;
+use Darkink\AuthorizationServer\Models\PolicyLogic;
 use Darkink\AuthorizationServer\Models\Resource;
 use Darkink\AuthorizationServer\Models\ResourcePermission;
 use Darkink\AuthorizationServer\Models\ScopePermission;
@@ -15,10 +16,12 @@ use Illuminate\Support\Facades\DB;
 class GroupPolicyRepository
 {
     protected PolicyRepository $policyRepository;
+    protected GroupRepository $groupRepository;
 
-    public function __construct(PolicyRepository $policyRepository)
+    public function __construct(PolicyRepository $policyRepository, GroupRepository $groupRepository)
     {
         $this->policyRepository = $policyRepository;
+        $this->groupRepository = $groupRepository;
     }
 
     public function find(int $id): GroupPolicy
@@ -32,41 +35,39 @@ class GroupPolicyRepository
         return Policy::groupPolicy()->with('parent');
     }
 
-    // //TODO(demarco): This method has some properties that are like the other one in ScopePermissionRepository
-    // protected function resolve(DecisionStrategy | int $decision_strategy, Resource | int | null $resource)
-    // {
-    //     //TODO(demarco): this is stupid 5 lines later we use only the ids...
-    //     // {
-    //     $decision_strategy = is_int($decision_strategy) ? DecisionStrategy::tryFrom($decision_strategy) : $decision_strategy;
-    //     if ($resource != null) {
-    //         $resource = is_int($resource) ? $this->resourceRepository->find($resource) : $resource;
-    //     }
-    //     // }
+    //TODO(demarco): This method has some properties that are like the other one in the other policies
+    protected function resolve(mixed $groups)
+    {
+        //TODO(demarco): this is stupid 5 lines later we use only the ids...
+        // {
+        if (count($groups) != 0 && !is_object($groups[0])) {
+            $groupsWithoutPrefix = array_map(fn ($p) => substr($p, strlen('g')), $groups);
+            $groups = $this->groupRepository->gets()->all()->whereIn(Policy::group()->getKeyName(), $groupsWithoutPrefix);
+        }
+        // }
 
-    //     return [
-    //         'decision_strategy' => $decision_strategy,
-    //         'resource' => $resource,
-    //     ];
-    // }
+        return [
+            'groups' => $groups,
+        ];
+    }
 
-    public function create(string $name): GroupPolicy
+    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $groups): GroupPolicy
     {
         DB::beginTransaction();
 
         try {
 
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
-            // extract($this->resolve($decision_strategy, $resource));
+            extract($this->resolve($groups));
 
-            $parent = $this->policyRepository->create($name);
+            $parent = $this->policyRepository->create($name, $description, $logic);
 
             $policy = Policy::groupPolicy()->forceFill([
                 'id' => $parent->id,
             ]);
             $policy->parent()->save($parent);
-            // $policy->resource_type = $resource_type;
-            // $policy->resource()->associate($resource);
             $policy->save();
+            $policy->groups()->saveMany($groups);
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -77,20 +78,20 @@ class GroupPolicyRepository
         return $policy;
     }
 
-    public function update(GroupPolicy $policy, string $name): GroupPolicy
+    public function update(GroupPolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $groups): GroupPolicy
     {
         DB::beginTransaction();
 
         try {
 
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
-            // extract($this->resolve($decision_strategy, $resource));
+            extract($this->resolve($groups));
 
-            $this->policyRepository->update($policy->parent, $name);
-
-            // $policy->resource_type = $resource_type;
-            // $policy->resource()->associate($resource);
+            $this->policyRepository->update($policy->parent, $name, $description, $logic);
             $policy->save();
+
+            /** @var \Illuminate\Support\Collection $groups */
+            $policy->groups()->sync(is_array($groups) ? $groups : $groups->map(fn ($p) => $p->id)->toArray());
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -101,8 +102,8 @@ class GroupPolicyRepository
         return $policy;
     }
 
-    public function delete(ScopePermission $policy)
+    public function delete(GroupPolicy $policy)
     {
-        $this->permisisonRepository->delete($policy->parent);
+        $this->policyRepository->delete($policy->parent);
     }
 }
