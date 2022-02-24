@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $display_name
  * @property string $description
  * @property bool $system
- * @property Group[] $memberOfs
+ * @property Group[] $memberofs
  * @property Group[] $members
  */
 class Group extends BaseModel
@@ -21,15 +21,14 @@ class Group extends BaseModel
 
     protected $table = 'uma_groups';
 
-    public function memberOfs()
+    public function memberofs()
     {
         return $this->belongsToMany(Group::class, 'uma_group_member', 'member_group_id', 'group_id');
     }
 
     public function members()
     {
-        //ddd($this->group_members()->get(), $this->user_members()->get(), $this->group_members()->get()->concat($this->user_members()->get()));
-        return $this->group_members()->get()->concat($this->user_members()->get());
+        return $this->group_members->merge($this->user_members);
     }
 
     public function group_members()

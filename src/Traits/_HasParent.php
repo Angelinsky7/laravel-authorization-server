@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
-trait HasParent
+trait _HasParent
 {
 
     protected function getFields($entity_fields, $table)

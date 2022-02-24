@@ -22,12 +22,12 @@ class GroupRepository
         return Policy::group();
     }
 
-    protected function resolve(mixed $memberOfs, mixed $members)
+    protected function resolve(mixed $memberofs, mixed $members)
     {
 
-        if (count($memberOfs) != 0 && !is_object($memberOfs[0])) {
-            $memberOfsWithoutPrefix = array_map(fn ($p) => substr($p, strlen('g')), $memberOfs);
-            $memberOfs = $this->gets()->all()->whereIn(Policy::group()->getKeyName(), $memberOfsWithoutPrefix);
+        if (count($memberofs) != 0 && !is_object($memberofs[0])) {
+            $memberofsWithoutPrefix = array_map(fn ($p) => substr($p, strlen('g')), $memberofs);
+            $memberofs = $this->gets()->all()->whereIn(Policy::group()->getKeyName(), $memberofsWithoutPrefix);
         }
 
         //TODO(demarco): this is not correct and certainly stupid but it's working for now
@@ -45,7 +45,7 @@ class GroupRepository
         }
 
         return [
-            'memberOfs' => $memberOfs,
+            'memberofs' => $memberofs,
             'members_groups' => $groups,
             'members_users' => $users
         ];
@@ -63,7 +63,7 @@ class GroupRepository
 
         $visitedGroups[] = $group->id;
 
-        foreach ($group->memberOfs as $parent) {
+        foreach ($group->memberofs as $parent) {
             if (!$this->checkCircualReferencesUp($parent, $visitedGroups)) {
                 return false;
             }
@@ -112,13 +112,13 @@ class GroupRepository
         }
     }
 
-    public function create(string $name, string $display_name, string | null $description, array $memberOfs, array $members, bool $system = false): Group
+    public function create(string $name, string $display_name, string | null $description, array $memberofs, array $members, bool $system = false): Group
     {
         DB::beginTransaction();
 
         try {
 
-            extract($this->resolve($memberOfs, $members));
+            extract($this->resolve($memberofs, $members));
 
             $group = Policy::group()->forceFill([
                 'name' => $name,
@@ -129,7 +129,7 @@ class GroupRepository
 
             $group->save();
 
-            $group->memberOfs()->saveMany($memberOfs);
+            $group->memberofs()->saveMany($memberofs);
             $group->group_members()->saveMany($members_groups);
             $group->user_members()->saveMany($members_users);
 
@@ -144,13 +144,13 @@ class GroupRepository
         return $group;
     }
 
-    public function update(Group $group, string $name, string $display_name, string | null $description, array $memberOfs, array $members, bool $system = false): Group
+    public function update(Group $group, string $name, string $display_name, string | null $description, array $memberofs, array $members, bool $system = false): Group
     {
         DB::beginTransaction();
 
         try {
 
-            extract($this->resolve($memberOfs, $members));
+            extract($this->resolve($memberofs, $members));
 
             $group->forceFill([
                 'name' => $name,
@@ -159,8 +159,8 @@ class GroupRepository
                 'system' => $system,
             ])->save();
 
-            /** @var \Illuminate\Support\Collection $memberOfs */
-            $group->memberOfs()->sync(is_array($memberOfs) ? $memberOfs : $memberOfs->map(fn ($p) => $p->id)->toArray());
+            /** @var \Illuminate\Support\Collection $memberofs */
+            $group->memberofs()->sync(is_array($memberofs) ? $memberofs : $memberofs->map(fn ($p) => $p->id)->toArray());
             /** @var \Illuminate\Support\Collection $members_groups */
             $group->group_members()->sync(is_array($members_groups) ? $members_groups : $members_groups->map(fn ($p) => $p->id)->toArray());
             /** @var \Illuminate\Support\Collection $members_users */

@@ -6,7 +6,7 @@ use Darkink\AuthorizationServer\Models\Permission;
 use Darkink\AuthorizationServer\Models\Role;
 use Error;
 
-trait HasAuthorization
+trait _HasAuthorization
 {
 
     public function roles()

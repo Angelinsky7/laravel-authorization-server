@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
 
 use function PHPUnit\Framework\callback;
 
-trait HasInheritance
+trait _HasInheritance
 {
 
     protected $entity_fields = [];
