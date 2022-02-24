@@ -12,13 +12,11 @@ use Illuminate\Support\Facades\DB;
 
 class ResourcePermissionRepository
 {
-    protected ResourceRepository $resourceRepository;
     protected PermissionRepository $permisisonRepository;
 
-    public function __construct(PermissionRepository $permisisonRepository, ResourceRepository $resourceRepository)
+    public function __construct(PermissionRepository $permisisonRepository)
     {
         $this->permisisonRepository = $permisisonRepository;
-        $this->resourceRepository = $resourceRepository;
     }
 
     public function find(int $id): ResourcePermission
@@ -38,7 +36,7 @@ class ResourcePermissionRepository
         //TODO(demarco): this is stupid 5 lines later we use only the ids...
         // {
         if ($resource != null) {
-            $resource = is_int($resource) ? $this->resourceRepository->find($resource) : $resource;
+            $resource = is_int($resource) ? Policy::resource()->find($resource) : $resource;
         }
         // }
 

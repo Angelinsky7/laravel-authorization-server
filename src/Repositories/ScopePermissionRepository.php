@@ -13,15 +13,11 @@ use Illuminate\Support\Facades\DB;
 
 class ScopePermissionRepository
 {
-    protected ResourceRepository $resourceRepository;
-    protected ScopeRepository $scopeRepository;
     protected PermissionRepository $permisisonRepository;
 
-    public function __construct(PermissionRepository $permisisonRepository, ResourceRepository $resourceRepository, ScopeRepository $scopeRepository)
+    public function __construct(PermissionRepository $permisisonRepository)
     {
         $this->permisisonRepository = $permisisonRepository;
-        $this->resourceRepository = $resourceRepository;
-        $this->scopeRepository = $scopeRepository;
     }
 
     public function find(int $id): ScopePermission
@@ -40,10 +36,10 @@ class ScopePermissionRepository
     {
         //TODO(demarco): this is stupid 5 lines later we use only the ids...
         // {
-        $resource = is_int($resource) ? $this->resourceRepository->find($resource) : $resource;
+        $resource = is_int($resource) ? Policy::resource()->find($resource) : $resource;
 
         if (count($scopes) != 0 && !is_object($scopes[0])) {
-            $scopes = $this->scopeRepository->gets()->all()->whereIn(Policy::scope()->getKeyName(), $scopes);
+            $scopes = Policy::scope()::all()->whereIn(Policy::scope()->getKeyName(), $scopes);
         }
         // }
 

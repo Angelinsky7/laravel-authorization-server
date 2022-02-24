@@ -30,6 +30,10 @@ class Policy extends BaseModel
         return $this->morphTo('policy', 'discriminator', 'id');
     }
 
+    public function permissions(){
+        return $this->belongsToMany(Permission::class, 'uma_permission_policy', 'policy_id', 'permission_id');
+    }
+
     protected $searchable = [
         'name',
         'description',

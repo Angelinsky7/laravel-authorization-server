@@ -32,7 +32,7 @@ class ResourceRepository
         }
     }
 
-    public function create(string $name, string $displayName, string | null $type, string | null $iconUri, array $uris = [], array $scopes): Resource
+    public function create(string $name, string $displayName, string | null $type, string | null $iconUri, array $uris, array $scopes): Resource
     {
         DB::beginTransaction();
 
@@ -58,7 +58,7 @@ class ResourceRepository
         return $resource;
     }
 
-    public function update(Resource $resource, string $name, string $displayName, string | null $type, string | null $iconUri, array $uris = [], array $scopes): Resource
+    public function update(Resource $resource, string $name, string $displayName, string | null $type, string | null $iconUri, array $uris, array $scopes): Resource
     {
         DB::beginTransaction();
 

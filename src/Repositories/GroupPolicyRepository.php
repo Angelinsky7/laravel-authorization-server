@@ -16,12 +16,10 @@ use Illuminate\Support\Facades\DB;
 class GroupPolicyRepository
 {
     protected PolicyRepository $policyRepository;
-    protected GroupRepository $groupRepository;
 
-    public function __construct(PolicyRepository $policyRepository, GroupRepository $groupRepository)
+    public function __construct(PolicyRepository $policyRepository)
     {
         $this->policyRepository = $policyRepository;
-        $this->groupRepository = $groupRepository;
     }
 
     public function find(int $id): GroupPolicy
@@ -42,7 +40,7 @@ class GroupPolicyRepository
         // {
         if (count($groups) != 0 && !is_object($groups[0])) {
             $groupsWithoutPrefix = array_map(fn ($p) => substr($p, strlen('g')), $groups);
-            $groups = $this->groupRepository->gets()->all()->whereIn(Policy::group()->getKeyName(), $groupsWithoutPrefix);
+            $groups = Policy::group()::all()->whereIn(Policy::group()->getKeyName(), $groupsWithoutPrefix);
         }
         // }
 
@@ -51,7 +49,7 @@ class GroupPolicyRepository
         ];
     }
 
-    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $groups): GroupPolicy
+    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions, mixed $groups): GroupPolicy
     {
         DB::beginTransaction();
 
@@ -60,7 +58,7 @@ class GroupPolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($groups));
 
-            $parent = $this->policyRepository->create($name, $description, $logic);
+            $parent = $this->policyRepository->create($name, $description, $logic, $permissions);
 
             $policy = Policy::groupPolicy()->forceFill([
                 'id' => $parent->id,
@@ -78,7 +76,7 @@ class GroupPolicyRepository
         return $policy;
     }
 
-    public function update(GroupPolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $groups): GroupPolicy
+    public function update(GroupPolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions, mixed $groups): GroupPolicy
     {
         DB::beginTransaction();
 
@@ -87,7 +85,7 @@ class GroupPolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($groups));
 
-            $this->policyRepository->update($policy->parent, $name, $description, $logic);
+            $this->policyRepository->update($policy->parent, $name, $description, $logic, $permissions);
             $policy->save();
 
             /** @var \Illuminate\Support\Collection $groups */

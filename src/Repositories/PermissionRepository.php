@@ -13,19 +13,16 @@ use Illuminate\Support\Facades\DB;
 
 class PermissionRepository
 {
-    protected ResourceRepository $resourceRepository;
-    protected ScopeRepository $scopeRepository;
-    protected PolicyRepository $policyRepository;
+    // protected ResourceRepository $resourceRepository;
+    // protected ScopeRepository $scopeRepository;
 
-    public function __construct(
-        ResourceRepository $resourceRepository,
-        ScopeRepository $scopeRepository,
-        PolicyRepository $policyRepository
-    ) {
-        $this->resourceRepository = $resourceRepository;
-        $this->scopeRepository = $scopeRepository;
-        $this->policyRepository = $policyRepository;
-    }
+    // public function __construct(
+    //     ResourceRepository $resourceRepository,
+    //     ScopeRepository $scopeRepository,
+    // ) {
+    //     $this->resourceRepository = $resourceRepository;
+    //     $this->scopeRepository = $scopeRepository;
+    // }
 
     public function find(int $id): Permission
     {
@@ -45,7 +42,7 @@ class PermissionRepository
         $decision_strategy = is_int($decision_strategy) ? DecisionStrategy::tryFrom($decision_strategy) : $decision_strategy;
 
         if (count($policies) != 0 && !is_object($policies[0])) {
-            $policies = $this->policyRepository->gets()->get()->whereIn(Policy::policy()->getKeyName(), $policies);
+            $policies = Policy::policy()::all()->whereIn(Policy::policy()->getKeyName(), $policies);
         }
 
         // }
@@ -81,6 +78,7 @@ class PermissionRepository
             'description' => $description,
             'decision_strategy' => $decision_strategy->value,
         ]);
+
         $permission->save();
         /** @var \Illuminate\Support\Collection $policies */
         $permission->policies()->sync(is_array($policies) ? $policies : $policies->map(fn ($p) => $p->id)->toArray());

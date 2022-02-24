@@ -10,11 +10,11 @@ use Exception;
 class PolicyRepository
 {
     // protected ResourceRepository $resourceRepository;
-    // protected PolicyRepository $policyRepository;
+    //protected PermissionRepository $permissionRepository;
 
-    // public function __construct(PolicyRepository $policyRepository)
+    // public function __construct()
     // {
-    //     $this->policyRepository = $policyRepository;
+    //     $this->permissionRepository = $permissionRepository;
     // }
 
     public function find(int $id): Policy
@@ -28,27 +28,27 @@ class PolicyRepository
         return AuthorizationServerPolicy::policy()->with('policy');
     }
 
-    protected function resolve(PolicyLogic | int $logic)
+    protected function resolve(PolicyLogic | int $logic, mixed $permissions)
     {
         //TODO(demarco): this is stupid 5 lines later we use only the ids...
         // {
         $logic = is_int($logic) ? PolicyLogic::tryFrom($logic) : $logic;
 
-        // if (count($permissions) != 0 && !is_object($permissions[0])) {
-        //     $permissions = $this->permissionRepository->gets()->all()->whereIn(AuthorizationServerPolicy::policy()->getKeyName(), $scopes);
-        // }
+        if (count($permissions) != 0 && !is_object($permissions[0])) {
+            $permissions = AuthorizationServerPolicy::policy()::all()->whereIn(AuthorizationServerPolicy::policy()->getKeyName(), $permissions);
+        }
 
         // }
 
         return [
             'logic' => $logic,
-            // 'permissions' => $permissions
+            'permissions' => $permissions
         ];
     }
 
-    public function create(string $name, string $description, PolicyLogic | int $logic): Policy
+    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions): Policy
     {
-        extract($this->resolve($logic));
+        extract($this->resolve($logic, $permissions));
 
         $policy = AuthorizationServerPolicy::policy()->forceFill([
             'name' => $name,
@@ -58,20 +58,24 @@ class PolicyRepository
         ]);
 
         $policy->save();
+        $policy->permissions()->saveMany($permissions);
 
         return $policy;
     }
 
-    public function update(Policy $policy, string $name, string $description, PolicyLogic | int $logic): Policy
+    public function update(Policy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions): Policy
     {
-        extract($this->resolve($logic));
+        extract($this->resolve($logic, $permissions));
 
         $policy->forceFill([
             'name' => $name,
             'description' => $description,
             'logic' => $logic->value,
         ]);
+
         $policy->save();
+         /** @var \Illuminate\Support\Collection $permissions */
+         $policy->permissions()->sync(is_array($permissions) ? $permissions : $permissions->map(fn ($p) => $p->id)->toArray());
 
         return $policy;
     }
