@@ -3,7 +3,6 @@
 namespace Darkink\AuthorizationServer\Models;
 
 use Darkink\AuthorizationServer\Database\Factories\PermissionFactory;
-use Darkink\AuthorizationServer\Traits\HasInheritance;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
@@ -17,7 +16,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Permission extends BaseModel
 {
     use HasFactory;
-    // use HasInheritance;
 
     protected $table = 'uma_permissions';
 

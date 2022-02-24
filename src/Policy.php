@@ -10,7 +10,9 @@ use Darkink\AuthorizationServer\Http\Controllers\DiscoverController;
 use Darkink\AuthorizationServer\Http\Controllers\RoleController;
 use Darkink\AuthorizationServer\Http\Controllers\UserAuthorizationController;
 use Darkink\AuthorizationServer\Models\Group;
+use Darkink\AuthorizationServer\Models\GroupPolicy;
 use Darkink\AuthorizationServer\Models\Permission;
+use Darkink\AuthorizationServer\Models\Policy as ModelsPolicy;
 use Darkink\AuthorizationServer\Models\Resource;
 use Darkink\AuthorizationServer\Models\ResourcePermission;
 use Darkink\AuthorizationServer\Models\Role;
@@ -40,6 +42,8 @@ class Policy
     public static $resourcePermissionModel = ResourcePermission::class;
     public static $groupModel = Group::class;
     public static $userModel = User::class;
+    public static $policyModel = ModelsPolicy::class;
+    public static $groupPolicyModel = GroupPolicy::class;
 
     #endregion
 
@@ -280,5 +284,43 @@ class Policy
     }
 
     #endregion
+
+    #region policy
+
+    public static function usePolicyModel($policyModel)
+    {
+        static::$policyModel = $policyModel;
+    }
+
+    public static function policyModel()
+    {
+        return static::$policyModel;
+    }
+
+    public static function policy(): ModelsPolicy
+    {
+        return new static::$policyModel;
+    }
+
+    #endregion
+
+     #region groupPolicy
+
+     public static function useGroupPolicyModel($groupPolicyModel)
+     {
+         static::$groupPolicyModel = $groupPolicyModel;
+     }
+
+     public static function groupPolicyModel()
+     {
+         return static::$groupPolicyModel;
+     }
+
+     public static function groupPolicy(): GroupPolicy
+     {
+         return new static::$groupPolicyModel;
+     }
+
+     #endregion
 
 }
