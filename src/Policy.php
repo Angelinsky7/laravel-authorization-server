@@ -9,6 +9,7 @@ use Darkink\AuthorizationServer\Http\Controllers\ApiRoleController;
 use Darkink\AuthorizationServer\Http\Controllers\DiscoverController;
 use Darkink\AuthorizationServer\Http\Controllers\RoleController;
 use Darkink\AuthorizationServer\Http\Controllers\UserAuthorizationController;
+use Darkink\AuthorizationServer\Models\AggregatedPolicy;
 use Darkink\AuthorizationServer\Models\Group;
 use Darkink\AuthorizationServer\Models\GroupPolicy;
 use Darkink\AuthorizationServer\Models\Permission;
@@ -48,6 +49,7 @@ class Policy
     public static $groupPolicyModel = GroupPolicy::class;
     public static $rolePolicyModel = RolePolicy::class;
     public static $userPolicyModel = UserPolicy::class;
+    public static $aggregatedPolicyModel = AggregatedPolicy::class;
 
     #endregion
 
@@ -364,6 +366,25 @@ class Policy
     public static function userPolicy(): UserPolicy
     {
         return new static::$userPolicyModel;
+    }
+
+    #endregion
+
+    #region aggregatedPolicy
+
+    public static function useAggregatedPolicyModel($aggregatedPolicyModel)
+    {
+        static::$aggregatedPolicyModel = $aggregatedPolicyModel;
+    }
+
+    public static function aggregatedPolicyModel()
+    {
+        return static::$aggregatedPolicyModel;
+    }
+
+    public static function aggregatedPolicy(): AggregatedPolicy
+    {
+        return new static::$aggregatedPolicyModel;
     }
 
     #endregion

@@ -1,5 +1,6 @@
 <?php
 
+use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -12,7 +13,6 @@ class CreateAggregatedPolicyTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-
     }
 
     /**
@@ -28,6 +28,9 @@ class CreateAggregatedPolicyTable extends Migration
                 ->references('id')
                 ->on('uma_policies')
                 ->onDelete('cascade');
+
+            $table->enum('decision_strategy', array_slice(array_column(DecisionStrategy::cases(), 'value'), 1));
+
             $table->primary(['id']);
         });
     }
@@ -46,6 +49,4 @@ class CreateAggregatedPolicyTable extends Migration
     {
         return config('policy.storage.database.connection');
     }
-
-
 }
