@@ -4,6 +4,7 @@ namespace Darkink\AuthorizationServer\Database\Factories;
 
 use App\Models\User;
 use Darkink\AuthorizationServer\Models\AggregatedPolicy;
+use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Darkink\AuthorizationServer\Models\Policy;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -20,7 +21,9 @@ class AggregatedPolicyFactory extends Factory
      */
     public function definition()
     {
-        return [];
+        return [
+            'decision_strategy' => (DecisionStrategy::cases()[$this->faker->numberBetween(1, 3)])->value,
+        ];
     }
 
     public function configure()
@@ -33,7 +36,7 @@ class AggregatedPolicyFactory extends Factory
             $policy->id = $parent->id;
         })->afterCreating(function (AggregatedPolicy $policy) {
             $policies = Policy::inRandomOrder()->limit($this->faker->numberBetween(1, 3))->get();
-            $policy->users()->saveMany($policies);
+            $policy->policies()->saveMany($policies);
         });
     }
 }
