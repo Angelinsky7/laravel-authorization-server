@@ -4,10 +4,14 @@ namespace Darkink\AuthorizationServer\Repositories;
 
 use Darkink\AuthorizationServer\Models\AggregatedPolicy;
 use Darkink\AuthorizationServer\Models\DecisionStrategy;
+use Darkink\AuthorizationServer\Models\Policy as ModelsPolicy;
 use Darkink\AuthorizationServer\Models\PolicyLogic;
 use Darkink\AuthorizationServer\Policy;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
+
+use function PHPSTORM_META\exitPoint;
 
 class AggregatedPolicyRepository
 {
@@ -27,6 +31,39 @@ class AggregatedPolicyRepository
     public function gets()
     {
         return Policy::aggregatedPolicy()->with('parent');
+    }
+
+    protected function checkCircualReferences(ModelsPolicy $policy, array &$visitedPolicies = null)
+    {
+        if ($visitedPolicies == null) {
+            $visitedPolicies = [];
+        }
+
+        if (in_array($policy->id, $visitedPolicies)) {
+            return false;
+        }
+
+        $visitedPolicies[] = $policy->id;
+
+        if ($policy instanceof AggregatedPolicy) {
+            foreach ($policy->policies as $child) {
+                if (!$this->checkCircualReferences($child->policy, $visitedPolicies)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    protected function checkValidation(ModelsPolicy $policy)
+    {
+        if (!$this->checkCircualReferences($policy)) {
+            $error = ValidationException::withMessages([
+                'policies' => ['The Policy has a cyclique dependency tree.'],
+            ]);
+            throw $error;
+        }
     }
 
     protected function resolve(DecisionStrategy | int $decision_strategy, mixed $policies)
@@ -65,6 +102,8 @@ class AggregatedPolicyRepository
             $policy->save();
 
             $policy->policies()->saveMany($policies);
+
+            $this->checkValidation($policy);
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -90,6 +129,8 @@ class AggregatedPolicyRepository
 
             /** @var \Illuminate\Support\Collection $policies */
             $policy->policies()->sync(is_array($policies) ? $policies : $policies->map(fn ($p) => $p->id)->toArray());
+
+            $this->checkValidation($policy);
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
