@@ -24,9 +24,10 @@ class CreateClientTable extends Migration
     public function up()
     {
         $this->schema->create('uma_clients', function (Blueprint $table) {
-            $table->id();
+            $table->id('id');
+            $table->char('oauth_id', 36);
             $table->boolean('enabled');
-            $table->string('clientId')->unique();
+            $table->string('client_id')->unique();
             $table->boolean('require_client_secret');
             $table->string('client_name')->unique();
             $table->string('description')->nullable();
@@ -35,6 +36,14 @@ class CreateClientTable extends Migration
             $table->enum('decision_strategy', array_slice(array_column(DecisionStrategy::cases(), 'value'), 1));
             $table->boolean('analyse_mode_enabled')->default(false);
             $table->timestamps();
+
+            $table->unique('oauth_id', 'uma_clients_oauth_unique');
+            $table->unique('client_id', 'uma_clients_client_unique');
+
+            $table->foreign('oauth_id')
+                ->references('id')
+                ->on('oauth_clients')
+                ->onDelete('cascade');
         });
     }
 

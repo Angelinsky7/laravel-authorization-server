@@ -29,12 +29,10 @@ class CreateClientPolicyClientTable extends Migration
                 ->on('uma_client_policies')
                 ->onDelete('cascade');
 
-            // $table->unsignedBigInteger('client_id');
-            $table->char('client_id', 36);
-
+            $table->unsignedBigInteger('client_id');
             $table->foreign('client_id')
                 ->references('id')
-                ->on('oauth_clients')
+                ->on('uma_clients')
                 ->onDelete('cascade');
 
             $table->primary(['client_policy_id', 'client_id']);
