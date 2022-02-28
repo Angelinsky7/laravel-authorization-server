@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Log;
  * @property string $description
  * @property PolicyLogic logic
  * @property Permission[] permissions
- * @property GroupPolicy $policy
+ * @property GroupPolicy | RolePolicy $policy
  */
 class Policy extends BaseModel
 {

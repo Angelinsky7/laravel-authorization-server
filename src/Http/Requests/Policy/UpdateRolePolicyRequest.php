@@ -2,10 +2,12 @@
 
 namespace Darkink\AuthorizationServer\Http\Requests\Policy;
 
-use Darkink\AuthorizationServer\Rules\IsGroup;
+use Illuminate\Validation\Rule;
 
-class StoreGroupPolicyRequest extends StorePolicyRequest
+class UpdateRolePolicyRequest extends StoreRolePolicyRequest
 {
+    use RequestPolicyTrait;
+
     /**
      * Get the validation rules that apply to the request.
      *
@@ -15,10 +17,7 @@ class StoreGroupPolicyRequest extends StorePolicyRequest
     {
         return array_merge(
             parent::rules(),
-            [
-                'groups' => ['required', 'array', 'min:1'],
-                'groups.*' => ['required', 'distinct', new IsGroup('g')],
-            ]
+            $this->policy_update_rules()
         );
     }
 }

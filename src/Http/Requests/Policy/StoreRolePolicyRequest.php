@@ -2,9 +2,9 @@
 
 namespace Darkink\AuthorizationServer\Http\Requests\Policy;
 
-use Darkink\AuthorizationServer\Rules\IsGroup;
+use Darkink\AuthorizationServer\Rules\IsRole;
 
-class StoreGroupPolicyRequest extends StorePolicyRequest
+class StoreRolePolicyRequest extends StorePolicyRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -16,8 +16,8 @@ class StoreGroupPolicyRequest extends StorePolicyRequest
         return array_merge(
             parent::rules(),
             [
-                'groups' => ['required', 'array', 'min:1'],
-                'groups.*' => ['required', 'distinct', new IsGroup('g')],
+                'roles' => ['required', 'array', 'min:1'],
+                'roles.*' => ['required', 'distinct', new IsRole()],
             ]
         );
     }
