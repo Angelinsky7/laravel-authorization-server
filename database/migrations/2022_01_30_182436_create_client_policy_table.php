@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateClientPolicyClientTable extends Migration
+class CreateClientPolicyTable extends Migration
 {
     protected $schema;
 
@@ -22,20 +22,13 @@ class CreateClientPolicyClientTable extends Migration
      */
     public function up()
     {
-        $this->schema->create('client_policy_client', function (Blueprint $table) {
-            $table->unsignedBigInteger('client_policy_id');
-            $table->foreign('client_policy_id')
+        $this->schema->create('uma_client_policies', function (Blueprint $table) {
+            $table->unsignedBigInteger('id');
+            $table->foreign('id')
                 ->references('id')
-                ->on('client_policies')
+                ->on('uma_policies')
                 ->onDelete('cascade');
-
-            $table->unsignedBigInteger('client_id');
-            $table->foreign('client_id')
-                ->references('id')
-                ->on('clients')
-                ->onDelete('cascade');
-
-            $table->primary(['client_policy_id', 'client_id']);
+            $table->primary(['id']);
         });
     }
 
@@ -46,7 +39,7 @@ class CreateClientPolicyClientTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('client_policy_client');
+        Schema::dropIfExists('client_policies');
     }
 
     public function getConnection()

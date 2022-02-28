@@ -19,6 +19,7 @@ use Darkink\AuthorizationServer\Models\Role;
 use Darkink\AuthorizationServer\Models\RolePolicy;
 use Darkink\AuthorizationServer\Models\Scope;
 use Darkink\AuthorizationServer\Models\ScopePermission;
+use Darkink\AuthorizationServer\Models\UserPolicy;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Support\Facades\Gate;
@@ -46,6 +47,7 @@ class Policy
     public static $policyModel = ModelsPolicy::class;
     public static $groupPolicyModel = GroupPolicy::class;
     public static $rolePolicyModel = RolePolicy::class;
+    public static $userPolicyModel = UserPolicy::class;
 
     #endregion
 
@@ -343,6 +345,25 @@ class Policy
     public static function rolePolicy(): RolePolicy
     {
         return new static::$rolePolicyModel;
+    }
+
+    #endregion
+
+    #region userPolicy
+
+    public static function useUserPolicyModel($userPolicyModel)
+    {
+        static::$userPolicyModel = $userPolicyModel;
+    }
+
+    public static function userPolicyModel()
+    {
+        return static::$userPolicyModel;
+    }
+
+    public static function userPolicy(): UserPolicy
+    {
+        return new static::$userPolicyModel;
     }
 
     #endregion

@@ -12,7 +12,6 @@ class CreateUserPolicyUserTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-
     }
 
     /**
@@ -23,17 +22,19 @@ class CreateUserPolicyUserTable extends Migration
     public function up()
     {
         $this->schema->create('uma_user_policy_user', function (Blueprint $table) {
-            $table->id();
-
             $table->unsignedBigInteger('user_policy_id');
             $table->foreign('user_policy_id')
                 ->references('id')
                 ->on('uma_user_policies')
                 ->onDelete('cascade');
 
-            $table->string('user');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
 
-            $table->unique(['user_policy_id', 'user']);
+            $table->primary(['user_policy_id', 'user_id']);
         });
     }
 
@@ -51,6 +52,4 @@ class CreateUserPolicyUserTable extends Migration
     {
         return config('policy.storage.database.connection');
     }
-
-
 }

@@ -4,6 +4,7 @@ namespace Darkink\AuthorizationServer\Database\Factories;
 
 use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Darkink\AuthorizationServer\Models\Permission;
+use Darkink\AuthorizationServer\Models\Policy;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 
@@ -26,15 +27,13 @@ class PermissionFactory extends Factory
         ];
     }
 
-    // public function configure()
-    // {
-    //     // return $this->afterMaking(function (ScopePermission $permission){
-    //     //     $permission->parent()->associate(Permission::factory()->create());
-    //     // })->afterCreating(function (ScopePermission $permision) {
-    //     //     /** @var Resource $resource */
-    //     //     $resource = Resource::inRandomOrder()->limit(1)->first();
-    //     //     $permision->resource()->associate($resource);
-    //     //     $permision->scopes()->saveMany($resource->scopes()::inRandomOrder()->limit($this->faker->numberBetween(1, 3))->get());
-    //     // });
-    // }
+    public function configure()
+    {
+        return $this->afterCreating(function (Permission $permision) {
+            $policies = Policy::inRandomOrder()->limit($this->faker->numberBetween(0, 2))->get();
+            if (count($policies) != 0) {
+                $permision->polices()->saveMany($policies);
+            }
+        });
+    }
 }

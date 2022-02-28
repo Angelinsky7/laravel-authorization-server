@@ -23,8 +23,6 @@ class CreateRolePolicyRoleTable extends Migration
     public function up()
     {
         $this->schema->create('uma_role_policy_role', function (Blueprint $table) {
-            $table->id();
-
             $table->unsignedBigInteger('role_policy_id');
             $table->foreign('role_policy_id')
                 ->references('id')
@@ -37,7 +35,7 @@ class CreateRolePolicyRoleTable extends Migration
                 ->on('uma_roles')
                 ->onDelete('cascade');
 
-            $table->unique(['role_policy_id', 'role_id']);
+            $table->primary(['role_policy_id', 'role_id']);
         });
     }
 
