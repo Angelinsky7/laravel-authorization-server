@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Date;
  * @property Role[] $roles
  * @property Policy[] $policies
  * @property Permission[] $permissions
+ * @property mixed $oauth
  * @property-read Date $created_at
  * @property-read Date $updated_at
  */
@@ -47,6 +48,10 @@ class Client extends BaseModel {
 
     public function permissions() {
         return $this->belongsToMany(Permission::class, 'client_permission', 'client_id', 'permission_id');
+    }
+
+    public function oauth(){
+        return $this->belongsTo('oauth_clients', 'oauth_id');
     }
 
 }
