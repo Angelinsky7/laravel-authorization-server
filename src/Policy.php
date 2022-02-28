@@ -3,6 +3,7 @@
 namespace Darkink\AuthorizationServer;
 
 use App\Models\User;
+use App\Models\Client as OAuthClient;
 use Darkink\AuthorizationServer\Helpers\FlashMessage;
 use Darkink\AuthorizationServer\Helpers\FlashMessageSize;
 use Darkink\AuthorizationServer\Http\Controllers\ApiRoleController;
@@ -10,6 +11,7 @@ use Darkink\AuthorizationServer\Http\Controllers\DiscoverController;
 use Darkink\AuthorizationServer\Http\Controllers\RoleController;
 use Darkink\AuthorizationServer\Http\Controllers\UserAuthorizationController;
 use Darkink\AuthorizationServer\Models\AggregatedPolicy;
+use Darkink\AuthorizationServer\Models\Client;
 use Darkink\AuthorizationServer\Models\Group;
 use Darkink\AuthorizationServer\Models\GroupPolicy;
 use Darkink\AuthorizationServer\Models\Permission;
@@ -50,6 +52,8 @@ class Policy
     public static $rolePolicyModel = RolePolicy::class;
     public static $userPolicyModel = UserPolicy::class;
     public static $aggregatedPolicyModel = AggregatedPolicy::class;
+    public static $clientModel = Client::class;
+    public static $oauthClientModel = OAuthClient::class;
 
     #endregion
 
@@ -385,6 +389,44 @@ class Policy
     public static function aggregatedPolicy(): AggregatedPolicy
     {
         return new static::$aggregatedPolicyModel;
+    }
+
+    #endregion
+
+    #region client
+
+    public static function useClientModel($clientModel)
+    {
+        static::$clientModel = $clientModel;
+    }
+
+    public static function clientModel()
+    {
+        return static::$clientModel;
+    }
+
+    public static function client(): Client
+    {
+        return new static::$clientModel;
+    }
+
+    #endregion
+
+    #region oauthClient
+
+    public static function useOauthClientModel($oauthClientModel)
+    {
+        static::$oauthClientModel = $oauthClientModel;
+    }
+
+    public static function oauthClientModel()
+    {
+        return static::$oauthClientModel;
+    }
+
+    public static function oauthClient(): oauthClient
+    {
+        return new static::$oauthClientModel;
     }
 
     #endregion

@@ -2,6 +2,7 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
+use App\Models\Client as ModelsClient;
 use Illuminate\Support\Facades\Date;
 
 /**
@@ -22,7 +23,7 @@ use Illuminate\Support\Facades\Date;
  * @property Role[] $roles
  * @property Policy[] $policies
  * @property Permission[] $permissions
- * @property mixed $oauth
+ * @property ModelsClient $oauth
  * @property-read Date $created_at
  * @property-read Date $updated_at
  */
@@ -51,7 +52,7 @@ class Client extends BaseModel {
     }
 
     public function oauth(){
-        return $this->belongsTo('oauth_clients', 'oauth_id');
+        return $this->belongsTo(ModelsClient::class, 'oauth_id');
     }
 
 }
