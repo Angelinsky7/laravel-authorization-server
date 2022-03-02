@@ -1,6 +1,6 @@
 <?php
 
-namespace Darkink\AuthorizationServer\Http\Requests\Evaluator;
+namespace Darkink\AuthorizationServer\Helpers\Evaluator;
 
 class PermissionResourceScopeItem
 {

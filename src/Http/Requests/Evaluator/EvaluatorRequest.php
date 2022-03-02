@@ -2,16 +2,19 @@
 
 namespace Darkink\AuthorizationServer\Http\Requests\Evaluator;
 
-use Darkink\AuthorizationServer\Models\Client;
+use Illuminate\Foundation\Http\FormRequest;
 
-class EvaluatorRequest
+class EvaluatorRequest extends FormRequest
 {
-
-    public Client $client;
-    public array | null $permissions;
-
-    public function __construct(Client $client)
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
     {
-        $this->client = $client;
+        return [
+        ];
     }
+
 }

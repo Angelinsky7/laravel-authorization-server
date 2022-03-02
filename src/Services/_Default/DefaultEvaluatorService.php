@@ -3,25 +3,25 @@
 namespace Darkink\AuthorizationServer\Services\_Default;
 
 use Darkink\AuthorizationServer\Helpers\KeyValuePair;
-use Darkink\AuthorizationServer\Http\Requests\Evaluator\Evaluation;
-use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluationAnalyse;
-use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluationAnalyseItem;
-use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluationAnalysePermissionItem;
-use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluationAnalysePolicyItem;
-use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluationItem;
-use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluatorRequest;
-use Darkink\AuthorizationServer\Http\Requests\Evaluator\PermissionResourceScopeItem;
-use Darkink\AuthorizationServer\Http\Requests\Evaluator\ResourceScopeResult;
+use Darkink\AuthorizationServer\Helpers\Evaluator\Evaluation;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluationAnalyse;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluationAnalyseItem;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluationAnalysePermissionItem;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluationAnalysePolicyItem;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluationItem;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluatorRequest;
+use Darkink\AuthorizationServer\Helpers\Evaluator\PermissionResourceScopeItem;
+use Darkink\AuthorizationServer\Helpers\Evaluator\ResourceScopeResult;
 use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Darkink\AuthorizationServer\Models\Permission;
 use Darkink\AuthorizationServer\Models\Resource;
 use Darkink\AuthorizationServer\Models\ResourcePermission;
 use Darkink\AuthorizationServer\Models\Scope;
 use Darkink\AuthorizationServer\Models\ScopePermission;
+use Darkink\AuthorizationServer\Services\IEvaluatorService;
 use Error;
-use phpDocumentor\Reflection\Types\Callable_;
 
-class DefaultEvaluatorService
+class DefaultEvaluatorService implements IEvaluatorService
 {
 
     public function Evaluate(EvaluatorRequest $request): EvaluatorRequest

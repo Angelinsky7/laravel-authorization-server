@@ -3,6 +3,8 @@
 namespace Darkink\AuthorizationServer;
 
 use Darkink\AuthorizationServer\Policy;
+use Darkink\AuthorizationServer\Services\_Default\DefaultEvaluatorService;
+use Darkink\AuthorizationServer\Services\IEvaluatorService;
 use Darkink\AuthorizationServer\Services\KeyHelperService;
 use Darkink\AuthorizationServer\View\Components\ButtonCancel;
 use Darkink\AuthorizationServer\View\Components\ButtonDot;
@@ -89,7 +91,7 @@ class PolicyServiceProvider extends ServiceProvider
 
         $this->registerKeyHelperService();
         $this->registerBearerTokenDecoderService();
-
+        $this->registerEvaluatorService();
         // $this->registerAuthorizationServer();
         // $this->registerRoleRepository();
         // $this->registerPermissionRepository();
@@ -107,6 +109,11 @@ class PolicyServiceProvider extends ServiceProvider
     protected function registerBearerTokenDecoderService()
     {
         $this->app->singleton(BearerTokenDecoderService::class);
+    }
+
+    protected function registerEvaluatorService()
+    {
+        $this->app->bind(IEvaluatorService::class, DefaultEvaluatorService::class);
     }
 
     protected function registerAuthorizationServer()
