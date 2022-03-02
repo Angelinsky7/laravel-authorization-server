@@ -1,6 +1,6 @@
 <?php
 
-namespace Darkink\AuthorizationServer\Http\Requests;
+namespace Darkink\AuthorizationServer\Http\Requests\Evaluator;
 
 use Darkink\AuthorizationServer\Models\Client;
 
