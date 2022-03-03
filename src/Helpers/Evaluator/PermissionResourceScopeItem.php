@@ -4,12 +4,12 @@ namespace Darkink\AuthorizationServer\Helpers\Evaluator;
 
 class PermissionResourceScopeItem
 {
-    public string $resourceName;
-    public string | null $scopeName;
+    public string $resource_name;
+    public string | null $scope_name;
 
-    public function __construct(string $resourceName,  string | null $scopeName = null)
+    public function __construct(string $resource_name,  string | null $scope_name = null)
     {
-        $this->resourceName = $resourceName;
-        $this->scopeName = $scopeName;
+        $this->resource_name = $resource_name;
+        $this->scope_name = $scope_name;
     }
 }

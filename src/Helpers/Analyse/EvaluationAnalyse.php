@@ -6,4 +6,5 @@ class EvaluationAnalyse
 {
     /** @var EvaluationAnalyseItem[] $items */
     public array $items = [];
+
 }

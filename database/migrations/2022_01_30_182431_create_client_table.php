@@ -32,9 +32,10 @@ class CreateClientTable extends Migration
             $table->string('client_name')->unique();
             $table->string('description')->nullable();
             $table->string('client_uri');
-            $table->enum('policy_enforcement', array_slice(array_column(PolicyEnforcement::cases(), 'value'), 1));
-            $table->enum('decision_strategy', array_slice(array_column(DecisionStrategy::cases(), 'value'), 1));
+            $table->enum('policy_enforcement', array_slice(array_column(PolicyEnforcement::cases(), 'value'), 1))->default(PolicyEnforcement::Enforcing->value);
+            $table->enum('decision_strategy', array_slice(array_column(DecisionStrategy::cases(), 'value'), 1))->default(DecisionStrategy::Affirmative->value);
             $table->boolean('analyse_mode_enabled')->default(false);
+            $table->char('permission_splitter', 1)->default('#');
             $table->timestamps();
 
             $table->unique('oauth_id', 'uma_clients_oauth_unique');

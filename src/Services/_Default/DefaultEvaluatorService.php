@@ -15,6 +15,7 @@ use Darkink\AuthorizationServer\Helpers\Evaluator\ResourceScopeResult;
 use Darkink\AuthorizationServer\Helpers\KeyValuePair;
 use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Darkink\AuthorizationServer\Models\Permission;
+use Darkink\AuthorizationServer\Models\Policy;
 use Darkink\AuthorizationServer\Models\Resource;
 use Darkink\AuthorizationServer\Models\ResourcePermission;
 use Darkink\AuthorizationServer\Models\Scope;
@@ -30,8 +31,10 @@ class DefaultEvaluatorService implements IEvaluatorService
     {
         $request->permission_resource_scope_items = $this->_getPermissionResourceScopeItems($request);
 
+        /** @var Collection @permissions */
+        $permissions = $request->client->permissions;
         /** @var Permission $permission */
-        foreach ($this->_filterPermissions($request, $request->client->permissions) as $permission) {
+        foreach ($this->_filterPermissions($request, $permissions->all()) as $permission) {
             $this->_evaluatePermission($permission, $request);
         }
 
@@ -46,41 +49,56 @@ class DefaultEvaluatorService implements IEvaluatorService
 
         /** @var KeyValuePair $permission_decision */
         foreach ($request->evaluator_results->permissions_decisions as $permission_decision) {
-            $resources = $this->_getResources($request, $permission_decision->key);
-            $scopes = $this->_getScopes($request, $permission_decision->key);
+            /** @var Permission $permission_decision_key_typed */
+            $permission_decision_key_typed = $permission_decision->key;
+            /** @var PermissionDecision $permission_decision_value_typed */
+            $permission_decision_value_typed = $permission_decision->value;
+
+            $resources = $this->_getResources($request, $permission_decision_key_typed->permission);
+            $scopes = $this->_getScopes($request, $permission_decision_key_typed->permission);
 
             $analyse_item = null;
 
             foreach ($resources as $resource) {
-                $items_filtered = array_filter($analyse->items, fn ($p) => $p->resource_id == $resource->id);
-                $analyse_item = count($items_filtered) != 0 ? $items_filtered[0] : null;
+                $items_filtered = array_filter($analyse->items, fn (EvaluationAnalyseItem $p) => $p->resource_id == $resource->id);
+                $analyse_item = count($items_filtered) > 0 ? (array_values($items_filtered)[0]) : null; //FirstOrDefault
                 if ($analyse_item == null) {
-                    $analyse_item = new EvaluationAnalyseItem($resource->id, $resource->name, $request->client->decisionStrategy->name);
-                    $analyse->items[] = $analyse_item;
+                    $analyse_item = new EvaluationAnalyseItem($resource->id, $resource->name, $request->client->decision_strategy->name);
+                    array_push($analyse->items, $analyse_item);
                 }
 
                 $evaluation = $this->buildEvaluation($request, $resource);
-                $result_resource = array_filter($evaluation->results, fn ($p) => $p->rs_id == $resource->id);
-                $result_scopes = count($result_resource) == 1 ? $result_resource->scopes : [];
-                foreach ($result_scopes as $scope) {
-                    $analyse_item->scopes[] = $scope;
+                /** @var EvaluationItem[] $result_resource */
+                $result_resource = array_filter($evaluation->results, fn (EvaluationItem $p) => $p->rs_id == $resource->id);
+                $result_scopes = count($result_resource) == 1 ? array_map(fn (EvaluationItem $p) => $p->scopes, $result_resource) : []; //SingleOrDefault
+                foreach ($result_scopes as $result_scope) {
+                    foreach ($result_scope as $scope) {
+                        if (!in_array($scope, $analyse_item->scopes)) {
+                            array_push($analyse_item->scopes, $scope);
+                        }
+                    }
                 }
             }
 
             if ($analyse_item != null) {
                 $evaluation_analyse_permission_item = new EvaluationAnalysePermissionItem(
-                    $permission_decision->key->id,
-                    $permission_decision->key->name,
-                    $permission_decision->value->result,
-                    $permission_decision->key->decision_strategy->name,
+                    $permission_decision_key_typed->id,
+                    $permission_decision_key_typed->name,
+                    $permission_decision_key_typed->decision_strategy->name,
+                    $permission_decision_value_typed->result,
                     array_map(fn ($p) => $p->name, $scopes)
                 );
 
-                foreach ($permission_decision->value->policies as $policy => $policyGranted) {
+                foreach ($permission_decision_value_typed->policies as $policy) {
+                    /** @var Policy @$policy_key_typed */
+                    $policy_key_typed = $policy->key;
+                    /** @var bool $policy_value_typed */
+                    $policy_value_typed = $policy->value;
+
                     $evaluation_analyse_permission_item->policies[] = new EvaluationAnalysePolicyItem(
-                        $policy->id,
-                        $policy->name,
-                        $policyGranted
+                        $policy_key_typed->id,
+                        $policy_key_typed->name,
+                        $policy_value_typed
                     );
                 }
 
@@ -95,27 +113,30 @@ class DefaultEvaluatorService implements IEvaluatorService
     {
         $result = new Evaluation();
 
-        switch ($request->client->decisionStrategy) {
+        switch ($request->client->decision_strategy) {
             case DecisionStrategy::Affirmative:
-                $resource_scope_results = array_filter($request->resource_scope_results, fn ($p) => $p->granted === true && ($filter_resouce == null || $p->resource->Id == $filter_resouce->id));
-                $grouped_resource_scope_results = array_group($resource_scope_results, fn ($p) => $p->resource, fn ($p) => $p->id);
+                $resource_scope_results = array_filter($request->resource_scope_results, fn (ResourceScopeResult $p) => $p->granted === true && ($filter_resouce == null || $p->resource->id == $filter_resouce->id));
+                $grouped_resource_scope_results = array_group($resource_scope_results, fn (ResourceScopeResult $p) => $p->resource, fn (Resource $p) => $p->id);
                 foreach ($grouped_resource_scope_results as $value) {
-                    $scope_names = array_map(fn ($p) => $p->scope->name, $value->value);
+                    $scope_names = array_map(fn (ResourceScopeResult $p) => $p->scope->name, $value->value);
                     $distinct_scopes = array_unique($scope_names);
                     $result->results[] = new EvaluationItem($value->key->id, $value->key->name, $distinct_scopes);
                 }
                 break;
             case DecisionStrategy::Unanimous:
-                $resource_scope_results = array_filter($request->resource_scope_results, fn ($p) => ($filter_resouce == null || $p->resource->Id == $filter_resouce->id));
-                $grouped_resource_scope_results = array_group($resource_scope_results, fn ($p) => $p->resource, fn ($p) => $p->id);
+                $resource_scope_results = array_filter($request->resource_scope_results, fn (ResourceScopeResult $p) => ($filter_resouce == null || $p->resource->id == $filter_resouce->id));
+                $grouped_resource_scope_results = array_group($resource_scope_results, fn (ResourceScopeResult $p) => $p->resource, fn (Resource $p) => $p->id);
                 foreach ($grouped_resource_scope_results as $value) {
-                    $not_granted_items = array_filter($value->value, fn ($p) => $p->granted === false);
-                    $not_granted_scope_id = array_map(fn ($p) => $p->scope->id, $not_granted_items);
-                    $filter_scopes = array_filter($value->value, fn ($p) => !in_array($p->scope->id, $not_granted_scope_id));
-                    $scope_names = array_map(fn ($p) => $p->scope->name, $filter_scopes);
+                    $not_granted_items = array_filter($value->value, fn (ResourceScopeResult $p) => $p->granted === false);
+                    $not_granted_scope_id = array_map(fn (ResourceScopeResult $p) => $p->scope->id, $not_granted_items);
+                    $filter_scopes = array_filter($value->value, fn (ResourceScopeResult $p) => !in_array($p->scope->id, $not_granted_scope_id));
+                    $scope_names = array_map(fn (ResourceScopeResult $p) => $p->scope->name, $filter_scopes);
                     $distinct_scopes = array_unique($scope_names);
                     $result->results[] = new EvaluationItem($value->key->id, $value->key->name, $distinct_scopes);
                 }
+                break;
+            case DecisionStrategy::Unanimous:
+                throw new Error('NotImplementedException');
                 break;
         }
 
@@ -135,7 +156,7 @@ class DefaultEvaluatorService implements IEvaluatorService
 
         foreach ($permission->policies as $policy) {
             if (!$request->cache->hasPolicyCache($policy)) {
-                $request->cache->addPolicyCache($policy, $policy->evaluate($request));
+                $request->cache->addPolicyCache($policy, $policy->policy->evaluate($request));
             }
             $evaluator = $request->cache->getPolicyCacheWithoutNullable($policy);
             $policy_result[] = new KeyValuePair($policy, $evaluator);
@@ -162,6 +183,16 @@ class DefaultEvaluatorService implements IEvaluatorService
         }
     }
 
+    private function _getResourceNameFromPermission(ScopePermission | ResourcePermission $permission): string | null
+    {
+        if ($permission instanceof ResourcePermission) {
+            return $permission->resource != null ? $permission->resource->name : null;
+        } else if ($permission instanceof ScopePermission) {
+            return $permission->resource != null ? $permission->resource->name : null;
+        }
+        return null;
+    }
+
     private function _getPermissionResourceScopeItems(EvaluatorRequest $request)
     {
         $result = [];
@@ -169,7 +200,7 @@ class DefaultEvaluatorService implements IEvaluatorService
         if ($request->permissions != null) {
             /** @var string $permission */
             foreach ($request->permissions as $permission) {
-                $split = explode($request->client->options->permissionSplitter, $permission);
+                $split = explode($request->client->permission_splitter, $permission);
                 if (count($split) == 2) {
                     $result[] = new PermissionResourceScopeItem($split[0], $split[1]);
                 } else if (count($split) == 1) {
@@ -183,38 +214,38 @@ class DefaultEvaluatorService implements IEvaluatorService
         return $result;
     }
 
-    /** @param Permission[] $permissions */
-    private function _filterPermissions(EvaluatorRequest $request, array | Collection $permissions)
+    /** @var Permission[] @permissions */
+    private function _filterPermissions(EvaluatorRequest $request, array $permissions)
     {
-        if (count(array_filter($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resourceName == null)) > 0) {
+        if (count(array_filter($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resource_name == null)) > 0) {
             return $permissions;
         }
 
-        $all_valid_resourceNames = array_filter($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resourceName != null);
-        if (count($all_valid_resourceNames) == 0) {
+        $all_valid_resource_names = array_filter($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resource_name != null);
+        if (count($all_valid_resource_names) == 0) {
             return $permissions;
         }
 
-        $all_accepted_resourceNames = array_map(fn (PermissionResourceScopeItem $p) => $p->resourceName, $all_valid_resourceNames);
-        $result = array_filter($permissions, fn ($p) => count(array_filter($all_accepted_resourceNames, fn (PermissionResourceScopeItem $a) => $a->resourceName == $p->resourceName)));
+        $all_accepted_resource_names = array_map(fn (PermissionResourceScopeItem $p) => $p->resource_name, $all_valid_resource_names);
+        $result = array_filter($permissions, fn (Permission $p) => count(array_filter($all_accepted_resource_names, fn (string $a) => $a == $this->_getResourceNameFromPermission($p->permission))));
 
         return $result;
     }
 
-    /** @param Scope[] $scopes */
-    private function _filterScopes(EvaluatorRequest $request, Resource $resource, array | Collection $scopes)
+    /** @var Scope[] $scopes */
+    private function _filterScopes(EvaluatorRequest $request, Resource $resource, array $scopes)
     {
-        if (count(array_filter($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resourceName == $resource->name)) > 0) {
+        if (count(array_filter($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resource_name == $resource->name)) > 0) {
             return $scopes;
         }
 
-        $all_valid_resourceNames = array_filter($request->permission_resource_scope_items, fn ($p) => ($p->resourceName == null || $p->resourceName == $resource->name) && $p->ScopeName != null);
-        if (count($all_valid_resourceNames) == 0) {
+        $all_valid_resource_names = array_filter($request->permission_resource_scope_items, fn ($p) => ($p->resource_name == null || $p->resource_name == $resource->name) && $p->scope_name != null);
+        if (count($all_valid_resource_names) == 0) {
             return $scopes;
         }
 
-        $all_accepted_resourceNames = array_map(fn (PermissionResourceScopeItem $p) => $p->scopeName, $all_valid_resourceNames);
-        $result = array_filter($scopes, fn ($p) => count(array_filter($all_accepted_resourceNames, fn (PermissionResourceScopeItem $a) => $a->scopeName == $p->scopeName)));
+        $all_accepted_resource_names = array_map(fn (PermissionResourceScopeItem $p) => $p->scope_name, $all_valid_resource_names);
+        $result = array_filter($scopes, fn (Scope $p) => count(array_filter($all_accepted_resource_names, fn (string $a) => $a == $p->scope_name)));
 
         return $result;
     }
@@ -224,8 +255,8 @@ class DefaultEvaluatorService implements IEvaluatorService
         $resource_scope_results = [];
 
         foreach ($request->evaluator_results->permissions_decisions as $permissions_decision) {
-            $resources = $this->_getResources($request, $permissions_decision->key);
-            $scopes = $this->_getScopes($request, $permissions_decision->key);
+            $resources = $this->_getResources($request, $permissions_decision->key->permission);
+            $scopes = $this->_getScopes($request, $permissions_decision->key->permission);
 
             foreach ($resources as $resource) {
                 foreach ($this->_filterScopes($request, $resource, $scopes) as $scope) {
@@ -235,25 +266,28 @@ class DefaultEvaluatorService implements IEvaluatorService
                     }
 
                     /** @var ResourceScopeResult $item */
-                    $item = $resource[$hash];
+                    $item = $resource_scope_results[$hash];
                     if ($permissions_decision->value->result) {
                         ++$item->granted_count;
                     } else {
-                        ++$item->DeniedCount;
+                        ++$item->denied_count;
                     }
                 }
             }
         }
 
-        foreach ($resource_scope_results as $hash => $scope_result) {
-            switch ($request->client->options->decision_strategy) {
+        /** @var ResourceScopeResult $scope_result */
+        foreach ($resource_scope_results as $scope_result) {
+            switch ($request->client->decision_strategy) {
                 case DecisionStrategy::Affirmative:
-                    //NOTE(demarco): are you sure of that statment ??
-                    $scope_result->granted = $scope_result->granted_count == 0;
+                    $scope_result->granted = $scope_result->granted_count > 0;
                     break;
                 case DecisionStrategy::Unanimous:
-                    //NOTE(demarco): are you sure of that statment ??
                     $scope_result->granted = $scope_result->denied_count == 0;
+                    break;
+                case DecisionStrategy::Consensus:
+                    //NOTE(demarco): are you sure of that statment ?? NOT PRESENT IN original design....
+                    $scope_result->granted = ($scope_result->granted_count - $scope_result->denied_count) > 0;
                     break;
             }
         }
@@ -262,13 +296,13 @@ class DefaultEvaluatorService implements IEvaluatorService
         return $result;
     }
 
-    private function _getResources(EvaluatorRequest $request, Permission $permission)
+    private function _getResources(EvaluatorRequest $request, ResourcePermission | ScopePermission $permission)
     {
         /** @var Resource[] */
         $result = [];
 
         /** @var Resource[] */
-        $all_client_resources = $request->client->resources()->all();
+        $all_client_resources = $request->client->resources;
 
         if ($permission instanceof ResourcePermission) {
             if ($permission->resource != null) {
@@ -293,13 +327,13 @@ class DefaultEvaluatorService implements IEvaluatorService
         return $result;
     }
 
-    private function _getScopes(EvaluatorRequest $request, Permission $permission)
+    private function _getScopes(EvaluatorRequest $request, ResourcePermission | ScopePermission $permission)
     {
         /** @var Scope[] */
         $result = [];
 
         /** @var Resource[] */
-        $all_client_resources = $request->client->resources()->with('resources')->all();
+        $all_client_resources = $request->client->scopes;
 
         if ($permission instanceof ResourcePermission) {
             if ($permission->resource != null) {

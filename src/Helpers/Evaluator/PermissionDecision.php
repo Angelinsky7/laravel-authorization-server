@@ -8,7 +8,7 @@ class PermissionDecision {
 
     public bool $result;
 
-    /** @var KeyValuePair[] */
+    /** @var KeyValuePair[] $policies Policy/bool */
     public array $policies = [];
 
     public function __construct(bool $result, array $policies)

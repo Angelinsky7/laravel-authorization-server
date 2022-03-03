@@ -2,7 +2,9 @@
 
 namespace Darkink\AuthorizationServer\Http\Controllers;
 
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluationItem;
 use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluatorRequest as EvaluatorEvaluatorRequest;
+use Darkink\AuthorizationServer\Helpers\KeyValuePair;
 use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluatorRequest;
 use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluatorRequestResponseMode;
 use Darkink\AuthorizationServer\Repositories\ClientRepository;
@@ -45,15 +47,15 @@ class EvaluatorController
             case EvaluatorRequestResponseMode::DECISION: {
                     /** @var bool[] */
                     $granted = [];
-                    $groupByResources = array_group($evaluation->results, fn ($p) => $p->rs_name);
+                    $group_by_resources = array_group($evaluation->results, fn (EvaluationItem $p) => $p->rs_name);
 
-                    foreach ($evaluatorRequest->permissionResourceScopeItems as $requestPermission) {
-                        if ($requestPermission->resource_name != null && $requestPermission->scope_name == null) {
-                            $granted[] = array_any($groupByResources, fn ($p) => $p->key == $requestPermission->resource_name);
-                        } elseif ($requestPermission->resource_name != null && $requestPermission->scope_name != null) {
-                            $granted[] = array_any($groupByResources, fn ($p) => $p->key == $requestPermission->resource_name && array_any($p->scopes, fn ($a) => $a == $requestPermission->scope_name));
-                        } elseif ($requestPermission->resource_name == null && $requestPermission->scope_name != null) {
-                            $granted[] = array_any($groupByResources, fn ($p) => array_any($p->scopes, fn ($a) => $a == $requestPermission->scope_name));
+                    foreach ($evaluatorRequest->permission_resource_scope_items as $request_permission) {
+                        if ($request_permission->resource_name != null && $request_permission->scope_name == null) {
+                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => $p->key == $request_permission->resource_name);
+                        } elseif ($request_permission->resource_name != null && $request_permission->scope_name != null) {
+                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => $p->key == $request_permission->resource_name && array_any($p->value, fn (EvaluationItem $a) => array_any($a->scopes, fn(string $m) => $m == $request_permission->scope_name)));
+                        } elseif ($request_permission->resource_name == null && $request_permission->scope_name != null) {
+                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => array_any($p->value, fn (EvaluationItem $a) => array_any($a->scopes, fn(string $m) => $m == $request_permission->scope_name)));
                         } else {
                             $error = ValidationException::withMessages([
                                 'resource' => ["Requested resource is empty"],
@@ -70,8 +72,8 @@ class EvaluatorController
                 break;
             case EvaluatorRequestResponseMode::PERMISSIONS: {
                     return [
-                        'client_id' => $client->id,
-                        'results' => $evaluation->results->only_with_scopes()
+                        'client_id' => $client->oauth->id,
+                        'results' => $evaluation->results_only_with_scopes()
                     ];
                 }
                 break;

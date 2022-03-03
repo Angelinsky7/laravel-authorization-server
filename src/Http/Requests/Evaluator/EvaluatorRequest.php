@@ -18,7 +18,7 @@ class EvaluatorRequest extends FormRequest
         return [
             'client_id' => ['required', 'string', new IsUserSameAsRequest()],
             'response_mode' => ['required', new Enum(EvaluatorRequestResponseMode::class)],
-            'permission' => 'nullable|string'
+            'permission' => 'required_if:response_mode,decision|array'
         ];
     }
 
