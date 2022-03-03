@@ -31,22 +31,6 @@ class PolicyServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
-        // $this->loadViewsFrom(__DIR__ . '/../resources/views', 'policy');
-
-        // $this->loadViewComponentsAs('policy', [
-        //     IconBoolTick::class,
-        //     ButtonRaised::class,
-        //     ButtonStroked::class,
-        //     ButtonDot::class,
-        //     ButtonCancel::class,
-        //     ButtonSubmit::class,
-        //     Table::class,
-        //     FormFieldError::class,
-        //     Dropdown::class,
-        //     DropdownLink::class
-        // ]);
-
         if ($this->app->runningInConsole()) {
             $this->registerMigrations();
 
@@ -76,6 +60,8 @@ class PolicyServiceProvider extends ServiceProvider
                 \Darkink\AuthorizationServer\Console\RoleCommand::class
             ]);
         }
+
+        $this->registerHelpers();
     }
 
     protected function registerMigrations()
@@ -127,6 +113,13 @@ class PolicyServiceProvider extends ServiceProvider
 
     protected function registerPermissionRepository()
     {
+    }
+
+    protected function registerHelpers()
+    {
+        if (file_exists($file = __DIR__ . '/policyHelper.php')) {
+            require_once $file;
+        }
     }
 
     protected function makeCryptKey($type)

@@ -13,11 +13,17 @@ use Illuminate\Support\Facades\Hash;
 
 class ClientRepository
 {
-    public function find(int $id): Client
+    public function find(string | int $id): Client
     {
         $client = Policy::oauthClient();
-        return $client->where($client->getKeyName(), $id)->first();
+        return $client->where($client->getKeyName(), $id)->first()->client;
     }
+
+    // public function find_by_client_id(string $id): Client
+    // {
+    //     $client = Policy::oauthClient();
+    //     return $client->where('client_id', $id)->first();
+    // }
 
     public function gets()
     {

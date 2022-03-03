@@ -8,6 +8,7 @@ use Darkink\AuthorizationServer\Helpers\FlashMessage;
 use Darkink\AuthorizationServer\Helpers\FlashMessageSize;
 use Darkink\AuthorizationServer\Http\Controllers\ApiRoleController;
 use Darkink\AuthorizationServer\Http\Controllers\DiscoverController;
+use Darkink\AuthorizationServer\Http\Controllers\EvaluatorController;
 use Darkink\AuthorizationServer\Http\Controllers\RoleController;
 use Darkink\AuthorizationServer\Http\Controllers\UserAuthorizationController;
 use Darkink\AuthorizationServer\Models\AggregatedPolicy;
@@ -104,20 +105,21 @@ class Policy
         });
 
         Route::prefix('policy')->middleware(config('policy.route.api'))->group(function () {
-            Route::get('/authorization', [UserAuthorizationController::class, 'index'])->name('api.policy.authorization.index');
+            // Route::get('/authorization', [UserAuthorizationController::class, 'index'])->name('api.policy.authorization.index');
+            Route::get('/authorization', [EvaluatorController::class, 'process'])->name('api.policy.authorization.index');
         });
 
-        Route::prefix('api')->middleware(config('policy.route.api'))->group(function () {
-            Route::prefix('policy')->group(function () {
-                Route::group(['prefix' => 'role'], function () {
-                    Route::get('/', [ApiRoleController::class, 'index'])->name('api.policy.role.index');
-                });
+        // Route::prefix('api')->middleware(config('policy.route.api'))->group(function () {
+        //     Route::prefix('policy')->group(function () {
+        //         Route::group(['prefix' => 'role'], function () {
+        //             Route::get('/', [ApiRoleController::class, 'index'])->name('api.policy.role.index');
+        //         });
 
-                Route::group(['prefix' => 'permission'], function () {
-                    Route::get('/', [RoleController::class, 'index'])->name('api.policy.permission.index');
-                });
-            });
-        });
+        //         Route::group(['prefix' => 'permission'], function () {
+        //             Route::get('/', [RoleController::class, 'index'])->name('api.policy.permission.index');
+        //         });
+        //     });
+        // });
     }
 
     public static function registerExceptionHanlder(ExceptionHandler $hanlder)

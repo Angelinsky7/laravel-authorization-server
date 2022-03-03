@@ -4,6 +4,7 @@ namespace Darkink\AuthorizationServer\Models;
 
 use App\Models\User;
 use Darkink\AuthorizationServer\Database\Factories\UserPolicyFactory;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluatorRequest;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
@@ -28,6 +29,12 @@ class UserPolicy extends Policy
     public static function newFactory()
     {
         return UserPolicyFactory::new();
+    }
+
+    public function evaluate(EvaluatorRequest $request)
+    {
+        $request->result = $this->users()->where('name', $request->user->name)->count() > 0;
+        return $this->parent->evaluate($request);
     }
 
 }

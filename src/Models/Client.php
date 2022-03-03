@@ -8,16 +8,16 @@ use Illuminate\Support\Facades\Date;
 /**
  * @property-read int $id
  * @property bool $enabled
- * @property string $clientId
+ * @property string $client_id
  * @property Secret[] $secrets
- * @property bool $requireClientSecret
- * @property string $clientName
+ * @property bool $require_client_secret
+ * @property string $client_name
  * @property string $description
- * @property string $clientUri
- * @property PolicyEnforcement $policyEnforcement
- * @property DecisionStrategy $decisionStrategy
- * @property bool $analyseModeEnabled
- * @property string $permissionSplitter (?)
+ * @property string $client_uri
+ * @property PolicyEnforcement $policy_enforcement
+ * @property DecisionStrategy $decision_strategy
+ * @property bool $analyse_mode_enabled
+ * @property string $permission_splitter
  * @property Resource[] $resources
  * @property Scope[] $scopes
  * @property Role[] $roles
@@ -32,23 +32,23 @@ class Client extends BaseModel {
     protected $table = 'uma_clients';
 
     public function secrets() {
-        return $this->belongsToMany(Secret::class, 'client_secret', 'client_id', 'secret_id');
+        return $this->belongsToMany(Secret::class, 'uma_client_secret', 'client_id', 'secret_id');
     }
 
     public function resources() {
-        return $this->belongsToMany(Resource::class, 'client_resource', 'client_id', 'resource_id');
+        return $this->belongsToMany(Resource::class, 'uma_client_resource', 'client_id', 'resource_id');
     }
 
     public function scopes() {
-        return $this->belongsToMany(Scope::class, 'client_scope', 'client_id', 'scope_id');
+        return $this->belongsToMany(Scope::class, 'uma_client_scope', 'client_id', 'scope_id');
     }
 
     public function policies() {
-        return $this->belongsToMany(Policy::class, 'client_policy', 'client_id', 'policy_id');
+        return $this->belongsToMany(Policy::class, 'uma_client_policy', 'client_id', 'policy_id');
     }
 
     public function permissions() {
-        return $this->belongsToMany(Permission::class, 'client_permission', 'client_id', 'permission_id');
+        return $this->belongsToMany(Permission::class, 'uma_client_permission', 'client_id', 'permission_id');
     }
 
     public function oauth(){

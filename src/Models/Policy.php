@@ -3,6 +3,7 @@
 namespace Darkink\AuthorizationServer\Models;
 
 use Darkink\AuthorizationServer\Database\Factories\PolicyFactory;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluatorRequest;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Log;
@@ -30,7 +31,8 @@ class Policy extends BaseModel
         return $this->morphTo('policy', 'discriminator', 'id');
     }
 
-    public function permissions(){
+    public function permissions()
+    {
         return $this->belongsToMany(Permission::class, 'uma_permission_policy', 'policy_id', 'permission_id');
     }
 
@@ -49,6 +51,14 @@ class Policy extends BaseModel
     public static function newFactory()
     {
         return PolicyFactory::new();
+    }
+
+    public function evaluate(EvaluatorRequest $request)
+    {
+        if ($this->logic == PolicyLogic::Negative) {
+            $request->result = !$request->result;
+        }
+        return $request->result;
     }
 
 }

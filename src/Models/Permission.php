@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
  * @property string $name
  * @property string $description
  * @property DecisionStrategy $decision_strategy
- * @property Policy[] polices
+ * @property Policy[] policies
  * @property ScopePermission | ResourcePermission $permission
  */
 class Permission extends BaseModel
@@ -28,7 +28,8 @@ class Permission extends BaseModel
         return $this->morphTo('permission', 'discriminator', 'id');
     }
 
-    public function policies(){
+    public function policies()
+    {
         return $this->belongsToMany(Policy::class, 'uma_permission_policy', 'permission_id', 'policy_id');
     }
 
