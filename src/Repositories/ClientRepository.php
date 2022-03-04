@@ -6,6 +6,7 @@ use Darkink\AuthorizationServer\Models\Client;
 use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Darkink\AuthorizationServer\Models\PolicyEnforcement;
 use Darkink\AuthorizationServer\Policy;
+use Error;
 use Exception;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +17,11 @@ class ClientRepository
     public function find(string | int $id): Client
     {
         $client = Policy::oauthClient();
-        return $client->where($client->getKeyName(), $id)->first()->client;
+        $result = $client->where($client->getKeyName(), $id)->first();
+        if ($result == null) {
+            throw new Error('Client not found');
+        }
+        return $result->client;
     }
 
     // public function find_by_client_id(string $id): Client

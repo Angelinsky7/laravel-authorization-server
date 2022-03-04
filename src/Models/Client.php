@@ -18,10 +18,17 @@ use Illuminate\Support\Facades\Date;
  * @property DecisionStrategy $decision_strategy
  * @property bool $analyse_mode_enabled
  * @property string $permission_splitter
+ * @property bool $all_resources
  * @property Resource[] $resources
+ * @property bool $all_scopes
  * @property Scope[] $scopes
+ * @property bool $all_roles
  * @property Role[] $roles
+ * @property bool $all_groups
+ * @property Group[] $groups
+ * @property bool $all_policies
  * @property Policy[] $policies
+ * @property bool $all_permissions
  * @property Permission[] $permissions
  * @property ModelsClient $oauth
  * @property-read Date $created_at
@@ -35,12 +42,27 @@ class Client extends BaseModel
     protected $casts = [
         'policy_enforcement' => PolicyEnforcement::class,
         'decision_strategy' => DecisionStrategy::class,
+        'enabled' => 'boolean',
+        'require_client_secret' => 'boolean',
+        'analyse_mode_enabled' => 'boolean',
+        'all_resources' => 'boolean',
+        'all_scopes' => 'boolean',
+        'all_roles' => 'boolean',
+        'all_groups' => 'boolean',
+        'all_policies' => 'boolean',
+        'all_permissions' => 'boolean',
     ];
 
     protected $attributes = [
         'policy_enforcement' => PolicyEnforcement::Enforcing,
         'decision_strategy' => DecisionStrategy::Affirmative,
-        'permission_splitter' => '#'
+        'permission_splitter' => '#',
+        'all_resources' => true,
+        'all_scopes' => true,
+        'all_roles' => true,
+        'all_groups' => true,
+        'all_policies' => true,
+        'all_permissions' => true,
     ];
 
     public function secrets()
@@ -66,6 +88,16 @@ class Client extends BaseModel
     public function permissions()
     {
         return $this->belongsToMany(Permission::class, 'uma_client_permission', 'client_id', 'permission_id');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'uma_client_role', 'client_id', 'role_id');
+    }
+
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'uma_client_group', 'client_id', 'group_id');
     }
 
     public function oauth()

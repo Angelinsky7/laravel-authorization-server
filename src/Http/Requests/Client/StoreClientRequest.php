@@ -20,7 +20,7 @@ class StoreClientRequest extends FormRequest
         return [
             'name' => 'required|unique:oauth_clients|string',
             'user_id' => 'nullable',
-            'secret' => 'required|string|min:10',
+            'secret' => 'nullable|string|min:10',
             'provider' => 'nullable|string',
             'redirect' => 'required|string',
             'personal_access_client' => 'nullable|bool',

@@ -36,6 +36,12 @@ class CreateClientTable extends Migration
             $table->enum('decision_strategy', array_slice(array_column(DecisionStrategy::cases(), 'value'), 1))->default(DecisionStrategy::Affirmative->value);
             $table->boolean('analyse_mode_enabled')->default(false);
             $table->char('permission_splitter', 1)->default('#');
+            $table->boolean('all_resources')->default(true);
+            $table->boolean('all_scopes')->default(true);
+            $table->boolean('all_roles')->default(true);
+            $table->boolean('all_groups')->default(true);
+            $table->boolean('all_policies')->default(true);
+            $table->boolean('all_permissions')->default(true);
             $table->timestamps();
 
             $table->unique('oauth_id', 'uma_clients_oauth_unique');
