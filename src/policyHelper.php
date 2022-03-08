@@ -11,7 +11,7 @@ function wildcardToRegex(string $src): string
     $pattern = str_replace('\*', '.*', $pattern);
     $pattern = str_replace('\?', '.', $pattern);
 
-    return "^/${pattern}$/i";
+    return "/^$pattern$/i";
 }
 
 /**
