@@ -35,26 +35,17 @@ class ClientRepository
         return Policy::oauthClient()->with('client');
     }
 
-    // protected function resolve(mixed $roles, mixed $memberofs)
-    // {
+    protected function resolve(mixed $permissions)
+    {
 
-    //     if (count($roles) != 0 && !is_object($roles[0])) {
-    //         $roles = Policy::role()->all()->whereIn(Policy::role()->getKeyName(), $roles);
-    //     }
+        if (count($permissions) != 0 && !is_object($permissions[0])) {
+            $permissions = Policy::permission()->all()->whereIn(Policy::permission()->getKeyName(), $permissions);
+        }
 
-    //     if (count($memberofs) != 0 && !is_object($memberofs[0])) {
-    //         $memberofsWithoutPrefix = array_map(fn ($p) => substr($p, strlen('g')), $memberofs);
-    //         $memberofs = Policy::group()->all()->whereIn(Policy::group()->getKeyName(), $memberofsWithoutPrefix);
-    //     }
-
-    //     return [
-    //         'roles' => $roles,
-    //         'memberofs' => $memberofs,
-    //     ];
-    // }
-
-
-
+        return [
+            'permissions' => $permissions,
+        ];
+    }
 
     public function create(
         string $name,
@@ -74,12 +65,19 @@ class ClientRepository
         PolicyEnforcement | int $policy_enforcement,
         DecisionStrategy | int $decision_strategy,
         bool $analyse_mode_enabled,
+        bool $all_resources,
+        bool $all_scopes,
+        bool $all_roles,
+        bool $all_groups,
+        bool $all_policies,
+        bool $all_permissions,
+        mixed $permissions
     ): Client {
         DB::beginTransaction();
 
         try {
 
-            // extract($this->resolve($roles, $memberofs));
+            extract($this->resolve($permissions));
 
             $oauth = Policy::oauthClient()->forceFill([
                 'name' => $name,
@@ -103,9 +101,19 @@ class ClientRepository
                 'client_uri' => $client_uri,
                 'policy_enforcement' => $policy_enforcement,
                 'decision_strategy' => $decision_strategy,
-                'analyse_mode_enabled' => $analyse_mode_enabled
+                'analyse_mode_enabled' => $analyse_mode_enabled,
+                'all_resources' => $all_resources,
+                'all_scopes' => $all_scopes,
+                'all_roles' => $all_roles,
+                'all_groups' => $all_groups,
+                'all_policies' => $all_policies,
+                'all_permissions' => $all_permissions
             ]);
             $client->save();
+
+            if (!$all_permissions) {
+                $client->permissions()->saveMany($permissions);
+            }
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -135,12 +143,19 @@ class ClientRepository
         PolicyEnforcement | int $policy_enforcement,
         DecisionStrategy | int $decision_strategy,
         bool $analyse_mode_enabled,
+        bool $all_resources,
+        bool $all_scopes,
+        bool $all_roles,
+        bool $all_groups,
+        bool $all_policies,
+        bool $all_permissions,
+        mixed $permissions
     ): Client {
         DB::beginTransaction();
 
         try {
 
-            // extract($this->resolve($roles, $memberofs));
+            extract($this->resolve($permissions));
 
             $oauth = Policy::oauthClient()->find($client->oauth_id);
 
@@ -167,12 +182,22 @@ class ClientRepository
                 'client_uri' => $client_uri,
                 'policy_enforcement' => $policy_enforcement,
                 'decision_strategy' => $decision_strategy,
-                'analyse_mode_enabled' => $analyse_mode_enabled
+                'analyse_mode_enabled' => $analyse_mode_enabled,
+                'all_resources' => $all_resources,
+                'all_scopes' => $all_scopes,
+                'all_roles' => $all_roles,
+                'all_groups' => $all_groups,
+                'all_policies' => $all_policies,
+                'all_permissions' => $all_permissions
             ]);
             $client->save();
 
-            // /** @var \Illuminate\Support\Collection $roles */
-            // $client->roles()->sync(is_array($roles) ? $roles : $roles->map(fn ($p) => $p->id)->toArray());
+            if ($all_permissions) {
+                $client->permissions()->sync([]);
+            } else {
+                /** @var \Illuminate\Support\Collection $permissions */
+                $client->permissions()->sync(is_array($permissions) ? $permissions : $permissions->map(fn ($p) => $p->id)->toArray());
+            }
             // /** @var \Illuminate\Support\Collection $memberofs */
             // $client->memberofs()->sync(is_array($memberofs) ? $memberofs : $memberofs->map(fn ($p) => $p->id)->toArray());
         } catch (Exception $e) {
