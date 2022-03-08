@@ -20,6 +20,7 @@ use Darkink\AuthorizationServer\Models\Resource;
 use Darkink\AuthorizationServer\Models\ResourcePermission;
 use Darkink\AuthorizationServer\Models\Scope;
 use Darkink\AuthorizationServer\Models\ScopePermission;
+use Darkink\AuthorizationServer\Policy as AuthorizationServerPolicy;
 use Darkink\AuthorizationServer\Services\IEvaluatorService;
 use Error;
 use Illuminate\Support\Collection;
@@ -32,7 +33,7 @@ class DefaultEvaluatorService implements IEvaluatorService
         $request->permission_resource_scope_items = $this->_getPermissionResourceScopeItems($request);
 
         /** @var Collection @permissions */
-        $permissions = $request->client->permissions;
+        $permissions = $request->client->all_permissions ? AuthorizationServerPolicy::permission()->all() : $request->client->permissions;
         /** @var Permission $permission */
         foreach ($this->_filterPermissions($request, $permissions->all()) as $permission) {
             $this->_evaluatePermission($permission, $request);

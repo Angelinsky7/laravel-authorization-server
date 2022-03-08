@@ -35,6 +35,7 @@ class StoreClientRequest extends FormRequest
             'client_uri' => 'required|string',
             'policy_enforcement' => ['required', new Enum(PolicyEnforcement::class)],
             'decision_strategy' => ['required', new Enum(DecisionStrategy::class)],
+            'permission_splitter' => 'required|string|min:1|max:1',
             'analyse_mode_enabled' => 'nullable|boolean',
             'all_resources' => 'nullable|boolean',
             'all_scopes' => 'nullable|boolean',
