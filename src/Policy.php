@@ -24,6 +24,7 @@ use Darkink\AuthorizationServer\Models\Role;
 use Darkink\AuthorizationServer\Models\RolePolicy;
 use Darkink\AuthorizationServer\Models\Scope;
 use Darkink\AuthorizationServer\Models\ScopePermission;
+use Darkink\AuthorizationServer\Models\TimePolicy;
 use Darkink\AuthorizationServer\Models\UserPolicy;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -54,6 +55,7 @@ class Policy
     public static $rolePolicyModel = RolePolicy::class;
     public static $userPolicyModel = UserPolicy::class;
     public static $clientPolicyModel = ClientPolicy::class;
+    public static $timePolicyModel = TimePolicy::class;
     public static $aggregatedPolicyModel = AggregatedPolicy::class;
     public static $clientModel = Client::class;
     public static $oauthClientModel = OAuthClient::class;
@@ -397,6 +399,24 @@ class Policy
 
     #endregion
 
+    #region timePolicy
+
+    public static function useTimePolicyModel($timePolicyModel)
+    {
+        static::$timePolicyModel = $timePolicyModel;
+    }
+
+    public static function timePolicyModel()
+    {
+        return static::$timePolicyModel;
+    }
+
+    public static function timePolicy(): TimePolicy
+    {
+        return new static::$timePolicyModel;
+    }
+
+    #endregion
 
     #region aggregatedPolicy
 

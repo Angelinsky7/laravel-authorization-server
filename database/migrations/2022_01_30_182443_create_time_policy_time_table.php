@@ -12,7 +12,6 @@ class CreateTimePolicyTimeTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-
     }
 
     /**
@@ -30,6 +29,9 @@ class CreateTimePolicyTimeTable extends Migration
                 ->references('id')
                 ->on('uma_time_policies')
                 ->onDelete('cascade');
+
+            $table->date('not_before')->nullable();
+            $table->date('not_after')->nullable();
 
             $table->unsignedBigInteger('day_of_month_id');
             $table->foreign('day_of_month_id')
@@ -77,6 +79,4 @@ class CreateTimePolicyTimeTable extends Migration
     {
         return config('policy.storage.database.connection');
     }
-
-
 }
