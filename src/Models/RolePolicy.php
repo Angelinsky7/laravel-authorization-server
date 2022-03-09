@@ -3,12 +3,13 @@
 namespace Darkink\AuthorizationServer\Models;
 
 use Darkink\AuthorizationServer\Database\Factories\RolePolicyFactory;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluatorRequest;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * @property Role[] $roles
  */
-class RolePolicy extends Policy
+class RolePolicy extends BaseModel
 {
     use HasFactory;
 
@@ -27,6 +28,23 @@ class RolePolicy extends Policy
     public static function newFactory()
     {
         return RolePolicyFactory::new();
+    }
+
+    public function evaluate(EvaluatorRequest $request)
+    {
+        $user = $request->user;
+
+        /** @var BelongsToMany $user_roles */
+        $user_roles = $user->roles();
+        $user_role_names = $user_roles->get()->map(fn(Role $p) => $p->name)->toArray();
+
+        /** @var role[] $filter_roles */
+        $filter_roles = $this->roles()->get()->all();
+
+        $result = array_any($filter_roles, fn(role $p) => array_any($user_role_names, fn(string $a) => $a == $p->name));
+
+        $request->result = $result;
+        return $this->parent->evaluate($request);
     }
 
 }

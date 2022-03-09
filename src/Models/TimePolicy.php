@@ -2,6 +2,7 @@
 
 namespace Darkink\AuthorizationServer\Models;
 
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluatorRequest;
 use DateTime;
 
 /**
@@ -13,7 +14,7 @@ use DateTime;
  * @property TimeRange $hour
  * @property TimeRange $minute
  */
-class TimePolicy extends Policy
+class TimePolicy extends BaseModel
 {
 
     protected $table = 'uma_time_policies';

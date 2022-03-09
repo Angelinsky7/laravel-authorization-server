@@ -13,6 +13,7 @@ use Darkink\AuthorizationServer\Http\Controllers\RoleController;
 use Darkink\AuthorizationServer\Http\Controllers\UserAuthorizationController;
 use Darkink\AuthorizationServer\Models\AggregatedPolicy;
 use Darkink\AuthorizationServer\Models\Client;
+use Darkink\AuthorizationServer\Models\ClientPolicy;
 use Darkink\AuthorizationServer\Models\Group;
 use Darkink\AuthorizationServer\Models\GroupPolicy;
 use Darkink\AuthorizationServer\Models\Permission;
@@ -52,6 +53,7 @@ class Policy
     public static $groupPolicyModel = GroupPolicy::class;
     public static $rolePolicyModel = RolePolicy::class;
     public static $userPolicyModel = UserPolicy::class;
+    public static $clientPolicyModel = ClientPolicy::class;
     public static $aggregatedPolicyModel = AggregatedPolicy::class;
     public static $clientModel = Client::class;
     public static $oauthClientModel = OAuthClient::class;
@@ -375,6 +377,26 @@ class Policy
     }
 
     #endregion
+
+    #region clientPolicy
+
+    public static function useClientPolicyModel($clientPolicyModel)
+    {
+        static::$clientPolicyModel = $clientPolicyModel;
+    }
+
+    public static function clientPolicyModel()
+    {
+        return static::$clientPolicyModel;
+    }
+
+    public static function clientPolicy(): ClientPolicy
+    {
+        return new static::$clientPolicyModel;
+    }
+
+    #endregion
+
 
     #region aggregatedPolicy
 

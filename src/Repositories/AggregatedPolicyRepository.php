@@ -47,7 +47,7 @@ class AggregatedPolicyRepository
 
         if ($policy instanceof AggregatedPolicy) {
             foreach ($policy->policies as $child) {
-                if (!$this->checkCircualReferences($child->policy, $visitedPolicies)) {
+                if (!$this->checkCircualReferences($child->policy->parent, $visitedPolicies)) {
                     return false;
                 }
             }
@@ -103,7 +103,7 @@ class AggregatedPolicyRepository
 
             $policy->policies()->saveMany($policies);
 
-            $this->checkValidation($policy);
+            $this->checkValidation($policy->parent);
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;
@@ -130,7 +130,7 @@ class AggregatedPolicyRepository
             /** @var \Illuminate\Support\Collection $policies */
             $policy->policies()->sync(is_array($policies) ? $policies : $policies->map(fn ($p) => $p->id)->toArray());
 
-            $this->checkValidation($policy);
+            $this->checkValidation($policy->parent);
         } catch (Exception $e) {
             DB::rollBack();
             throw $e;

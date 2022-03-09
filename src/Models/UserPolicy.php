@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 /**
  * @property User[] $users
  */
-class UserPolicy extends Policy
+class UserPolicy extends BaseModel
 {
     use HasFactory;
 
