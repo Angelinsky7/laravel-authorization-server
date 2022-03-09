@@ -33,6 +33,8 @@ class DefaultEvaluatorService implements IEvaluatorService
     {
         $request->permission_resource_scope_items = $this->_getPermissionResourceScopeItems($request);
 
+        //TODO(demarco): if client enforcement is disabled we should only get all resources...
+
         /** @var Collection @permissions */
         $permissions = $request->client->all_permissions ? AuthorizationServerPolicy::permission()->all() : $request->client->permissions;
         /** @var Permission $permission */
@@ -137,7 +139,7 @@ class DefaultEvaluatorService implements IEvaluatorService
                     $result->results[] = new EvaluationItem($value->key->id, $value->key->name, $distinct_scopes);
                 }
                 break;
-            case DecisionStrategy::Unanimous:
+            case DecisionStrategy::Consensus:
                 throw new Error('NotImplementedException');
                 break;
         }
@@ -149,7 +151,6 @@ class DefaultEvaluatorService implements IEvaluatorService
     {
         /** @var bool | null $permission_decision */
         $permission_decision = null;
-        //TODO(demarco): We should also use this here PolicyEnforcement::Permissive:
 
         /** @var KeyValuePair[] $policy_result Policy/bool */
         $policy_result = [];
@@ -174,51 +175,41 @@ class DefaultEvaluatorService implements IEvaluatorService
 
             */
 
+        foreach ($permission->policies as $policy) {
+            if (!$request->cache->hasPolicyCache($policy)) {
+                $policy_evaluated = false;
 
-        if ($request->client->policy_enforcement == PolicyEnforcement::Disable) {
-            //TODO(demarco): Add a way to have a correct DISABLED_POLICY const from the config
-            define("DISABLED_POLICY", (new Policy())->forceFill([
-                'id' => -1,
-                'name' => 'DISABLED_POLICY'
-            ]));
-            $policy_result[] = new KeyValuePair(DISABLED_POLICY, true);
-        } else {
-            foreach ($permission->policies as $policy) {
-                if (!$request->cache->hasPolicyCache($policy)) {
-                    // $policy_evaluated = false;
-
-                    // switch ($request->client->policy_enforcement) {
-                    //     case PolicyEnforcement::Enforcing:
-                    $policy_evaluated = $policy->policy->evaluate($request);
-                    //     break;
-                    // case PolicyEnforcement::Permissive:
-                    //     $policy_evaluated = true;
-                    //     break;
-                    // }
-
-                    $request->cache->addPolicyCache($policy, $policy_evaluated);
+                switch ($request->client->policy_enforcement) {
+                    case PolicyEnforcement::Enforcing:
+                        $policy_evaluated = $policy->policy->evaluate($request);
+                        break;
+                    case PolicyEnforcement::Permissive:
+                        $policy_evaluated = true;
+                        break;
                 }
-                $evaluator = $request->cache->getPolicyCacheWithoutNullable($policy);
-                $policy_result[] = new KeyValuePair($policy, $evaluator);
 
-                if ($evaluator) {
-                    ++$permission_pass;
-                } else {
-                    ++$permission_refuse;
-                }
+                $request->cache->addPolicyCache($policy, $policy_evaluated);
             }
+            $evaluator = $request->cache->getPolicyCacheWithoutNullable($policy);
+            $policy_result[] = new KeyValuePair($policy, $evaluator);
 
-            switch ($permission->decision_strategy) {
-                case DecisionStrategy::Affirmative:
-                    $permission_decision = $permission_pass > 0;
-                    break;
-                case DecisionStrategy::Consensus:
-                    $permission_decision = ($permission_pass - $permission_refuse) > 0;
-                    break;
-                case DecisionStrategy::Unanimous:
-                    $permission_decision = $permission_pass > 0 && $permission_refuse == 0;
-                    break;
+            if ($evaluator) {
+                ++$permission_pass;
+            } else {
+                ++$permission_refuse;
             }
+        }
+
+        switch ($permission->decision_strategy) {
+            case DecisionStrategy::Affirmative:
+                $permission_decision = $permission_pass > 0;
+                break;
+            case DecisionStrategy::Consensus:
+                $permission_decision = ($permission_pass - $permission_refuse) > 0;
+                break;
+            case DecisionStrategy::Unanimous:
+                $permission_decision = $permission_pass > 0 && $permission_refuse == 0;
+                break;
         }
 
         $request->evaluator_results->addPermission($permission, new PermissionDecision($permission_decision, $policy_result));
@@ -258,7 +249,7 @@ class DefaultEvaluatorService implements IEvaluatorService
     /** @var Permission[] @permissions */
     private function _filterPermissions(EvaluatorRequest $request, array $permissions)
     {
-        if (count(array_filter($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resource_name == null)) > 0) {
+        if(array_any($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resource_name == null)){
             return $permissions;
         }
 
@@ -385,7 +376,8 @@ class DefaultEvaluatorService implements IEvaluatorService
                 $regex = wildcardToRegex($permission->resource_type);
                 if (!isNullOrEmptyString($regex)) {
                     $compatible_resources =  array_filter($all_client_resources, fn (Resource $p) => preg_match($regex, $p->type));
-                    $scopes_to_add = array_map(fn (Resource $p) => $p->scopes, $compatible_resources);
+                    $scopes_to_add = array_map(fn (Resource $p) => $p->scopes()->get()->all(), $compatible_resources);
+                    $scopes_to_add = array_flatten($scopes_to_add);
                     $scopes_to_add = array_distinct($scopes_to_add, fn (Scope $p) => $p->id);
                     array_push($result, ...$scopes_to_add);
                 }

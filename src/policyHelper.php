@@ -33,6 +33,13 @@ function array_distinct(array $src, callable $callable): array
 }
 
 /**
+ * Flatten the array
+ */
+function array_flatten(array $src){
+    return array_merge(...array_values($src));
+}
+
+/**
  * Check if an array contains a least on of callable item
  */
 function array_any(array $src, callable $callable): bool {
@@ -45,7 +52,6 @@ function array_any(array $src, callable $callable): bool {
 function array_count(array $src, callable $callable): bool {
     return count(array_filter($src, $callable));
 }
-
 
 /**
  * Group items of array by a callback and a field selector
