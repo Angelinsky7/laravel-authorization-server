@@ -44,7 +44,7 @@ class TimePolicyRepository
     //     ];
     // }
 
-    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DateTime $not_before, DateTime $not_after, TimeRange $day_of_month, TimeRange $month, TimeRange $year, TimeRange $hour, TimeRange $minute): TimePolicy
+    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DateTime | null $not_before, DateTime | null $not_after, TimeRange | null $day_of_month, TimeRange | null $month, TimeRange | null $year, TimeRange | null $hour, TimeRange | null $minute): TimePolicy
     {
         DB::beginTransaction();
 
@@ -78,7 +78,7 @@ class TimePolicyRepository
         return $policy;
     }
 
-    public function update(TimePolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DateTime $not_before, DateTime $not_after, TimeRange $day_of_month, TimeRange $month, TimeRange $year, TimeRange $hour, TimeRange $minute): TimePolicy
+    public function update(TimePolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DateTime | null $not_before, DateTime | null $not_after, TimeRange | null $day_of_month, TimeRange | null $month, TimeRange | null $year, TimeRange | null $hour, TimeRange | null $minute): TimePolicy
     {
         DB::beginTransaction();
 

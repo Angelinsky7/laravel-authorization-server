@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
  * @property string $description
  * @property PolicyLogic logic
  * @property Permission[] permissions
- * @property GroupPolicy | RolePolicy | UserPolicy | AggregatedPolicy $policy
+ * @property GroupPolicy | RolePolicy | UserPolicy | ClientPolicy | TimePolicy | AggregatedPolicy $policy
  */
 class Policy extends BaseModel
 {
