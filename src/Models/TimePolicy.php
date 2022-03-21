@@ -55,7 +55,7 @@ class TimePolicy extends BaseModel
 
     public function evaluate(EvaluatorRequest $request)
     {
-        //TODO(demarco): this is not correct
+        //TODO(demarco): this is not correctly implemented
         $request->result = false;
         return $this->parent->evaluate($request);
     }
