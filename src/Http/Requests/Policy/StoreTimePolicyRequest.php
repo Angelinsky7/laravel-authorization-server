@@ -17,8 +17,8 @@ class StoreTimePolicyRequest extends StorePolicyRequest
         return array_merge(
             parent::rules(),
             [
-                'not_before' => ['nullable', 'date_format:d/m/Y', 'before:not_after'],
-                'not_after' => ['nullable', 'date_format:d/m/Y', 'after:not_before'],
+                'not_before' => ['nullable', 'date', 'before:not_after'],
+                'not_after' => ['nullable', 'date', 'after:not_before'],
                 'day_of_month' => [new IsTimeRange()],
                 'month' => [new IsTimeRange()],
                 'year' => [new IsTimeRange()],

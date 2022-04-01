@@ -12,7 +12,6 @@ class CreateTimePolicyTable extends Migration
     public function __construct()
     {
         $this->schema = Schema::connection($this->getConnection());
-
     }
 
     /**
@@ -28,6 +27,40 @@ class CreateTimePolicyTable extends Migration
                 ->references('id')
                 ->on('uma_policies')
                 ->onDelete('cascade');
+
+            $table->dateTime('not_before')->nullable();
+            $table->dateTime('not_after')->nullable();
+
+            $table->unsignedBigInteger('day_of_month_id')->nullable();
+            $table->foreign('day_of_month_id')
+                ->references('id')
+                ->on('uma_timeranges')
+                ->onDelete('cascade');
+
+            $table->unsignedBigInteger('month_id')->nullable();
+            $table->foreign('month_id')
+                ->references('id')
+                ->on('uma_timeranges')
+                ->onDelete('cascade');
+
+            $table->unsignedBigInteger('year_id')->nullable();
+            $table->foreign('year_id')
+                ->references('id')
+                ->on('uma_timeranges')
+                ->onDelete('cascade');
+
+            $table->unsignedBigInteger('hour_id')->nullable();
+            $table->foreign('hour_id')
+                ->references('id')
+                ->on('uma_timeranges')
+                ->onDelete('cascade');
+
+            $table->unsignedBigInteger('minute_id')->nullable();
+            $table->foreign('minute_id')
+                ->references('id')
+                ->on('uma_timeranges')
+                ->onDelete('cascade');
+
             $table->primary(['id']);
         });
     }
@@ -46,6 +79,4 @@ class CreateTimePolicyTable extends Migration
     {
         return config('policy.storage.database.connection');
     }
-
-
 }
