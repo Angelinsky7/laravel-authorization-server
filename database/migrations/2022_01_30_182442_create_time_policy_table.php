@@ -35,31 +35,31 @@ class CreateTimePolicyTable extends Migration
             $table->foreign('day_of_month_id')
                 ->references('id')
                 ->on('uma_timeranges')
-                ->onDelete('cascade');
+                ->onDelete('restrict');
 
             $table->unsignedBigInteger('month_id')->nullable();
             $table->foreign('month_id')
                 ->references('id')
                 ->on('uma_timeranges')
-                ->onDelete('cascade');
+                ->onDelete('restrict');
 
             $table->unsignedBigInteger('year_id')->nullable();
             $table->foreign('year_id')
                 ->references('id')
                 ->on('uma_timeranges')
-                ->onDelete('cascade');
+                ->onDelete('restrict');
 
             $table->unsignedBigInteger('hour_id')->nullable();
             $table->foreign('hour_id')
                 ->references('id')
                 ->on('uma_timeranges')
-                ->onDelete('cascade');
+                ->onDelete('restrict');
 
             $table->unsignedBigInteger('minute_id')->nullable();
             $table->foreign('minute_id')
                 ->references('id')
                 ->on('uma_timeranges')
-                ->onDelete('cascade');
+                ->onDelete('restrict');
 
             $table->primary(['id']);
         });

@@ -8,6 +8,7 @@ use Darkink\AuthorizationServer\Models\TimeRange;
 use Darkink\AuthorizationServer\Policy;
 use DateTime;
 use Exception;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 
 class TimePolicyRepository
@@ -44,6 +45,26 @@ class TimePolicyRepository
     //     ];
     // }
 
+    protected function saveOrUpdateTimerange(TimeRange | null $timerange, TimeRange | null $policyModel, BelongsTo $policyRelation, TimePolicy $timePolicy)
+    {
+        if ($timerange != null && ($timerange->from != null && $timerange->to != null)) {
+            if ($policyModel != null) {
+                $policyModel->forceFill([
+                    'from' => $timerange->from,
+                    'to' => $timerange->to
+                ]);
+                $policyModel->save();
+            } else {
+                $timerange->save();
+                $policyRelation->associate($timerange);
+            }
+        } else if ($policyModel != null) {
+            $policyRelation->dissociate($policyModel);
+            $timePolicy->save();
+            $policyModel->delete();
+        }
+    }
+
     public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DateTime | null $not_before, DateTime | null $not_after, TimeRange | null $day_of_month, TimeRange | null $month, TimeRange | null $year, TimeRange | null $hour, TimeRange | null $minute): TimePolicy
     {
         DB::beginTransaction();
@@ -61,11 +82,13 @@ class TimePolicyRepository
                 'not_after' => $not_after
             ]);
             $policy->parent()->save($parent);
+
             $policy->day_of_month()->associate($day_of_month);
             $policy->month()->associate($month);
             $policy->year()->associate($year);
             $policy->hour()->associate($hour);
             $policy->minute()->associate($minute);
+
             $policy->save();
             // $policy->users()->saveMany($users);
         } catch (Exception $e) {
@@ -93,7 +116,12 @@ class TimePolicyRepository
                 'not_before' => $not_before,
                 'not_after' => $not_after
             ]);
-            $policy->month()->associate($month);
+
+            $this->saveOrUpdateTimerange($day_of_month, $policy->day_of_month, $policy->day_of_month(), $policy);
+            $this->saveOrUpdateTimerange($month, $policy->month, $policy->month(), $policy);
+
+            // $policy->day_of_month()->associate($day_of_month);
+            // $policy->month()->associate($month);
             $policy->year()->associate($year);
             $policy->hour()->associate($hour);
             $policy->minute()->associate($minute);
@@ -113,6 +141,31 @@ class TimePolicyRepository
 
     public function delete(TimePolicy $policy)
     {
-        $this->policyRepository->delete($policy->parent);
+        DB::beginTransaction();
+
+        try {
+            $this->policyRepository->delete($policy->parent);
+
+            if ($policy->day_of_month != null) {
+                $policy->day_of_month->delete();
+            }
+            if ($policy->month != null) {
+                $policy->month->delete();
+            }
+            if ($policy->year != null) {
+                $policy->year->delete();
+            }
+            if ($policy->hour != null) {
+                $policy->hour->delete();
+            }
+            if ($policy->minute != null) {
+                $policy->minute->delete();
+            }
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        DB::commit();
     }
 }
