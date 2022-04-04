@@ -83,11 +83,11 @@ class TimePolicyRepository
             ]);
             $policy->parent()->save($parent);
 
-            $policy->day_of_month()->associate($day_of_month);
-            $policy->month()->associate($month);
-            $policy->year()->associate($year);
-            $policy->hour()->associate($hour);
-            $policy->minute()->associate($minute);
+            $this->saveOrUpdateTimerange($day_of_month, $policy->day_of_month, $policy->day_of_month(), $policy);
+            $this->saveOrUpdateTimerange($month, $policy->month, $policy->month(), $policy);
+            $this->saveOrUpdateTimerange($year, $policy->year, $policy->year(), $policy);
+            $this->saveOrUpdateTimerange($hour, $policy->hour, $policy->hour(), $policy);
+            $this->saveOrUpdateTimerange($minute, $policy->minute, $policy->minute(), $policy);
 
             $policy->save();
             // $policy->users()->saveMany($users);
@@ -119,12 +119,10 @@ class TimePolicyRepository
 
             $this->saveOrUpdateTimerange($day_of_month, $policy->day_of_month, $policy->day_of_month(), $policy);
             $this->saveOrUpdateTimerange($month, $policy->month, $policy->month(), $policy);
+            $this->saveOrUpdateTimerange($year, $policy->year, $policy->year(), $policy);
+            $this->saveOrUpdateTimerange($hour, $policy->hour, $policy->hour(), $policy);
+            $this->saveOrUpdateTimerange($minute, $policy->minute, $policy->minute(), $policy);
 
-            // $policy->day_of_month()->associate($day_of_month);
-            // $policy->month()->associate($month);
-            $policy->year()->associate($year);
-            $policy->hour()->associate($hour);
-            $policy->minute()->associate($minute);
             $policy->save();
 
             /** @var \Illuminate\Support\Collection $users */
