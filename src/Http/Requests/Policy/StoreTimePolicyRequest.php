@@ -21,11 +21,11 @@ class StoreTimePolicyRequest extends StorePolicyRequest
             [
                 'not_before' => ['nullable', 'date', new BeforeOrNull('not_after')],
                 'not_after' => ['nullable', 'date', new AfterOrNull('not_before')],
-                'day_of_month' => [new IsTimeRange()],
-                'month' => [new IsTimeRange()],
-                'year' => [new IsTimeRange()],
-                'hour' => [new IsTimeRange()],
-                'minute' => [new IsTimeRange()]
+                'day_of_month' => [new IsTimeRange(1, 31)],
+                'month' => [new IsTimeRange(1, 12)],
+                'year' => [new IsTimeRange(1900, 2100)],
+                'hour' => [new IsTimeRange(0, 23)],
+                'minute' => [new IsTimeRange(0, 59)]
             ]
         );
     }

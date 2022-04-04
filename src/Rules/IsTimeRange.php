@@ -9,17 +9,19 @@ use phpDocumentor\Reflection\PseudoTypes\False_;
 
 class IsTimeRange extends IsModelRule implements Rule
 {
-
     use DatabaseRule;
 
-    public function __construct()
+    protected int | null $min;
+    protected int | null $max;
+
+    public function __construct(int | null $min = null, int | null $max = null)
     {
+        $this->min = $min;
+        $this->max = $max;
     }
 
     public function passes($attribute, $value)
     {
-    //    $id = $this->getId($value, 'id');
-
         $validator = Validator::make([
             'timerange' => $value
         ], [
@@ -27,6 +29,18 @@ class IsTimeRange extends IsModelRule implements Rule
             'timerange.from' => 'nullable|required_with:timerange.to|integer|lt:timerange.to',
             'timerange.to' => 'nullable|required_with:timerange.from|integer|gt:timerange.from'
         ]);
+
+        if ($this->min != null) {
+            $validator->sometimes(['timerange.from', 'timerange.to'], [
+                "min:$this->min"
+            ], fn ($p) => true);
+        }
+
+        if ($this->max != null) {
+            $validator->sometimes(['timerange.from', 'timerange.to'], [
+                "max:$this->max"
+            ], fn ($p) => true);
+        }
 
         return $validator->fails() === false;
     }
@@ -38,6 +52,17 @@ class IsTimeRange extends IsModelRule implements Rule
      */
     public function message()
     {
-        return 'The :attribute is not a valid timerange.';
+        $result = 'The :attribute is not a valid timerange.';
+        if ($this->min != null) {
+            $result = $result . " (min: $this->min";
+            $result = $result . ($this->max == null ? ')' : ', ');
+        }
+        if ($this->max != null) {
+            if ($this->min == null) {
+                $result = $result . " (";
+            }
+            $result = $result . "max: $this->max)";
+        }
+        return $result;
     }
 }
