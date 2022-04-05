@@ -92,7 +92,6 @@ class EvaluatorController
                 break;
         }
 
-        return 'opk';
         return null;
     }
 }
