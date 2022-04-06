@@ -37,6 +37,7 @@ class StoreClientRequest extends FormRequest
             'decision_strategy' => ['required', new Enum(DecisionStrategy::class)],
             'permission_splitter' => 'required|string|min:1|max:1',
             'analyse_mode_enabled' => 'nullable|boolean',
+            'json_mode_enabled' => 'nullable|boolean',
             'all_resources' => 'nullable|boolean',
             'all_scopes' => 'nullable|boolean',
             'all_roles' => 'nullable|boolean',

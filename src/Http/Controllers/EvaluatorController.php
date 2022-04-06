@@ -7,6 +7,7 @@ use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluatorRequest as EvaluatorE
 use Darkink\AuthorizationServer\Helpers\KeyValuePair;
 use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluatorRequest;
 use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluatorRequestResponseMode;
+use Darkink\AuthorizationServer\Http\Resources\AuthorizationResource;
 use Darkink\AuthorizationServer\Repositories\ClientRepository;
 use Darkink\AuthorizationServer\Services\IEvaluatorService;
 use Illuminate\Validation\ValidationException;
@@ -39,6 +40,16 @@ class EvaluatorController
             throw $error;
         }
 
+        $client_id_request = $validated['client_id'];
+        $client_id_token = $request->user()->token()['client_id'];
+
+        if ($client_id_request != $client_id_token) {
+            $error = ValidationException::withMessages([
+                'client' => ["clientId given ($client_id_token) is not the same as the clientId is the token ($client_id_request)"],
+            ]);
+            throw $error;
+        }
+
         $evaluatorRequest = new EvaluatorEvaluatorRequest($client, $request->user(), $validated['permission'] ?? []);
         $this->evaluator->evaluate($evaluatorRequest);
         $evaluation = $this->evaluator->buildEvaluation($evaluatorRequest);
@@ -53,9 +64,9 @@ class EvaluatorController
                         if ($request_permission->resource_name != null && $request_permission->scope_name == null) {
                             $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => $p->key == $request_permission->resource_name);
                         } elseif ($request_permission->resource_name != null && $request_permission->scope_name != null) {
-                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => $p->key == $request_permission->resource_name && array_any($p->value, fn (EvaluationItem $a) => array_any($a->scopes, fn(string $m) => $m == $request_permission->scope_name)));
+                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => $p->key == $request_permission->resource_name && array_any($p->value, fn (EvaluationItem $a) => array_any($a->scopes, fn (string $m) => $m == $request_permission->scope_name)));
                         } elseif ($request_permission->resource_name == null && $request_permission->scope_name != null) {
-                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => array_any($p->value, fn (EvaluationItem $a) => array_any($a->scopes, fn(string $m) => $m == $request_permission->scope_name)));
+                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => array_any($p->value, fn (EvaluationItem $a) => array_any($a->scopes, fn (string $m) => $m == $request_permission->scope_name)));
                         } else {
                             $error = ValidationException::withMessages([
                                 'resource' => ["Requested resource is empty"],
@@ -64,17 +75,19 @@ class EvaluatorController
                         }
                     }
 
-                    return [
-                        'client_id' => $client->id,
+                    return new AuthorizationResource([
+                        'aud' => $client->id,
+                        'sub' => $request->user()->id,
                         'results' => array_count($granted, fn ($p) => !$p) == 0
-                    ];
+                    ], $client->json_mode_enabled);
                 }
                 break;
             case EvaluatorRequestResponseMode::PERMISSIONS: {
-                    return [
-                        'client_id' => $client->oauth->id,
-                        'results' => $evaluation->results_only_with_scopes()
-                    ];
+                    return new AuthorizationResource([
+                        'aud' => $client->oauth->id,
+                        'sub' => $request->user()->id,
+                        'permissions' => $evaluation->results_only_with_scopes()
+                    ], $client->json_mode_enabled);
                 }
                 break;
             case EvaluatorRequestResponseMode::ANALYSE: {

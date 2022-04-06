@@ -3,11 +3,14 @@
 namespace Darkink\AuthorizationServer\Http\Controllers;
 
 use Darkink\AuthorizationServer\Policy;
+use Darkink\AuthorizationServer\Services\DiscoverService;
 use Error;
 use Illuminate\Http\Request;
 
 class DiscoverController
 {
+
+    protected DiscoverService $discoverService;
 
     private $_publicKeyType = [
         0 => 'rsa',
@@ -16,6 +19,11 @@ class DiscoverController
         4 => 'ec'
     ];
 
+    public function __construct(DiscoverService $discoverService)
+    {
+        $this->discoverService = $discoverService;
+    }
+
     public function index(Request $request)
     {
         $host = $request->getSchemeAndHttpHost();
@@ -23,8 +31,8 @@ class DiscoverController
         return [
             'issuer' => $host, //TODO(demarco): Could be an issuer field
             'jwks_uri' => route('policy.discovery.jwks'),
-            'role_endpoint' => route('api.policy.role.index'),
-            'permission_endpoint' => route('api.policy.permission.index'),
+            // 'role_endpoint' => route('api.policy.role.index'),
+            // 'permission_endpoint' => route('api.policy.permission.index'),
             'authorization_endpoint' => route('api.policy.authorization.index'),
 
             //TODO(demarco): Should be parameterized AND used in the application

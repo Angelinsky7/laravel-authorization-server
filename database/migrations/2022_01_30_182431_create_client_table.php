@@ -35,6 +35,7 @@ class CreateClientTable extends Migration
             $table->enum('policy_enforcement', array_slice(array_column(PolicyEnforcement::cases(), 'value'), 1))->default(PolicyEnforcement::Enforcing->value);
             $table->enum('decision_strategy', array_slice(array_column(DecisionStrategy::cases(), 'value'), 1))->default(DecisionStrategy::Affirmative->value); //TODO(demarco): we should remove Consensus
             $table->boolean('analyse_mode_enabled')->default(false);
+            $table->boolean('json_mode_enabled')->default(false);
             $table->char('permission_splitter', 1)->default('#');
             $table->boolean('all_resources')->default(true);
             $table->boolean('all_scopes')->default(true);

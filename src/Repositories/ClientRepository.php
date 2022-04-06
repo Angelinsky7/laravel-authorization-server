@@ -66,6 +66,7 @@ class ClientRepository
         DecisionStrategy | int $decision_strategy,
         string $permission_splitter,
         bool $analyse_mode_enabled,
+        bool $json_mode_enabled,
         bool $all_resources,
         bool $all_scopes,
         bool $all_roles,
@@ -83,13 +84,14 @@ class ClientRepository
             $oauth = Policy::oauthClient()->forceFill([
                 'name' => $name,
                 'user_id' => $user_id,
-                'secret' => Hash::make($secret),
+                // 'secret' => Hash::make($secret),
                 'provider' => $provider,
                 'redirect' => $redirect,
                 'personal_access_client' => $personal_access_client,
                 'password_client' => $password_client,
                 'revoked' => $revoked,
             ]);
+            $oauth->setSecretAttribute($secret);
             $oauth->save();
 
             $client = Policy::client()->forceFill([
@@ -104,6 +106,7 @@ class ClientRepository
                 'decision_strategy' => $decision_strategy,
                 'permission_splitter' => $permission_splitter,
                 'analyse_mode_enabled' => $analyse_mode_enabled,
+                'json_mode_enabled' => $json_mode_enabled,
                 'all_resources' => $all_resources,
                 'all_scopes' => $all_scopes,
                 'all_roles' => $all_roles,
@@ -146,6 +149,7 @@ class ClientRepository
         DecisionStrategy | int $decision_strategy,
         string $permission_splitter,
         bool $analyse_mode_enabled,
+        bool $json_mode_enabled,
         bool $all_resources,
         bool $all_scopes,
         bool $all_roles,
@@ -172,7 +176,8 @@ class ClientRepository
                 'revoked' => $revoked,
             ]);
             if ($secret != null) {
-                $oauth->secret = Hash::make($secret);
+                // $oauth->secret = Hash::make($secret);
+                $oauth->setSecretAttribute($secret);
             }
             $oauth->save();
 
@@ -187,6 +192,7 @@ class ClientRepository
                 'decision_strategy' => $decision_strategy,
                 'permission_splitter' => $permission_splitter,
                 'analyse_mode_enabled' => $analyse_mode_enabled,
+                'json_mode_enabled' => $json_mode_enabled,
                 'all_resources' => $all_resources,
                 'all_scopes' => $all_scopes,
                 'all_roles' => $all_roles,

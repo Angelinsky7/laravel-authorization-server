@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Date;
  * @property PolicyEnforcement $policy_enforcement
  * @property DecisionStrategy $decision_strategy
  * @property bool $analyse_mode_enabled
+ * @property bool $json_mode_enabled
  * @property string $permission_splitter
  * @property bool $all_resources
  * @property Resource[] $resources
@@ -45,6 +46,7 @@ class Client extends BaseModel
         'enabled' => 'boolean',
         'require_client_secret' => 'boolean',
         'analyse_mode_enabled' => 'boolean',
+        'json_mode_enabled' => 'boolean',
         'all_resources' => 'boolean',
         'all_scopes' => 'boolean',
         'all_roles' => 'boolean',
@@ -63,6 +65,11 @@ class Client extends BaseModel
         'all_groups' => true,
         'all_policies' => true,
         'all_permissions' => true,
+    ];
+
+    protected $hidden = [
+        'secret',
+        'secrets',
     ];
 
     public function secrets()

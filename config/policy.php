@@ -2,6 +2,18 @@
 
 return [
 
+     /*
+    |--------------------------------------------------------------------------
+    | Configuration Options
+    |--------------------------------------------------------------------------
+    */
+
+    'token_iss' => env('POLICY_TOKEN_ISS'),
+
+    'token_alg' => env('POLICY_TOKEN_ALG'),
+
+    'token_expiration' => env('POLICY_TOKEN_EXPIRATION'),
+
     /*
     |--------------------------------------------------------------------------
     | Encryption Keys
