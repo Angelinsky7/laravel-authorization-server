@@ -55,6 +55,24 @@ class DefaultEvaluatorService implements IEvaluatorService
         return self::$_DEFAULT_EMPTY_RESOURCE;
     }
 
+    private static Permission | null $_DEFAULT_ALL_RESOURCE_PERMISSION = null;
+    protected static function DEFAULT_ALL_RESOURCE_PERMISSION()
+    {
+        if (self::$_DEFAULT_ALL_RESOURCE_PERMISSION == null) {
+            self::$_DEFAULT_ALL_RESOURCE_PERMISSION = new Permission();
+            self::$_DEFAULT_ALL_RESOURCE_PERMISSION->forceFill([
+                'id' => -1,
+                'name' => 'Default All Resource Permission',
+                'decision_strategy' => DecisionStrategy::Affirmative
+            ]);
+            self::$_DEFAULT_ALL_RESOURCE_PERMISSION->permission = new ResourcePermission();
+            self::$_DEFAULT_ALL_RESOURCE_PERMISSION->permission->forceFill([
+                'resource_type' => '*'
+            ]);
+        }
+        return self::$_DEFAULT_ALL_RESOURCE_PERMISSION;
+    }
+
 
     public function Evaluate(EvaluatorRequest $request): EvaluatorRequest
     {
@@ -63,7 +81,7 @@ class DefaultEvaluatorService implements IEvaluatorService
         //TODO(demarco): if client enforcement is disabled we should only get all resources...
 
         /** @var Collection @permissions */
-        $permissions = $request->client->all_permissions ? AuthorizationServerPolicy::permission()->all() : $request->client->permissions;
+        $permissions = $this->_getPermissions($request);
         /** @var Permission $permission */
         foreach ($this->_filterPermissions($request, $permissions->all()) as $permission) {
             $this->_evaluatePermission($permission, $request);
@@ -72,6 +90,14 @@ class DefaultEvaluatorService implements IEvaluatorService
         $request->resource_scope_results = $this->_getResouceScopeResults($request);
 
         return $request;
+    }
+
+    private function _getPermissions(EvaluatorRequest $request)
+    {
+        if ($request->client->policy_enforcement == PolicyEnforcement::Disable) {
+            return new Collection([self::DEFAULT_ALL_RESOURCE_PERMISSION()]);
+        }
+        return $request->client->all_permissions ? AuthorizationServerPolicy::permission()->all() : $request->client->permissions;
     }
 
     public function buildEvaluationAnalyse(EvaluatorRequest $request): EvaluationAnalyse
@@ -109,32 +135,57 @@ class DefaultEvaluatorService implements IEvaluatorService
                         }
                     }
                 }
-            }
 
-            if ($analyse_item != null) {
-                $evaluation_analyse_permission_item = new EvaluationAnalysePermissionItem(
-                    $permission_decision_key_typed->id,
-                    $permission_decision_key_typed->name,
-                    $permission_decision_key_typed->decision_strategy->name,
-                    $permission_decision_value_typed->result,
-                    array_map(fn ($p) => $p->name, $scopes)
-                );
-
-                foreach ($permission_decision_value_typed->policies as $policy) {
-                    /** @var Policy @$policy_key_typed */
-                    $policy_key_typed = $policy->key;
-                    /** @var bool $policy_value_typed */
-                    $policy_value_typed = $policy->value;
-
-                    $evaluation_analyse_permission_item->policies[] = new EvaluationAnalysePolicyItem(
-                        $policy_key_typed->id,
-                        $policy_key_typed->name,
-                        $policy_value_typed
+                if ($analyse_item != null) {
+                    $evaluation_analyse_permission_item = new EvaluationAnalysePermissionItem(
+                        $permission_decision_key_typed->id,
+                        $permission_decision_key_typed->name,
+                        $permission_decision_key_typed->decision_strategy->name,
+                        $permission_decision_value_typed->result,
+                        array_map(fn ($p) => $p->name, $scopes)
                     );
-                }
 
-                $analyse_item->permissions[] = $evaluation_analyse_permission_item;
+                    foreach ($permission_decision_value_typed->policies as $policy) {
+                        /** @var Policy @$policy_key_typed */
+                        $policy_key_typed = $policy->key;
+                        /** @var bool $policy_value_typed */
+                        $policy_value_typed = $policy->value;
+
+                        $evaluation_analyse_permission_item->policies[] = new EvaluationAnalysePolicyItem(
+                            $policy_key_typed->id,
+                            $policy_key_typed->name,
+                            $policy_value_typed
+                        );
+                    }
+
+                    $analyse_item->permissions[] = $evaluation_analyse_permission_item;
+                }
             }
+
+            // if ($analyse_item != null) {
+            //     $evaluation_analyse_permission_item = new EvaluationAnalysePermissionItem(
+            //         $permission_decision_key_typed->id,
+            //         $permission_decision_key_typed->name,
+            //         $permission_decision_key_typed->decision_strategy->name,
+            //         $permission_decision_value_typed->result,
+            //         array_map(fn ($p) => $p->name, $scopes)
+            //     );
+
+            //     foreach ($permission_decision_value_typed->policies as $policy) {
+            //         /** @var Policy @$policy_key_typed */
+            //         $policy_key_typed = $policy->key;
+            //         /** @var bool $policy_value_typed */
+            //         $policy_value_typed = $policy->value;
+
+            //         $evaluation_analyse_permission_item->policies[] = new EvaluationAnalysePolicyItem(
+            //             $policy_key_typed->id,
+            //             $policy_key_typed->name,
+            //             $policy_value_typed
+            //         );
+            //     }
+
+            //     $analyse_item->permissions[] = $evaluation_analyse_permission_item;
+            // }
         }
 
         return $analyse;
@@ -207,28 +258,22 @@ class DefaultEvaluatorService implements IEvaluatorService
 
                 */
 
-            foreach ($permission->policies as $policy) {
-                if (!$request->cache->hasPolicyCache($policy)) {
-                    $policy_evaluated = false;
-
-                    switch ($request->client->policy_enforcement) {
-                        case PolicyEnforcement::Enforcing:
-                            $policy_evaluated = $policy->policy->evaluate($request);
-                            break;
-                        case PolicyEnforcement::Permissive:
-                            $policy_evaluated = true;
-                            break;
+            if ($request->client->policy_enforcement == PolicyEnforcement::Permissive && count($permission->policies) == 0) {
+                $permission_pass = 1;
+            } else {
+                foreach ($permission->policies as $policy) {
+                    if (!$request->cache->hasPolicyCache($policy)) {
+                        $policy_evaluated = $policy->policy->evaluate($request);
+                        $request->cache->addPolicyCache($policy, $policy_evaluated);
                     }
+                    $evaluator = $request->cache->getPolicyCacheWithoutNullable($policy);
+                    $policy_result[] = new KeyValuePair($policy, $evaluator);
 
-                    $request->cache->addPolicyCache($policy, $policy_evaluated);
-                }
-                $evaluator = $request->cache->getPolicyCacheWithoutNullable($policy);
-                $policy_result[] = new KeyValuePair($policy, $evaluator);
-
-                if ($evaluator) {
-                    ++$permission_pass;
-                } else {
-                    ++$permission_refuse;
+                    if ($evaluator) {
+                        ++$permission_pass;
+                    } else {
+                        ++$permission_refuse;
+                    }
                 }
             }
 
@@ -318,8 +363,8 @@ class DefaultEvaluatorService implements IEvaluatorService
     /** @var Scope[] $scopes */
     private function _filterScopesWithAvailableResourceScope(Resource $resource, array $scopes)
     {
-        $scope_ids = array_map(fn(Scope $p) => $p->id, $scopes);
-        return array_filter($resource->scopes()->get()->all(), fn(Scope $p) => in_array($p->id, $scope_ids));
+        $scope_ids = array_map(fn (Scope $p) => $p->id, $scopes);
+        return array_filter($resource->scopes()->get()->all(), fn (Scope $p) => in_array($p->id, $scope_ids));
     }
 
     private function _getResouceScopeResults(EvaluatorRequest $request)
@@ -394,7 +439,7 @@ class DefaultEvaluatorService implements IEvaluatorService
         }
 
         if (count($result) == 0) {
-            //TODO(demarco): add an empty resouce that reprents no resources....
+            //TODO(demarco): add an empty resouce that reprents no resources.... not sure it's the correct solution their
             $result[] = self::DEFAULT_EMPTY_RESOURCE();
         }
 
