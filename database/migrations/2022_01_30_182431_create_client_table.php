@@ -27,7 +27,7 @@ class CreateClientTable extends Migration
             $table->id('id');
             $table->char('oauth_id', 36);
             $table->boolean('enabled');
-            $table->string('client_id')->unique();
+            // $table->string('client_id')->unique();
             $table->boolean('require_client_secret');
             $table->string('client_name')->unique();
             $table->string('description')->nullable();

@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Date;
 /**
  * @property-read int $id
  * @property bool $enabled
- * @property string $client_id
+//  * @property string $client_id
  * @property Secret[] $secrets
  * @property bool $require_client_secret
  * @property string $client_name

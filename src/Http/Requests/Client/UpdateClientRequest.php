@@ -17,7 +17,7 @@ class UpdateClientRequest extends StoreClientRequest
             parent::rules(),
             [
                 'name' => ['required', Rule::unique('oauth_clients')->ignore($this->client), 'string'],
-                'client_id' => ['required', Rule::unique('uma_clients')->ignore($this->client, 'oauth_id'), 'string'],
+                // 'client_id' => ['required', Rule::unique('uma_clients')->ignore($this->client, 'oauth_id'), 'string'],
                 'client_name' => ['required', Rule::unique('uma_clients')->ignore($this->client, 'oauth_id'), 'string'],
                 'secret' => 'nullable|string|min:10',
                 'password_client' => 'nullable|string|min:10',

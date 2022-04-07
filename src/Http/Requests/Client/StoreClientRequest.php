@@ -28,7 +28,7 @@ class StoreClientRequest extends FormRequest
             'password_client' => 'nullable|boolean',
             'revoked' => 'nullable|boolean',
             'enabled' => 'nullable|boolean',
-            'client_id' => 'required|string|unique:uma_clients',
+            // 'client_id' => 'required|string|unique:uma_clients',
             'require_client_secret' => 'nullable|boolean',
             'client_name' => 'required|string|unique:uma_clients',
             'description' => 'required|string',
