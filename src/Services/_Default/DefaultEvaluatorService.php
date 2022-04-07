@@ -29,6 +29,33 @@ use Illuminate\Support\Collection;
 class DefaultEvaluatorService implements IEvaluatorService
 {
 
+    private static Policy | null $_DEFAULT_POLICY_CLIENT_DISABLED = null;
+    protected static function DEFAULT_POLICY_CLIENT_DISABLED()
+    {
+        if (self::$_DEFAULT_POLICY_CLIENT_DISABLED == null) {
+            self::$_DEFAULT_POLICY_CLIENT_DISABLED = new Policy();
+            self::$_DEFAULT_POLICY_CLIENT_DISABLED->forceFill([
+                'id' => -1,
+                'name' => 'Default Accept All Policy'
+            ]);
+        }
+        return self::$_DEFAULT_POLICY_CLIENT_DISABLED;
+    }
+
+    private static Resource | null $_DEFAULT_EMPTY_RESOURCE = null;
+    protected static function DEFAULT_EMPTY_RESOURCE()
+    {
+        if (self::$_DEFAULT_EMPTY_RESOURCE == null) {
+            self::$_DEFAULT_EMPTY_RESOURCE = new Resource();
+            self::$_DEFAULT_EMPTY_RESOURCE->forceFill([
+                'id' => -1,
+                'name' => 'Default Empty Resource'
+            ]);
+        }
+        return self::$_DEFAULT_EMPTY_RESOURCE;
+    }
+
+
     public function Evaluate(EvaluatorRequest $request): EvaluatorRequest
     {
         $request->permission_resource_scope_items = $this->_getPermissionResourceScopeItems($request);
@@ -158,58 +185,64 @@ class DefaultEvaluatorService implements IEvaluatorService
         $permission_pass = 0;
         $permission_refuse = 0;
 
-        //TODO(demarco): THIS IS NOT CORRECT :::: We must try to respect this !!!!
-        /*
+        if ($request->client->policy_enforcement == PolicyEnforcement::Disable) {
+            $permission_decision = true;
+            $policy_result[] = new KeyValuePair(self::DEFAULT_POLICY_CLIENT_DISABLED(), true);
+        } else {
 
-            Policy Enforcement Mode
-            Specifies how policies are enforced when processing authorization requests sent to the server.
+            //TODO(demarco): THIS IS NOT CORRECT :::: We must try to respect this !!!!
+            /*
 
-                Enforcing
-                (default mode) Requests are denied by default even when there is no policy associated with a given resource.
+                Policy Enforcement Mode
+                Specifies how policies are enforced when processing authorization requests sent to the server.
 
-                Permissive
-                Requests are allowed even when there is no policy associated with a given resource.
+                    Enforcing
+                    (default mode) Requests are denied by default even when there is no policy associated with a given resource.
 
-                Disabled
-                Disables the evaluation of all policies and allows access to all resources.
+                    Permissive
+                    Requests are allowed even when there is no policy associated with a given resource.
 
-            */
+                    Disabled
+                    Disables the evaluation of all policies and allows access to all resources.
 
-        foreach ($permission->policies as $policy) {
-            if (!$request->cache->hasPolicyCache($policy)) {
-                $policy_evaluated = false;
+                */
 
-                switch ($request->client->policy_enforcement) {
-                    case PolicyEnforcement::Enforcing:
-                        $policy_evaluated = $policy->policy->evaluate($request);
-                        break;
-                    case PolicyEnforcement::Permissive:
-                        $policy_evaluated = true;
-                        break;
+            foreach ($permission->policies as $policy) {
+                if (!$request->cache->hasPolicyCache($policy)) {
+                    $policy_evaluated = false;
+
+                    switch ($request->client->policy_enforcement) {
+                        case PolicyEnforcement::Enforcing:
+                            $policy_evaluated = $policy->policy->evaluate($request);
+                            break;
+                        case PolicyEnforcement::Permissive:
+                            $policy_evaluated = true;
+                            break;
+                    }
+
+                    $request->cache->addPolicyCache($policy, $policy_evaluated);
                 }
+                $evaluator = $request->cache->getPolicyCacheWithoutNullable($policy);
+                $policy_result[] = new KeyValuePair($policy, $evaluator);
 
-                $request->cache->addPolicyCache($policy, $policy_evaluated);
+                if ($evaluator) {
+                    ++$permission_pass;
+                } else {
+                    ++$permission_refuse;
+                }
             }
-            $evaluator = $request->cache->getPolicyCacheWithoutNullable($policy);
-            $policy_result[] = new KeyValuePair($policy, $evaluator);
 
-            if ($evaluator) {
-                ++$permission_pass;
-            } else {
-                ++$permission_refuse;
+            switch ($permission->decision_strategy) {
+                case DecisionStrategy::Affirmative:
+                    $permission_decision = $permission_pass > 0;
+                    break;
+                case DecisionStrategy::Consensus:
+                    $permission_decision = ($permission_pass - $permission_refuse) > 0;
+                    break;
+                case DecisionStrategy::Unanimous:
+                    $permission_decision = $permission_pass > 0 && $permission_refuse == 0;
+                    break;
             }
-        }
-
-        switch ($permission->decision_strategy) {
-            case DecisionStrategy::Affirmative:
-                $permission_decision = $permission_pass > 0;
-                break;
-            case DecisionStrategy::Consensus:
-                $permission_decision = ($permission_pass - $permission_refuse) > 0;
-                break;
-            case DecisionStrategy::Unanimous:
-                $permission_decision = $permission_pass > 0 && $permission_refuse == 0;
-                break;
         }
 
         $request->evaluator_results->addPermission($permission, new PermissionDecision($permission_decision, $policy_result));
@@ -249,7 +282,7 @@ class DefaultEvaluatorService implements IEvaluatorService
     /** @var Permission[] @permissions */
     private function _filterPermissions(EvaluatorRequest $request, array $permissions)
     {
-        if(array_any($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resource_name == null)){
+        if (array_any($request->permission_resource_scope_items, fn (PermissionResourceScopeItem $p) => $p->resource_name == null)) {
             return $permissions;
         }
 
@@ -282,6 +315,13 @@ class DefaultEvaluatorService implements IEvaluatorService
         return $result;
     }
 
+    /** @var Scope[] $scopes */
+    private function _filterScopesWithAvailableResourceScope(Resource $resource, array $scopes)
+    {
+        $scope_ids = array_map(fn(Scope $p) => $p->id, $scopes);
+        return array_filter($resource->scopes()->get()->all(), fn(Scope $p) => in_array($p->id, $scope_ids));
+    }
+
     private function _getResouceScopeResults(EvaluatorRequest $request)
     {
         $resource_scope_results = [];
@@ -291,7 +331,8 @@ class DefaultEvaluatorService implements IEvaluatorService
             $scopes = $this->_getScopes($request, $permissions_decision->key->permission);
 
             foreach ($resources as $resource) {
-                foreach ($this->_filterScopes($request, $resource, $scopes) as $scope) {
+                $compatible_with_resource_scopes = $this->_filterScopesWithAvailableResourceScope($resource, $scopes);
+                foreach ($this->_filterScopes($request, $resource, $compatible_with_resource_scopes) as $scope) {
                     $hash = ResourceScopeResult::getHash($permissions_decision->key, $resource, $scope);
                     if (!array_key_exists($hash, $resource_scope_results)) {
                         $resource_scope_results[$hash] = new ResourceScopeResult($permissions_decision->key, $resource, $scope);
@@ -315,7 +356,7 @@ class DefaultEvaluatorService implements IEvaluatorService
                     $scope_result->granted = $scope_result->granted_count > 0;
                     break;
                 case DecisionStrategy::Unanimous:
-                    $scope_result->granted = $scope_result->denied_count == 0;
+                    $scope_result->granted = $scope_result->granted_count > 0 && $scope_result->denied_count == 0;
                     break;
                 case DecisionStrategy::Consensus:
                     //NOTE(demarco): are you sure of that statment ?? NOT PRESENT IN original design....
@@ -354,6 +395,7 @@ class DefaultEvaluatorService implements IEvaluatorService
 
         if (count($result) == 0) {
             //TODO(demarco): add an empty resouce that reprents no resources....
+            $result[] = self::DEFAULT_EMPTY_RESOURCE();
         }
 
         return $result;
@@ -383,9 +425,10 @@ class DefaultEvaluatorService implements IEvaluatorService
                 }
             }
         } else if ($permission instanceof ScopePermission) {
-            if ($permission->resource != null) {
-                array_push($result, ...$permission->scopes);
+            if ($permission->resource == null) {
+                throw new Error("Invalid ScopePermission ({$permission->parent->name}), resource is mandatory.");
             }
+            array_push($result, ...$permission->scopes);
         }
 
         return $result;

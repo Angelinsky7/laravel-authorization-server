@@ -8,8 +8,8 @@ use Darkink\AuthorizationServer\Helpers\KeyValuePair;
 function wildcardToRegex(string $src): string
 {
     $pattern = $src;
-    $pattern = str_replace('\*', '.*', $pattern);
-    $pattern = str_replace('\?', '.', $pattern);
+    $pattern = str_replace('*', '.*', $pattern);
+    $pattern = str_replace('?', '.', $pattern);
 
     return "/^$pattern$/i";
 }
