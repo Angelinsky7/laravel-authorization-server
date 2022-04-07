@@ -59,7 +59,7 @@ class ClientRepository
         bool $enabled,
         // string $client_id,
         bool $require_client_secret,
-        string $client_name,
+        // string $client_name,
         string $description,
         string $client_uri,
         PolicyEnforcement | int $policy_enforcement,
@@ -69,9 +69,9 @@ class ClientRepository
         bool $json_mode_enabled,
         bool $all_resources,
         bool $all_scopes,
-        bool $all_roles,
-        bool $all_groups,
-        bool $all_policies,
+        // bool $all_roles,
+        // bool $all_groups,
+        // bool $all_policies,
         bool $all_permissions,
         mixed $permissions
     ): Client {
@@ -99,7 +99,7 @@ class ClientRepository
                 'enabled' => $enabled,
                 // 'client_id' => $client_id,
                 'require_client_secret' => $require_client_secret,
-                'client_name' => $client_name,
+                // 'client_name' => $client_name,
                 'description' => $description,
                 'client_uri' => $client_uri,
                 'policy_enforcement' => $policy_enforcement,
@@ -109,9 +109,9 @@ class ClientRepository
                 'json_mode_enabled' => $json_mode_enabled,
                 'all_resources' => $all_resources,
                 'all_scopes' => $all_scopes,
-                'all_roles' => $all_roles,
-                'all_groups' => $all_groups,
-                'all_policies' => $all_policies,
+                // 'all_roles' => $all_roles,
+                // 'all_groups' => $all_groups,
+                // 'all_policies' => $all_policies,
                 'all_permissions' => $all_permissions
             ]);
             $client->save();
@@ -142,7 +142,7 @@ class ClientRepository
         bool $enabled,
         // string $client_id,
         bool $require_client_secret,
-        string $client_name,
+        // string $client_name,
         string $description,
         string $client_uri,
         PolicyEnforcement | int $policy_enforcement,
@@ -152,9 +152,9 @@ class ClientRepository
         bool $json_mode_enabled,
         bool $all_resources,
         bool $all_scopes,
-        bool $all_roles,
-        bool $all_groups,
-        bool $all_policies,
+        // bool $all_roles,
+        // bool $all_groups,
+        // bool $all_policies,
         bool $all_permissions,
         mixed $permissions
     ): Client {
@@ -185,7 +185,7 @@ class ClientRepository
                 'enabled' => $enabled,
                 // 'client_id' => $client_id,
                 'require_client_secret' => $require_client_secret,
-                'client_name' => $client_name,
+                // 'client_name' => $client_name,
                 'description' => $description,
                 'client_uri' => $client_uri,
                 'policy_enforcement' => $policy_enforcement,
@@ -195,9 +195,9 @@ class ClientRepository
                 'json_mode_enabled' => $json_mode_enabled,
                 'all_resources' => $all_resources,
                 'all_scopes' => $all_scopes,
-                'all_roles' => $all_roles,
-                'all_groups' => $all_groups,
-                'all_policies' => $all_policies,
+                // 'all_roles' => $all_roles,
+                // 'all_groups' => $all_groups,
+                // 'all_policies' => $all_policies,
                 'all_permissions' => $all_permissions
             ]);
             $client->save();

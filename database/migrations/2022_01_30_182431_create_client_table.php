@@ -29,7 +29,7 @@ class CreateClientTable extends Migration
             $table->boolean('enabled');
             // $table->string('client_id')->unique();
             $table->boolean('require_client_secret');
-            $table->string('client_name')->unique();
+            // $table->string('client_name')->unique();
             $table->string('description')->nullable();
             $table->string('client_uri');
             $table->enum('policy_enforcement', array_slice(array_column(PolicyEnforcement::cases(), 'value'), 1))->default(PolicyEnforcement::Enforcing->value);
@@ -39,9 +39,9 @@ class CreateClientTable extends Migration
             $table->char('permission_splitter', 1)->default('#');
             $table->boolean('all_resources')->default(true);
             $table->boolean('all_scopes')->default(true);
-            $table->boolean('all_roles')->default(true);
-            $table->boolean('all_groups')->default(true);
-            $table->boolean('all_policies')->default(true);
+            // $table->boolean('all_roles')->default(true);
+            // $table->boolean('all_groups')->default(true);
+            // $table->boolean('all_policies')->default(true);
             $table->boolean('all_permissions')->default(true);
             $table->timestamps();
 
