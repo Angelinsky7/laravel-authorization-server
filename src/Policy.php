@@ -4,6 +4,7 @@ namespace Darkink\AuthorizationServer;
 
 use App\Models\User;
 use App\Models\Client as OAuthClient;
+use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluatorRequest;
 use Darkink\AuthorizationServer\Helpers\FlashMessage;
 use Darkink\AuthorizationServer\Helpers\FlashMessageSize;
 use Darkink\AuthorizationServer\Http\Controllers\ApiRoleController;
@@ -26,8 +27,14 @@ use Darkink\AuthorizationServer\Models\Scope;
 use Darkink\AuthorizationServer\Models\ScopePermission;
 use Darkink\AuthorizationServer\Models\TimePolicy;
 use Darkink\AuthorizationServer\Models\UserPolicy;
+use Darkink\AuthorizationServer\Services\_Default\DefaultCache;
+use Darkink\AuthorizationServer\Services\_Default\DefaultEvaluatorService;
+use Darkink\AuthorizationServer\Services\Caching\CachingEvaluatorService;
+use Darkink\AuthorizationServer\Services\ICache;
+use Darkink\AuthorizationServer\Services\IEvaluatorService;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
@@ -136,6 +143,51 @@ class Policy
                 throw $error;
             });
         }
+    }
+
+    public static function registerDefaultServices()
+    {
+        self::registerDefaultEvaluatorService();
+        // $this->registerAuthorizationServer();
+        // $this->registerRoleRepository();
+        // $this->registerPermissionRepository();
+    }
+
+    public static function registerCachingServices()
+    {
+        self::registerCachingEvaluatorService();
+        // $this->registerAuthorizationServer();
+        // $this->registerRoleRepository();
+        // $this->registerPermissionRepository();
+    }
+
+    protected static function registerDefaultEvaluatorService()
+    {
+        App::bind(IEvaluatorService::class, DefaultEvaluatorService::class);
+    }
+
+    protected static function registerCachingEvaluatorService()
+    {
+        App::when(CachingEvaluatorService::class)
+            ->needs(IEvaluatorService::class)
+            ->give(DefaultEvaluatorService::class);
+        App::when(CachingEvaluatorService::class)
+            ->needs(ICache::class)
+            ->give(fn () => new DefaultCache(EvaluatorRequest::class));
+        App::bind(IEvaluatorService::class, CachingEvaluatorService::class);
+    }
+
+    protected static function registerAuthorizationServer()
+    {
+    }
+
+    // protected function registerRoleRepository()
+    // {
+    //     $this->app->singleton(RoleRepository::class);
+    // }
+
+    protected static function registerPermissionRepository()
+    {
     }
 
     public static function gates()

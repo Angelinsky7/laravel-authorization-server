@@ -3,7 +3,9 @@
 namespace Darkink\AuthorizationServer;
 
 use Darkink\AuthorizationServer\Policy;
+use Darkink\AuthorizationServer\Services\_Default\DefaultCache;
 use Darkink\AuthorizationServer\Services\_Default\DefaultEvaluatorService;
+use Darkink\AuthorizationServer\Services\ICache;
 use Darkink\AuthorizationServer\Services\IEvaluatorService;
 use Darkink\AuthorizationServer\Services\KeyHelperService;
 use Darkink\AuthorizationServer\View\Components\ButtonCancel;
@@ -71,16 +73,12 @@ class PolicyServiceProvider extends ServiceProvider
         }
     }
 
-    public function register()
-    {
+    public function register(){
         $this->mergeConfigFrom(__DIR__ . '/../config/policy.php', 'policy');
 
         $this->registerKeyHelperService();
         $this->registerBearerTokenDecoderService();
-        $this->registerEvaluatorService();
-        // $this->registerAuthorizationServer();
-        // $this->registerRoleRepository();
-        // $this->registerPermissionRepository();
+        $this->registerCacheService();
     }
 
     protected function registerKeyHelperService()
@@ -97,22 +95,9 @@ class PolicyServiceProvider extends ServiceProvider
         $this->app->singleton(BearerTokenDecoderService::class);
     }
 
-    protected function registerEvaluatorService()
+    protected function registerCacheService()
     {
-        $this->app->bind(IEvaluatorService::class, DefaultEvaluatorService::class);
-    }
-
-    protected function registerAuthorizationServer()
-    {
-    }
-
-    // protected function registerRoleRepository()
-    // {
-    //     $this->app->singleton(RoleRepository::class);
-    // }
-
-    protected function registerPermissionRepository()
-    {
+        $this->app->bind(ICache::class, DefaultCache::class);
     }
 
     protected function registerHelpers()
