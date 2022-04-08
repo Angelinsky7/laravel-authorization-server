@@ -13,6 +13,8 @@ use Darkink\AuthorizationServer\Helpers\Evaluator\PermissionDecision;
 use Darkink\AuthorizationServer\Helpers\Evaluator\PermissionResourceScopeItem;
 use Darkink\AuthorizationServer\Helpers\Evaluator\ResourceScopeResult;
 use Darkink\AuthorizationServer\Helpers\KeyValuePair;
+use Darkink\AuthorizationServer\Http\Requests\Evaluator\EvaluatorRequestResponseMode;
+use Darkink\AuthorizationServer\Http\Resources\AuthorizationResource;
 use Darkink\AuthorizationServer\Models\DecisionStrategy;
 use Darkink\AuthorizationServer\Models\Permission;
 use Darkink\AuthorizationServer\Models\Policy;
@@ -25,6 +27,7 @@ use Darkink\AuthorizationServer\Policy as AuthorizationServerPolicy;
 use Darkink\AuthorizationServer\Services\IEvaluatorService;
 use Error;
 use Illuminate\Support\Collection;
+use Illuminate\Validation\ValidationException;
 
 class DefaultEvaluatorService implements IEvaluatorService
 {
@@ -73,6 +76,66 @@ class DefaultEvaluatorService implements IEvaluatorService
         return self::$_DEFAULT_ALL_RESOURCE_PERMISSION;
     }
 
+    public function hanlde(EvaluatorRequest $request, EvaluatorRequestResponseMode $response_mode): AuthorizationResource | array | null {
+        $client = $request->client;
+        $user = $request->user;
+
+        $this->evaluate($request);
+        $evaluation = $this->buildEvaluation($request);
+
+        switch ($response_mode) {
+            case EvaluatorRequestResponseMode::DECISION: {
+                    /** @var bool[] */
+                    $granted = [];
+                    $group_by_resources = array_group($evaluation->results, fn (EvaluationItem $p) => $p->rs_name);
+
+                    foreach ($request->permission_resource_scope_items as $request_permission) {
+                        if ($request_permission->resource_name != null && $request_permission->scope_name == null) {
+                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => $p->key == $request_permission->resource_name);
+                        } elseif ($request_permission->resource_name != null && $request_permission->scope_name != null) {
+                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => $p->key == $request_permission->resource_name && array_any($p->value, fn (EvaluationItem $a) => array_any($a->scopes, fn (string $m) => $m == $request_permission->scope_name)));
+                        } elseif ($request_permission->resource_name == null && $request_permission->scope_name != null) {
+                            $granted[] = array_any($group_by_resources, fn (KeyValuePair $p) => array_any($p->value, fn (EvaluationItem $a) => array_any($a->scopes, fn (string $m) => $m == $request_permission->scope_name)));
+                        } else {
+                            $error = ValidationException::withMessages([
+                                'resource' => ["Requested resource is empty"],
+                            ]);
+                            throw $error;
+                        }
+                    }
+
+                    return new AuthorizationResource([
+                        'aud' => $client->id,
+                        'sub' => $user->id,
+                        'results' => array_count($granted, fn ($p) => !$p) == 0
+                    ], $client->json_mode_enabled);
+                }
+                break;
+            case EvaluatorRequestResponseMode::PERMISSIONS: {
+                    return new AuthorizationResource([
+                        'aud' => $client->oauth->id,
+                        'sub' => $user->id,
+                        'permissions' => $evaluation->results_only_with_scopes()
+                    ], $client->json_mode_enabled);
+                }
+                break;
+            case EvaluatorRequestResponseMode::ANALYSE: {
+                    if (!$client->analyse_mode_enabled) {
+                        $error = ValidationException::withMessages([
+                            'client' => ["client does not permit Analyse. See the log."],
+                        ]);
+                        throw $error;
+                    }
+                    $analyse = $this->buildEvaluationAnalyse($request);
+                    return [
+                        'analyse' => $analyse->items
+                    ];
+                }
+                break;
+        }
+
+        return null;
+    }
 
     public function Evaluate(EvaluatorRequest $request): EvaluatorRequest
     {
