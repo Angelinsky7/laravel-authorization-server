@@ -11,20 +11,23 @@ class IsClient extends IsModelRule implements Rule
     use DatabaseRule;
 
     public string $prefix;
+    public bool $checkOauthId;
 
-    public function __construct(string $prefix = '')
+    public function __construct(string $prefix = '', bool $checkOauthId = false)
     {
         $this->prefix = $prefix;
+        $this->checkOauthId = $checkOauthId;
     }
 
     public function passes($attribute, $value)
     {
         $id = $this->getId($value, 'id');
+        $key =  $this->checkOauthId ? 'oauth_id' : 'id';
 
         $validator = Validator::make([
             'id' => $id
         ], [
-            'id' => 'exists:uma_clients,id'
+            'id' => "exists:uma_clients,{$key}"
         ]);
 
         return $validator->fails() === false;
