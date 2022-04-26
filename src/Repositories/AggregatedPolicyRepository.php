@@ -83,7 +83,7 @@ class AggregatedPolicyRepository
         ];
     }
 
-    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DecisionStrategy | int $decision_strategy, mixed $policies): AggregatedPolicy
+    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DecisionStrategy | int $decision_strategy, bool $is_system, mixed $policies): AggregatedPolicy
     {
         DB::beginTransaction();
 
@@ -92,7 +92,7 @@ class AggregatedPolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($decision_strategy, $policies));
 
-            $parent = $this->policyRepository->create($name, $description, $logic, $permissions);
+            $parent = $this->policyRepository->create($name, $description, $logic, $is_system, $permissions);
 
             $policy = Policy::aggregatedPolicy()->forceFill([
                 'id' => $parent->id,
@@ -114,7 +114,7 @@ class AggregatedPolicyRepository
         return $policy;
     }
 
-    public function update(AggregatedPolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DecisionStrategy | int $decision_strategy, mixed $policies): AggregatedPolicy
+    public function update(AggregatedPolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DecisionStrategy | int $decision_strategy, bool $is_system, mixed $policies): AggregatedPolicy
     {
         DB::beginTransaction();
 
@@ -123,7 +123,7 @@ class AggregatedPolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($decision_strategy, $policies));
 
-            $this->policyRepository->update($policy->parent, $name, $description, $logic, $permissions);
+            $this->policyRepository->update($policy->parent, $name, $description, $logic, $is_system, $permissions);
             $policy->decision_strategy = $decision_strategy->value;
             $policy->save();
 

@@ -24,8 +24,9 @@ class CreatePermissionTable extends Migration
         $this->schema->create('uma_permissions', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('description');
+            $table->string('description')->nullable();
             $table->enum('decision_strategy', array_slice(array_column(DecisionStrategy::cases(), 'value'), 1));
+            $table->boolean('is_system')->default(false);
             $table->string('discriminator');
             $table->timestamps();
         });

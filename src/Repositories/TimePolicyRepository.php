@@ -65,7 +65,7 @@ class TimePolicyRepository
         }
     }
 
-    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DateTime | null $not_before, DateTime | null $not_after, TimeRange | null $day_of_month, TimeRange | null $month, TimeRange | null $year, TimeRange | null $hour, TimeRange | null $minute): TimePolicy
+    public function create(string $name, string $description, PolicyLogic | int $logic, bool $is_system, mixed $permissions, DateTime | null $not_before, DateTime | null $not_after, TimeRange | null $day_of_month, TimeRange | null $month, TimeRange | null $year, TimeRange | null $hour, TimeRange | null $minute): TimePolicy
     {
         DB::beginTransaction();
 
@@ -74,7 +74,7 @@ class TimePolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             // extract($this->resolve($users));
 
-            $parent = $this->policyRepository->create($name, $description, $logic, $permissions);
+            $parent = $this->policyRepository->create($name, $description, $logic, $is_system, $permissions);
 
             $policy = Policy::timePolicy()->forceFill([
                 'id' => $parent->id,
@@ -101,7 +101,7 @@ class TimePolicyRepository
         return $policy;
     }
 
-    public function update(TimePolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions, DateTime | null $not_before, DateTime | null $not_after, TimeRange | null $day_of_month, TimeRange | null $month, TimeRange | null $year, TimeRange | null $hour, TimeRange | null $minute): TimePolicy
+    public function update(TimePolicy $policy, string $name, string $description, PolicyLogic | int $logic, bool $is_system, mixed $permissions, DateTime | null $not_before, DateTime | null $not_after, TimeRange | null $day_of_month, TimeRange | null $month, TimeRange | null $year, TimeRange | null $hour, TimeRange | null $minute): TimePolicy
     {
         DB::beginTransaction();
 
@@ -110,7 +110,7 @@ class TimePolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             // extract($this->resolve($users));
 
-            $this->policyRepository->update($policy->parent, $name, $description, $logic, $permissions);
+            $this->policyRepository->update($policy->parent, $name, $description, $logic, $is_system, $permissions);
 
             $policy->forceFill([
                 'not_before' => $not_before,

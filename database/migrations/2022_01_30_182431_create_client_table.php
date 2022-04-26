@@ -46,7 +46,7 @@ class CreateClientTable extends Migration
             $table->timestamps();
 
             $table->unique('oauth_id', 'uma_clients_oauth_unique');
-            $table->unique('client_id', 'uma_clients_client_unique');
+            // $table->unique('client_id', 'uma_clients_client_unique');
 
             $table->foreign('oauth_id')
                 ->references('id')

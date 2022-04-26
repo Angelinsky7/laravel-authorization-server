@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
  * @property string $name
  * @property string $description
  * @property PolicyLogic logic
+ * @property bool $is_system
  * @property Permission[] permissions
  * @property GroupPolicy | RolePolicy | UserPolicy | ClientPolicy | TimePolicy | AggregatedPolicy $policy
  */

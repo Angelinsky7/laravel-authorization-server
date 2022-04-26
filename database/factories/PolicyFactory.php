@@ -23,6 +23,7 @@ class PolicyFactory extends Factory
             'name' => 'policy_' . $this->faker->unique()->word(),
             'description' => 'Policy ' . $this->faker->word(),
             'logic' => (PolicyLogic::cases()[$this->faker->numberBetween(1, 2)])->value,
+            'is_system' => false
         ];
     }
 }

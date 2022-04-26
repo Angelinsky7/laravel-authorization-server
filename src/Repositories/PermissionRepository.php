@@ -32,6 +32,7 @@ class PermissionRepository
 
     public function gets()
     {
+        //TODO(demarco): i think we should use ->get() in this case to ensure the same behavior for each repo
         return Policy::permission()->with('permission');
     }
 
@@ -53,7 +54,7 @@ class PermissionRepository
         ];
     }
 
-    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies): Permission
+    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, bool $is_system, mixed $policies): Permission
     {
         extract($this->resolve($decision_strategy, $policies));
 
@@ -61,6 +62,7 @@ class PermissionRepository
             'name' => $name,
             'description' => $description,
             'decision_strategy' => $decision_strategy->value,
+            'is_system' => $is_system,
             'discriminator' => 'null'
         ]);
         $permission->save();
@@ -69,7 +71,7 @@ class PermissionRepository
         return $permission;
     }
 
-    public function update(Permission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies): Permission
+    public function update(Permission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, bool $is_system, mixed $policies): Permission
     {
         extract($this->resolve($decision_strategy, $policies));
 
@@ -77,6 +79,7 @@ class PermissionRepository
             'name' => $name,
             'description' => $description,
             'decision_strategy' => $decision_strategy->value,
+            'is_system' => $is_system,
         ]);
 
         $permission->save();

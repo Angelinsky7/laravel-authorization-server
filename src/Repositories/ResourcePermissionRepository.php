@@ -45,7 +45,7 @@ class ResourcePermissionRepository
         ];
     }
 
-    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies, string | null $resource_type, Resource | int | null $resource): ResourcePermission
+    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, bool $is_system, mixed $policies, string | null $resource_type, Resource | int | null $resource): ResourcePermission
     {
         DB::beginTransaction();
 
@@ -54,7 +54,7 @@ class ResourcePermissionRepository
             //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($resource));
 
-            $parent = $this->permisisonRepository->create($name, $description, $decision_strategy, $policies);
+            $parent = $this->permisisonRepository->create($name, $description, $decision_strategy, $is_system, $policies);
 
             $permission = Policy::resourcePermission()->forceFill([
                 'id' => $parent->id,
@@ -73,7 +73,7 @@ class ResourcePermissionRepository
         return $permission;
     }
 
-    public function update(ResourcePermission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies, string | null $resource_type, Resource | int | null $resource): ResourcePermission
+    public function update(ResourcePermission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, bool $is_system, mixed $policies, string | null $resource_type, Resource | int | null $resource): ResourcePermission
     {
         DB::beginTransaction();
 
@@ -82,7 +82,7 @@ class ResourcePermissionRepository
             //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($resource));
 
-            $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy, $policies);
+            $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy, $is_system, $policies);
 
             $permission->resource_type = $resource_type;
             $permission->resource()->associate($resource);

@@ -27,6 +27,7 @@ class CreatePolicyTable extends Migration
             $table->string('name')->unique();
             $table->string('description')->nullable();
             $table->enum('logic', array_slice(array_column(PolicyLogic::cases(), 'value'), 1));
+            $table->boolean('is_system')->default(false);
             $table->string('discriminator');
             $table->timestamps();
         });

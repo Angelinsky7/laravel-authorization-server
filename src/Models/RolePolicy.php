@@ -7,6 +7,7 @@ use Darkink\AuthorizationServer\Helpers\Evaluator\EvaluatorRequest;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
+ * @property Policy $parent;
  * @property Role[] $roles
  */
 class RolePolicy extends BaseModel

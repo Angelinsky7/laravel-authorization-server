@@ -43,7 +43,7 @@ class RolePolicyRepository
         ];
     }
 
-    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions, mixed $roles): RolePolicy
+    public function create(string $name, string $description, PolicyLogic | int $logic, bool $is_system, mixed $permissions, mixed $roles): RolePolicy
     {
         DB::beginTransaction();
 
@@ -52,7 +52,7 @@ class RolePolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($roles));
 
-            $parent = $this->policyRepository->create($name, $description, $logic, $permissions);
+            $parent = $this->policyRepository->create($name, $description, $logic, $is_system, $permissions);
 
             $policy = Policy::rolePolicy()->forceFill([
                 'id' => $parent->id,
@@ -70,7 +70,7 @@ class RolePolicyRepository
         return $policy;
     }
 
-    public function update(RolePolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions, mixed $roles): RolePolicy
+    public function update(RolePolicy $policy, string $name, string $description, PolicyLogic | int $logic, bool $is_system, mixed $permissions, mixed $roles): RolePolicy
     {
         DB::beginTransaction();
 
@@ -79,7 +79,7 @@ class RolePolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($roles));
 
-            $this->policyRepository->update($policy->parent, $name, $description, $logic, $permissions);
+            $this->policyRepository->update($policy->parent, $name, $description, $logic, $is_system, $permissions);
             $policy->save();
 
             /** @var \Illuminate\Support\Collection $roles */

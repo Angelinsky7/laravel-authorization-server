@@ -35,7 +35,7 @@ class PolicyRepository
         $logic = is_int($logic) ? PolicyLogic::tryFrom($logic) : $logic;
 
         if (count($permissions) != 0 && !is_object($permissions[0])) {
-            $permissions = AuthorizationServerPolicy::policy()::all()->whereIn(AuthorizationServerPolicy::policy()->getKeyName(), $permissions);
+            $permissions = AuthorizationServerPolicy::permission()->all()->whereIn(AuthorizationServerPolicy::permission()->getKeyName(), $permissions);
         }
 
         // }
@@ -46,7 +46,7 @@ class PolicyRepository
         ];
     }
 
-    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions): Policy
+    public function create(string $name, string $description, PolicyLogic | int $logic, bool $is_system, mixed $permissions): Policy
     {
         extract($this->resolve($logic, $permissions));
 
@@ -54,6 +54,7 @@ class PolicyRepository
             'name' => $name,
             'description' => $description,
             'logic' => $logic->value,
+            'is_system' => $is_system,
             'discriminator' => 'null'
         ]);
 
@@ -63,7 +64,7 @@ class PolicyRepository
         return $policy;
     }
 
-    public function update(Policy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions): Policy
+    public function update(Policy $policy, string $name, string $description, PolicyLogic | int $logic, bool $is_system,  mixed $permissions): Policy
     {
         extract($this->resolve($logic, $permissions));
 
@@ -71,11 +72,12 @@ class PolicyRepository
             'name' => $name,
             'description' => $description,
             'logic' => $logic->value,
+            'is_system' => $is_system,
         ]);
 
         $policy->save();
-         /** @var \Illuminate\Support\Collection $permissions */
-         $policy->permissions()->sync(is_array($permissions) ? $permissions : $permissions->map(fn ($p) => $p->id)->toArray());
+        /** @var \Illuminate\Support\Collection $permissions */
+        $policy->permissions()->sync(is_array($permissions) ? $permissions : $permissions->map(fn ($p) => $p->id)->toArray());
 
         return $policy;
     }

@@ -49,7 +49,7 @@ class GroupPolicyRepository
         ];
     }
 
-    public function create(string $name, string $description, PolicyLogic | int $logic, mixed $permissions, mixed $groups): GroupPolicy
+    public function create(string $name, string $description, PolicyLogic | int $logic, bool $is_system, mixed $permissions, mixed $groups): GroupPolicy
     {
         DB::beginTransaction();
 
@@ -58,7 +58,7 @@ class GroupPolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($groups));
 
-            $parent = $this->policyRepository->create($name, $description, $logic, $permissions);
+            $parent = $this->policyRepository->create($name, $description, $logic, $is_system, $permissions);
 
             $policy = Policy::groupPolicy()->forceFill([
                 'id' => $parent->id,
@@ -76,7 +76,7 @@ class GroupPolicyRepository
         return $policy;
     }
 
-    public function update(GroupPolicy $policy, string $name, string $description, PolicyLogic | int $logic, mixed $permissions, mixed $groups): GroupPolicy
+    public function update(GroupPolicy $policy, string $name, string $description, PolicyLogic | int $logic, bool $is_system, mixed $permissions, mixed $groups): GroupPolicy
     {
         DB::beginTransaction();
 
@@ -85,7 +85,7 @@ class GroupPolicyRepository
             // //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($groups));
 
-            $this->policyRepository->update($policy->parent, $name, $description, $logic, $permissions);
+            $this->policyRepository->update($policy->parent, $name, $description, $logic, $is_system, $permissions);
             $policy->save();
 
             /** @var \Illuminate\Support\Collection $groups */

@@ -49,7 +49,7 @@ class ScopePermissionRepository
         ];
     }
 
-    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies, Resource | int $resource, mixed $scopes): ScopePermission
+    public function create(string $name, string $description, DecisionStrategy | int $decision_strategy, bool $is_system, mixed $policies, Resource | int $resource, mixed $scopes): ScopePermission
     {
         DB::beginTransaction();
 
@@ -58,7 +58,7 @@ class ScopePermissionRepository
             //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($resource, $scopes));
 
-            $parent = $this->permisisonRepository->create($name, $description, $decision_strategy, $policies);
+            $parent = $this->permisisonRepository->create($name, $description, $decision_strategy, $is_system, $policies);
 
             $permission = Policy::scopePermission()->forceFill([
                 'id' => $parent->id,
@@ -77,7 +77,7 @@ class ScopePermissionRepository
         return $permission;
     }
 
-    public function update(ScopePermission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, mixed $policies, Resource | int $resource, mixed $scopes): ScopePermission
+    public function update(ScopePermission $permission, string $name, string $description, DecisionStrategy | int $decision_strategy, bool $is_system, mixed $policies, Resource | int $resource, mixed $scopes): ScopePermission
     {
         DB::beginTransaction();
 
@@ -86,7 +86,7 @@ class ScopePermissionRepository
             //TODO(demarco): this is stupid 5 lines later we use only the ids...
             extract($this->resolve($resource, $scopes));
 
-            $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy, $policies);
+            $this->permisisonRepository->update($permission->parent, $name, $description, $decision_strategy, $is_system, $policies);
             if ($resource->id != $permission->resource->id) {
                 $permission->scopes()->sync([]);
             }

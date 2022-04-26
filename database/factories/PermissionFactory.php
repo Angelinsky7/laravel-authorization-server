@@ -24,6 +24,7 @@ class PermissionFactory extends Factory
             'name' => 'perm_' . $this->faker->unique()->word(),
             'description' => 'Permission ' . $this->faker->word(),
             'decision_strategy' => (DecisionStrategy::cases()[$this->faker->numberBetween(1, 3)])->value,
+            'is_system' => false
         ];
     }
 
