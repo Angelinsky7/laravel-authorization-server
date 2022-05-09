@@ -483,7 +483,7 @@ class DefaultEvaluatorService implements IEvaluatorService
         $result = [];
 
         /** @var Resource[] */
-        $all_client_resources = $request->client->all_resources ? AuthorizationServerPolicy::resource()->all()->all() : $request->client->resources;
+        $all_client_resources = $request->client->all_resources ? AuthorizationServerPolicy::resource()->all()->all() : $request->client->resources()->get()->all();
 
         if ($permission instanceof ResourcePermission) {
             if ($permission->resource != null) {
@@ -515,7 +515,7 @@ class DefaultEvaluatorService implements IEvaluatorService
         $result = [];
 
         /** @var Resource[] */
-        $all_client_resources = $request->client->all_resources ? AuthorizationServerPolicy::resource()->all()->all() : $request->client->resources;
+        $all_client_resources = $request->client->all_resources ? AuthorizationServerPolicy::resource()->all()->all() : $request->client->resources()->get()->all();
 
         //TODO(demarco): We missing the all_scopes and the selected scope in the client...
 

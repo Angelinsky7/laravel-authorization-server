@@ -49,9 +49,9 @@ class Client extends BaseModel
         'json_mode_enabled' => 'boolean',
         'all_resources' => 'boolean',
         'all_scopes' => 'boolean',
-        'all_roles' => 'boolean',
-        'all_groups' => 'boolean',
-        'all_policies' => 'boolean',
+        // 'all_roles' => 'boolean',
+        // 'all_groups' => 'boolean',
+        // 'all_policies' => 'boolean',
         'all_permissions' => 'boolean',
     ];
 
@@ -61,9 +61,9 @@ class Client extends BaseModel
         'permission_splitter' => '#',
         'all_resources' => true,
         'all_scopes' => true,
-        'all_roles' => true,
-        'all_groups' => true,
-        'all_policies' => true,
+        // 'all_roles' => true,
+        // 'all_groups' => true,
+        // 'all_policies' => true,
         'all_permissions' => true,
     ];
 
